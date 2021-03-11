@@ -301,9 +301,12 @@ The algorithm is split into following parts:
 \item Create assumptions and subtype relation
 \item Constraint generation with \textbf{GFJTYPE}
 \item Unification of those constraints
-\item Set in a type solution
+\item Set in principal type solution
 \end{enumerate}
 
+The Unify algorithm returns a set of possible type solutions.
+This means that there are possibly multiple type solutions for each method.
+The last step has to choose the principal type out of those possibilities.
 
 \subsection{Generate Assumptions}
 % Every empty Type T in the input is assigned a type variable.
@@ -465,8 +468,7 @@ $\begin{array}{@{}l@{}l@{}l}
 \end{array}
 $
 
-
-\subsection{Completeness}
+\subsubsection{Completeness}
 Theorem: The Unify algorithm is complete
 Theorem: \textbf{GFJTYPE} generates the principal type
 Proof: The \textbf{Unify} algorithm is complete, so the principal type is included in the solution set.
