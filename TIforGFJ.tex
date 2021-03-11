@@ -100,7 +100,7 @@
 %% other information printed in the page headers. This command allows
 %% the author to define a more concise list
 %% of authors' names for this purpose.
-\renewcommand{\shortauthors}{Stadlmeier, Plümicke, Thiemann}
+\renewcommand{\shortauthors}{Stadelmeier, Plümicke, Thiemann}
 
 %%
 %% The abstract is a short summary of the work to be presented in the
@@ -728,61 +728,22 @@ then we can show that it will also be correct for the constraints $Eq$.
 %At the end we must end at the correct unifier.
 
 \begin{description}
-\item[Step 6]
+\item[Step 5 c)]
 The last step of the algorithm transforms a set of constraints $Eq$ of the the form
 
-$Eq = \set{a_1 \doteq \theta_1, \ldots , a_n \doteq \theta_n}
-\cup \set{b_1 \lessdot c_1, b_2 \doteq c_2,  \ldots}$ 
+$Eq = \set{a_1 \doteq \theta_1, \ldots , a_n \doteq \theta_n}$
 
 to the unifier $\sigma$.
+Trivial.
 
-Now we have to show that the resulting unifier $\sigma$ is correct for the $Eq$ set.
+\item[Step 5 b)]
+A unifier which is correct for $a \doteq b$ is also correct for $a \lessdot b$.
 
-For the sake of simplicity we split this step into two parts:
-\begin{enumerate}
-\item $\set{a_1 \doteq \theta_1, \ldots , a_n \doteq \theta_n}$ to unifiers: $\set{a_1 \to \theta_1, \ldots , a_n \theta_n}$
-\item $\set{b_1 \lessdot b_2, b_3 \doteq b_4,  \ldots}$ to unifiers: $\set{b_1 \mapsto \mathtt{B1}, b_2 \mapsto \mathtt{B2}, \ldots}$
-\end{enumerate}
-We look at each part as if it would be a seperate step.
-%At the end we have to show that these two parts generate distinct set of unifiers.
-
-It is easy to see that the unifiers generated in the first step are correct for the part
-of $Eq$ which contains constraints of the form: $\set{a_1 \doteq \theta_1, \ldots , a_n \doteq \theta_n}$ 
-
-Substituting each $(a \lessdot b)$ with $\set{(A \triangleleft B) , (B \triangleleft \texttt{Object})}$ is a correct unifier for the set
-$\set{b_1 \lessdot b_2, b_3 \doteq b_4,  \ldots}$.
-%Proof is trivial
-%because there are only type variables in that set which why every constraint gets replaced by \texttt{Object} for each side:\\
-%$\texttt{Oject} \lessdot \texttt{Oject}, \ \texttt{Oject} \doteq \texttt{Oject}$
-
-This is given by the way the solved form (definition \ref{def:solved-form}) and isolated type variables (definition \ref{def:isolated-type-variable}) are defined.
-
-%The first half generates a unifier for every type variable in the first part of $Eq$
-%($\set{a_1 \doteq \theta_1, \ldots , a_n \doteq \theta_n}$) and the second part respectively for the other half.
-
-%Let $Eq'_1 = \set{a \doteq \theta \ | \ a \doteq \theta \in Eq}$
-%and $Eq'_2 = \set{b \lessdot c, b_3 \doteq b_4,  \ldots}$
-
-%If the set of type variables occuring in $Eq'_1$ and the set of type variables occuring in $Eq'_2$ are distinct,
-%then also the unifiers generated in both steps are distinct and the resulting unifier is an injective function.
-
-%\begin{align*}
-%\set{a \mapsto \texttt{A} \ | \ a \in Eq \ \text{and a is an isolated type variable}}
-%\end{align*}
-
-
-%If there is a correct unifier for a constraint set  $Eq[b \to a] \cup a \lessdot \texttt{Object}$,
-%then this unifier is also correct for $Eq \cup a \lessdot b$ in solved form.
-
-%$b$ is a isolated type variable.
-
+\item[Step 5 a)]
+Trivial, we do not alter the constraint set which lateron leads to the unifier.
 
 \item[Step 4]
-Trivial, because only the isolated type variables are altered and
-a unifier which is correct for $a \doteq b$ is also correct for $a \lessdot b$.
-
-\item[Step 5]
-Neither the constraint sets nor the unifier are altered in this step.
+Trivial, the constraint sets are not altered here.
 
 \item[Step 3]
 An unifier $\sigma$ that is correct for a constraint set
