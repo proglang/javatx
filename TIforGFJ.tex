@@ -358,7 +358,7 @@ This is due to the fact that there can be multiple methods and fields with the s
     \textit{ftype}_\textit{Ass}(\texttt{f}) = \exptype{C}{\ol{X} \triangleleft \ol{N}} \to T
   }
 \end{align*}
-\item We do not include casts in the syntax and therefore remove the \texttt{GT-UCAST} and \texttt{GT-DCAST} typing rules.
+\item We do not include casts in the syntax and therefore remove the \texttt{GT-DCAST}, \texttt{GT-UCAST} and \texttt{GT-SCAST} typing rules.
 \end{enumerate}
 
 
@@ -996,6 +996,51 @@ and the \textbf{Unify} algorithm does not exclude any of the possible unifiers,
 then the result \textbf{Unify} contains the principal type solution.
 \hfill $\square$
 \end{description}
+
+\section{Examples}
+The algorithm is able to infer the types of multiple classes under specific circumstances.
+The individual classes must be given to him after one another.
+This comes with the restriction, that the first class is correct on its own and does not use any other class.
+The second class though can use the first class and so on.
+
+\begin{table}
+\caption{Two classes as input. \texttt{Class1} is infered first (shown in {\color{red}red})}
+\begin{tabular}{cc}
+\begin{lstlisting}
+class Class1 extends Object {
+  Class1() { super(); }
+  id(a){
+    return a;
+  }
+}
+class Class2 extends Class1 {
+  Class2() { 
+    super(); 
+  }
+  example(){
+    return new Class1().id(this);
+  }
+}
+\end{lstlisting}
+&
+\begin{lstlisting}
+class Class1 extends Object {
+  Class1() { super(); }
+  (*@ \textcolor{red}{<A> A} @*) id((*@ \textcolor{red}{A} @*) a){
+    return a;
+  }
+}
+class Class2 extends Class1 {
+  Class2() { 
+    super(); 
+  }
+  example(){
+    return this.id(this);
+  }
+}
+\end{lstlisting}
+\end{tabular}
+\end{table}
 
 \end{document}
 \endinput
