@@ -998,10 +998,19 @@ then the result \textbf{Unify} contains the principal type solution.
 \end{description}
 
 \section{Examples}
+
+\textbf{Example 1}\\
 The algorithm is able to infer the types of multiple classes under specific circumstances.
 The individual classes must be given to him after one another.
 This comes with the restriction, that the first class is correct on its own and does not use any other class.
-The second class though can use the first class and so on.
+The second class that gets compiled can use the first class and so on.
+
+The following example shows how the algorithm infers and compiles multiple classes iteratively.
+The class \texttt{Class1} is infered first.
+It has only one method which is the identity function,
+to which our algorithm allocates the type $\exptype{}{A}\ A \to A$.
+The next class \texttt{Class2} is now able to use this generic method.
+The blue colored types are inferred in the next iteration of our algorithm.
 
 \begin{table}
 \caption{Two classes as input. \texttt{Class1} is infered first (shown in {\color{red}red})}
@@ -1034,13 +1043,36 @@ class Class2 extends Class1 {
   Class2() { 
     super(); 
   }
-  example(){
-    return this.id(this);
+  (*@ \textcolor{blue}{Class1}@*) example(){
+    return this.(*@\textcolor{blue}{<Class1>}@*)id(this);
   }
 }
 \end{lstlisting}
 \end{tabular}
 \end{table}
+
+\textbf{Example 2}\\
+When compiling a class like the following
+we have to first split this class into two classes.
+The \texttt{TwoMethods} class can be first split into the classes \texttt{Class1}
+and \texttt{Class2} and after being processed by the type inference algorithm it can be assembled back together again.
+This leads to a principal typing.
+When using our type inference algorithm on the class \texttt{TwoMethods} alone
+it would give the method \texttt{id} the type $\texttt{TwoMethods} \to \texttt{TwoMethods}$,
+which is not the desired principal type.
+\begin{lstlisting}
+class TwoMethods extends Object {
+  TwoMethods() { super(); }
+  id(a){
+    return a;
+  }
+  example(){
+    return this.id(this);
+  }
+}
+\end{lstlisting}
+
+
 
 \end{document}
 \endinput
