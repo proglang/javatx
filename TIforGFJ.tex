@@ -156,6 +156,9 @@
 
 \section{Introduction}
 
+%This algorithm tries to find a correct solution with the existing classes.
+%It is no structural type inference like in Haskell, Flow.
+
 \section{Preliminaries}
 
 \subsection{Input assumptions}
@@ -165,7 +168,7 @@ The input is a GFJ program lacking the type assignments for method parameters an
 
 
 The Typeless Generic Featherweight Java (TGFJ) syntax is different in that from normal Generic Featherweight Java (GFJ) that it is possible
-to omit any type annotation.%, except the ones for casts and \texttt{new} calls.
+to omit the type annotations for methods.%, except the ones for casts and \texttt{new} calls.
 We declare the syntax for TGFJ as follows:
 
 \begin{align*}
@@ -183,7 +186,7 @@ We declare the syntax for TGFJ as follows:
 All type annotations in our TGFJ language can be omitted ($T = \epsilon$).
 The only exception are fields which must be given a concrete type.
 
-Another difference to the syntax of FJ is that we added the special variable \texttt{this} to the syntax.
+Another difference to the syntax of GFJ is that we added the special variable \texttt{this} to the syntax.
 FJ treats \texttt{this} as a normal variable
 but our algorithm treats it as a special variable which always has a predetermined type;
 the type of the class it is used in.
@@ -1072,7 +1075,9 @@ class TwoMethods extends Object {
 }
 \end{lstlisting}
 
-
+\section{Restrictions/Problems}
+%NP-hard
+%can not infer all possible generic methods 
 
 \end{document}
 \endinput
