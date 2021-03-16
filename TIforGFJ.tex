@@ -311,6 +311,42 @@ The Unify algorithm returns a set of possible type solutions.
 This means that there are possibly multiple type solutions for each method.
 The last step has to choose the principal type out of those possibilities.
 
+\subsection{Process multiple classes}
+The algorithm processes only one class at a time.
+Only the first step creating the type assumptions is able to consider other classes as well.
+
+Nevertheless we allow the input to consist out of multiple classes.
+But in that case there are some additional requirements for the input.
+%TODO: these requirements can also be in "Preliminaries"
+
+We assume that the algorithm are given the input classes in the correct order $C_1, \ldots C_2$.
+Hereby there must exist a correct typisation for the class $C_1$ when existing on its own.
+When there are two classes which depend on one another this would be invalid input for our algorithm.
+\begin{lstlisting}
+class C1 extends Object {
+  C1(){ super(); }
+  m1(){ return new C2(); }
+}
+class C2 extends C1{
+  C2(){ super(); }
+}
+\end{lstlisting}
+Here the class \texttt{C2} extends \texttt{C1}, but the class \texttt{C1} cannot be processed first because it already uses \texttt{C2}.
+Without the method \texttt{m1} the class \texttt{C1} would not reference any other class and stand on its own.
+\begin{lstlisting}
+  class C1 extends Object {
+    C1(){ super(); }
+  }
+  class C2 extends C1{
+    C2(){ super(); }
+    m1(){ return new C2(); }
+  }
+  \end{lstlisting}
+By moving \texttt{m1} to class \texttt{C2} we create a valid input for our algorithm.
+
+When processing the second class the first step of the algorithm (create assumptions) also considers the first and already compiled class.
+A class $C_n$ therefore can use and reference all the classes before it ($C_1, \ldots, C_{n-1}$).
+
 \subsection{Generate Assumptions}
 % Every empty Type T in the input is assigned a type variable.
 % Assumptions saves every field, method and the class subtype relation
