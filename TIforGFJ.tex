@@ -161,8 +161,41 @@
 \section{Motivation}
 % Examples 
 
-Explain difference between global type inference and local type
-inference. 
+Explain difference between global type inference and local type inference.
+
+We propose a type inference algorithm for a nominal type system with subtypes.
+
+- Type inference helps programmer to find the best suiting type.
+  - it can be hard to find a correct typisation. We want to reduce type errors which are caused by suboptimal type annotations.
+- Less work to type code.
+
+Java has some features which make type inference hard:
+- subtyping and overloading combined with a nominal type system
+  - we show NP-hardness only with those features
+- mutable state of objects and local variables
+- polymorphic recursion in method calls
+- every method can potentially call every other method all the times
+  - Method call graphs can go in circles which is not possible in Hindley-Milner type inference
+- methods have side effects
+
+
+For Generic Featherweight Java it is easier to decide because there is no state and therefore no wildcard types.
+Also we exclude polymorphic recursion.
+
+Example for local type inference in Java:
+\begin{lstlisting}{java}
+class Local{
+  todo
+}
+\end{lstlisting}
+
+Example for global type inference:
+\begin{lstlisting}
+class Global{
+  todo
+}
+\end{lstlisting}
+
 
 \subsection{Contributions}
 \label{sec:contributions}
