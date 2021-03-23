@@ -184,18 +184,33 @@ Also we exclude polymorphic recursion.
 
 Example for local type inference in Java:
 \begin{lstlisting}{java}
-class Local{
-  todo
+// Java 8 code:
+class Local {
+  // type inference sets in "ArrayList<String>()"
+  List<String> field = new ArrayList<>();
 }
 \end{lstlisting}
 
-Example for global type inference:
+\textbf{Example for global type inference:}
+Our global type inference algorithm is able to infer every type annotation.
+For the sake of simplicity we will only consider method types in this paper and assume all fields are correctly typed.
 \begin{lstlisting}
 class Global{
-  todo
+  method1(a){
+    a.add(this);
+    return a.get();
+  }
+}
+class List<A> {
+  add(A item){...}
+  A get() ...
 }
 \end{lstlisting}
-
+In \texttt{method1} neither the return type nor the type for the parameter \texttt{a} are specified.
+The return type of the method depends on the type of \texttt{a}.
+If we set in the type \texttt{List<Object>} here, then \texttt{method1} would return \texttt{Object}.
+The type \texttt{List<Global>} would also be correct.
+Then the return type of the method can also be the type \texttt{Global}.
 
 \subsection{Contributions}
 \label{sec:contributions}
