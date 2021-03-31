@@ -1,4 +1,11 @@
 auto
 *.aux
+*.blg
 *.bbl
+*.log
+*.out
+*.pdf
+*.rel
+*.synctex.gz
+
 
