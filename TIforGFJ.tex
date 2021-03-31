@@ -194,23 +194,6 @@ class Local {
 \textbf{Example for global type inference:}
 Our global type inference algorithm is able to infer every type annotation.
 For the sake of simplicity we will only consider method types in this paper and assume all fields are correctly typed.
-\begin{lstlisting}
-class Global{
-  method1(a){
-    a.add(this);
-    return a.get();
-  }
-}
-class List<A> {
-  add(A item){...}
-  A get() ...
-}
-\end{lstlisting}
-In \texttt{method1} neither the return type nor the type for the parameter \texttt{a} are specified.
-The return type of the method depends on the type of \texttt{a}.
-If we set in the type \texttt{List<Object>} here, then \texttt{method1} would return \texttt{Object}.
-The type \texttt{List<Global>} would also be correct.
-Then the return type of the method can also be the type \texttt{Global}.
 
 \subsection{Contributions}
 \label{sec:contributions}
@@ -289,84 +272,31 @@ GT-METHOD:
 \end{enumerate}
 
 \subsection{Principal Type}
-%TODO: Subtype definition:
-
-%In our input set we exclude method overloading.
-%Also every method name has to be unique.
-%These assumptions allows us to make the following definition of a principal type:
-
-GFJ supports two kinds of types;
-Type variables and nonvariable types.
-Nonvariable types have the form $\exptype{C}{\ol{T}}$ and can contain multiple type variables.
-The type $T_2 = [N/X]\exptype{C}{\ol{T}}$ is a generic instantiation,
-where all occurences of the type variable $X$ are replaced by the nonvariable type $N$.
-
-\textbf{Principal Type:}
-A nonvariable type for a declaration is a principal nonvariable type,
-if any other type-scheme for the declaration is a subtype of a generic instance
-of the type-scheme.
-
-Additionally we define the subtype relation of methods as follows:
-\begin{align*}
-\ddfrac{
-\ol{U} \ <: \ \ol{T} \quad \quad T \ <: \ U
-}{
-(\ol{T} \to T) \ <: \ (\ol{U} \to U)
-}
-\end{align*}
-
-%\begin{theoremAndi}
-%  \label{theo:uniquePrincipalType}
-%  \textbf{There is one unique principal type for any set of types}
-%\end{theoremAndi}
-
-%what about: c<A,Int>, c<Int, A> which is principal type?
-
-\begin{theoremAndi}
-  \label{theo:uniquePrincipalType}
-  \textbf{There is one unique principal type for every method}
-\end{theoremAndi}
-Proof:
-%We excluded polymorphic recursion
-%Every expression $e$ in GFJ has a definitive type.
-%%There is only one possible type our type inference algorithm can apply to any expression $e$.
-%We will show this for every kind of expression:
-%\begin{description}
-  %\item[NEW] \texttt{new} can only have one type according to the \texttt{GT-NEW} type rule.
-  %\item[Field access] A field access $e.f$ can only have one type according to the \texttt{GT-FIELD} type rule.
-  %This also applies to our typeless GFJ version, because every field name has to be unique.
-  %\item[Method call] We assume method names are also unique and cannot be overloaded.
-  %Due to this assumption and the changed \texttt{GT-METHOD} rule a method type of a method \texttt{m}
-  %is: $\textit{mtype(m, N) = \ol{T} \to T}$.
-  %%The type of the respective method call $e.m(\ldots)$ is defined by \texttt{GT-INVK} as $T$.
-  %%The return type $T$ of the method \texttt{m} is unique, because the 
-%\end{description}
-
-We exclude polymorphic recursion, remove overloading and assume every method and field name to be unique.
-Now every method $T\ \texttt{m}(\ol{T}\ \ol{x})\{\ \texttt{return}\ e;\ \}$ has one principal type.
-This is when its return type $T$ is the same type as its return expression $e$.
-For the parameter types $\ol{T}$ the principal type is chosen.
-
-\textit{Example:}
-A method \texttt{m} can have multiple possible types due to the fact that GFJ has subtypes.
-
+Generic Featherweight Java has no principal typing.
+We can show this easily with an example.
+We try to find the principal type for the method \texttt{method1}.
 \begin{lstlisting}
-class C1 {
-  C1 f;
-}
-class C2 extends C1{
-  m(x){
-    return x.f;
+class Global{
+  method1(a){
+    a.add(this);
+    return a.get();
   }
 }
+class List<A> {
+  add(A item){...}
+  A get() ...
+}
 \end{lstlisting}
-The method \texttt{m} can either have the type \texttt{C1 m(C1 x)}
-or \texttt{C1 m(C2 x)}.
-In this case the principal type would be \texttt{C1 m(C1 x)}.
-This type has the type of the return expression as its return type
-and for every parameter type it has the principal type.
-%The principal type is unique
-%No overloading, therefore no types int -> int, byte -> byte
+In \texttt{method1} neither the return type nor the type for the parameter \texttt{a} are specified.
+The return type of the method depends on the type of \texttt{a}.
+If we set in the type \texttt{List<Object>} here, then \texttt{method1} would return \texttt{Object}.
+The type \texttt{List<Global>} would also be correct.
+Then the return type of the method can also be the type \texttt{Global}.
+
+The principal type would either be an intersection type or the method \texttt{method1} has to be overloaded.
+GFJ neither supports intersection types nor overloading.
+Therefore we cannot set in the principal type and have to stick with one of the possible solutions,
+for example \texttt{List<Global> method1(List<Global> a)}.
 
 \section{Type inference algorithm}
 In this chapter we present our type inference algorithm.
