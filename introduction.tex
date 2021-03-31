@@ -1,1 +1,213 @@
-TODO
+\section{Introduction}
+\label{sec:introduction}
+
+Java is one of the most important programming languages. In 2019, Java
+was the second most popular language according to a study
+based on GitHub
+data.\footnote{\url{https://www.businessinsider.de/international/the-10-most-popular-programming-languages-according-to-github-2018-10/}} Estimates
+for the number of Java programmers range between 7.6 and 9 million
+developers.\footnote{\url{https://www.zdnet.com/article/programming-languages-python-developers-now-outnumber-java-ones/},
+\url{http://infomory.com/numbers/number-of-java-developers/}} Java
+has been around since 1995 and progressed through 16 versions.
+
+Swarms of programmers have taken their first steps in Java. Many more
+have been introduced to object-oriented programming through Java, as
+it is one of the first mainsteam languages supporting
+object-orientation. Java is a class-based language with static single inheritance among
+classes, hence it has nominal types with a specified subtyping
+hierarchy. Besides classes there are interfaces to characterize common 
+traits independent of the inheritance hierarchy. Since version XXX,
+the Java language includes generics that support F-bounded
+polymorphism.
+
+The first versions of Java are explicitly typed. That is, 
+variables, fields, method parameters, and method returns must be
+adorned with their type. Adapting an example from Featherweight Java
+\cite{DBLP:journals/toplas/IgarashiPW01} we find
+\begin{lstlisting}
+  class Pair {
+    Object fst;
+    Object snd;
+    Pair(Object fst, Object snd) {
+     this.fst=fst; this.snd=snd;
+    }
+    Pair setfst(Object newfst) {
+      return new Pair(newfst, this.snd);
+    }
+  }
+\end{lstlisting}
+Type specifications get even more tedious
+with the advent of generics.
+\begin{lstlisting}
+  class Pair<X, Y> {
+    X fst;
+    Y snd;
+    Pair<X, Y>(X fst, Y snd) {
+     this.fst=fst; this.snd=snd;
+    }
+    Pair<X,Y> setfst(X newfst) {
+      return new Pair(newfst, this.snd);
+    }
+  }  
+\end{lstlisting}
+It is common to see variable initializations like
+these in the wild:\footnote{Taken from
+  \url{https://stackoverflow.com/questions/4120216/map-of-maps-how-to-keep-the-inner-maps-as-maps/4120268}.} 
+\begin{lstlisting}
+  HashMap<String, HashMap<String, Object>> outerMap =
+    new HashMap<String, HashMap<String, Object>>();
+\end{lstlisting}
+
+Java's \emph{local variable type inference} (since version 10
+\cite{java-version-10}) deals
+satisfactorily with examples like the initialization of
+\lstinline{outerMap}. 
+In many initialization scenarios for local variables, Java infers their type
+if it is obvious from the context. In the
+example, we might write
+\begin{lstlisting}
+  var outerMap = new HashMap<String, HashMap<String, Object>>();
+\end{lstlisting}
+because the constructor of the map spells out the type in
+full. More specifically,``obvious'' means that the right side of the initialization is
+\begin{itemize}
+\item a constant of known type (e.g., a string),
+\item a constructor call, or
+\item a method call (the return type is known from the method
+  signature).
+\end{itemize}
+The \lstinline{var} declaration can also be used for an iteration
+variable where the type can be obtained from the elements of the
+container or from the initializer.
+Alternatively, if the variable is used as the method's return value,
+its type can be obtained from the current method's signature.
+
+However, there are still many places where types must be provided. In
+particular, \lstinline{var} cannot be used in place of a type for
+\begin{itemize}
+\item a field of a class,
+\item a local variable without initializer or initialized to \lstinline{NULL},
+\item a method parameter, or
+\item a method return type.
+\end{itemize}
+
+In contrast, we study \emph{global type inference} for Java. Our aim
+is to write code that omits most type annotations, except for class
+headers and field types. Returning to the \lstinline{Pair} example, we
+can write
+\begin{lstlisting}
+  class Pair<X, Y> {
+    X fst;
+    Y snd;
+    Pair(fst, snd) {
+     this.fst=fst; this.snd=snd;
+    }
+    setfst(newfst) {
+      return new Pair(newfst, this.snd);
+    }
+  }  
+\end{lstlisting}
+and global type inference fills in the rest. Our motivation for global
+type inference is threefold.
+\begin{itemize}
+\item Programmers are relieved from writing down long winded types. 
+\item Programmers often write types that leak implementation details. The
+  \lstinline{outerMap} example already provides a good example of this
+  problem. From a software engineering
+  perspective, it would be better to use an abstract type like
+  \begin{lstlisting}
+    Map<String, Map<String, Object>> outerMap = ...
+  \end{lstlisting}
+\item Programmers also write types that are more specific than
+  necessary instead of using (more verbose) generic types. Here, type
+  inference helps programmers to find the most general type.
+\todo[inline]{example?}
+\item Sometimes, it can be hard to find a correct typing at all.
+\todo[inline]{example?}
+\end{itemize}
+
+In this paper, we report a theoretical study based on Featherweight
+Generic Java \cite{DBLP:journals/toplas/IgarashiPW01} (FGJ), which is backed
+by an implementation for full Java.
+
+We proceed to give a bird's eye view of our results, leaving the
+details to Section
+Our global type inference algorithm is able to infer the types in
+method signatures (parameter types and return types) for all
+FGJ programs that specify the full class header and all field types,
+but do not make use of polymorphic recursion.
+Inferred types are generic as much as possible, but do not include bounds.
+
+
+Java has some features which make global type inference hard:
+\begin{itemize}
+\item subtyping and overloading combined with a nominal type system;
+  we show NP-hardness even without overloading,
+  \todo[inline]{correct?}
+\item mutable local variables and mutable object state,
+\item polymorphic recursion in method calls,
+\item every method can potentially call every other method all the
+  time,
+  \todo[inline]{meaning?}
+\item method call graphs can go in circles which is not possible in
+  Hindley-Milner type inference,
+  \todo[inline]{why not?}
+\item methods can have side effects.
+\end{itemize}
+
+For Generic Featherweight Java it is easier to decide because there is no state and therefore no wildcard types.
+Also we exclude polymorphic recursion.
+
+Example for local type inference in Java:
+\begin{lstlisting}{java}
+// Java 8 code:
+class Local {
+  // type inference puts in "ArrayList<String>()"
+  List<String> field = new ArrayList<>();
+}
+\end{lstlisting}
+\todo[inline]{Is this a drawback for LVTI? Does GTI put
+  \lstinline{List<String>} or \lstinline{Map} in the
+  \lstinline{outerMap} example?}
+
+\textbf{Example for global type inference:}
+Our global type inference algorithm is able to infer every type annotation.
+For the sake of simplicity we will only consider method types in this
+paper and assume that field types are specified.
+\begin{lstlisting}
+class Global{
+  method1(a){
+    a.add(this);
+    return a.get();
+  }
+}
+class List<A> {
+  add(A item){...}
+  A get() ...
+}
+\end{lstlisting}
+In \texttt{method1} neither the return type nor the type for the parameter \texttt{a} are specified.
+The return type of the method depends on the type of \texttt{a}.
+If we set in the type \texttt{List<Object>} here, then \texttt{method1} would return \texttt{Object}.
+The type \texttt{List<Global>} would also be correct.
+Then the return type of the method can also be the type
+\texttt{Global}.
+\todo[inline]{Not clear what's going on. (Not FGJ code.) If you see
+  \lstinline{a.add()}, do you assume that any class with an
+  \lstinline{add} method is a candidate for the type of \lstinline{a}?}
+
+\subsection{Contributions}
+\label{sec:contributions}
+
+\begin{itemize}
+\item Algorithm for global type inference for FGJ (which technical 
+  results: soundness, completeness?)
+\item Global type inference for FGJ is NP hard.
+\item Implementation of global type inference for (full?) Java.
+\end{itemize}
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "TIforGFJ"
+%%% End:
