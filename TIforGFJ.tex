@@ -216,7 +216,7 @@ GT-METHOD:
 \triangle \vdash S <: T \\
 \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots \} \quad \quad
 %\textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{T} \to T)
-\textit{mtype}(m, \exptype{C}{\ol{X}}) := \ol{T} \to T \\
+\ol{T} \to T  \in \textit{mtype}(m, \exptype{C}{\ol{X}}) \\
 %\textit{override}(m, N,)
 \end{array}}{
 %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
@@ -225,7 +225,7 @@ GT-METHOD:
 \end{align*}
 \end{enumerate}
 
-\subsection{Principal Type}
+\subsection{Principal Type and Intersection Types}
 Generic Featherweight Java has no principal typing.
 We can show this easily with an example.
 We try to find the principal type for the method \texttt{method1}.
@@ -250,7 +250,17 @@ Then the return type of the method can also be the type \texttt{Global}.
 The principal type would either be an intersection type or the method \texttt{method1} has to be overloaded.
 GFJ neither supports intersection types nor overloading.
 Therefore we cannot set in the principal type and have to stick with one of the possible solutions,
-for example \texttt{List<Global> method1(List<Global> a)}.
+for example\\
+\texttt{List<Global> method1(List<Global> a)}.
+
+We therefore infer intersection types for methods.
+The same method body can now have multiple return and parameter type combinations.
+
+\begin{align*}
+\textit{mtype}(\texttt{method}, \exptype{C}{\ol{X}}) = \set{ \exptype{List}{Object} \to \texttt{Object}
+\ || \ \exptype{List}{String} \to \texttt{String}} 
+\end{align*}
+
 
 \section{Type inference algorithm}
 In this chapter we present our type inference algorithm.
@@ -992,6 +1002,43 @@ and the \textbf{Unify} algorithm does not exclude any of the possible unifiers,
 then the result \textbf{Unify} contains the principal type solution.
 \hfill $\square$
 \end{description}
+
+\section{Insert principal type}
+After generating all possible unifiers in the \textbf{Unify} we can insert the principal types.
+
+\textbf{Example:}
+\begin{lstlisting}
+class Global{
+  method1(a){
+    a.add(this);
+    return a.get();
+  }
+}
+class List<A> {
+  add(A item){...}
+  A get() ...
+}
+\end{lstlisting}
+
+The method \texttt{method1} would get the type $\set{ \exptype{List}{Object} \to \texttt{Object}
+\ || \ \exptype{List}{String} \to \texttt{String}}$.
+If GFJ would support overloaded methods this could be written as:
+\begin{lstlisting}
+class Global{
+  Object method1(List<Object> a){
+    a.add(this);
+    return a.get();
+  }
+  String method1(List<String> a){
+    a.add(this);
+    return a.get();
+  }
+}
+class List<A> {
+  add(A item){...}
+  A get() ...
+}
+\end{lstlisting}
 
 \section{Examples}
 
