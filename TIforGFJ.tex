@@ -1006,6 +1006,22 @@ then the result \textbf{Unify} contains the principal type solution.
 \section{Insert principal type}
 After generating all possible unifiers in the \textbf{Unify} we can insert the principal types.
 
+\begin{align*}
+\ddfrac{
+  A\ \texttt{m}(\ol{A}\ \ol{p}) \{ \ldots \} \in M \quad \quad \texttt{class}\ \exptype{C}{\ol{X}} \{ \ldots\ M,\ \ldots\}
+}{
+  \textit{mtype}(\texttt{m}, \exptype{C}{\ol{X}}) = \set{\sigma(\ol{A}) \to \sigma(A) \,|\, \sigma \in {Uni}}
+}
+\end{align*}
+
+The \textbf{Unify} algorithm returns a set of unifiers ${Uni}$.
+Each element of that set is a correct solution.
+The unifiers $\sigma$ map type placeholders to types.
+When generating the intersection types for the methods we have to make sure that the
+type placeholders for the return type as well as for the parameter types get replaced by the same unifier $\sigma$.
+It can happen that two unifiers $\sigma_1$ and $\sigma_2$ lead to the same method type ($\sigma_1(A) = \sigma_2(A), \sigma_1(\ol A) = \sigma_2(\ol A)$).
+The set of all the distinct combinations then builds the intersection type for the method.
+
 \textbf{Example:}
 \begin{lstlisting}
 class Global{
