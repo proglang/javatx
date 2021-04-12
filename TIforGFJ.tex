@@ -352,7 +352,7 @@ This is due to the fact that there can be multiple methods and fields with the s
     class\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\ \{\ \ol{N}\ \ol{f};\ K\ \ol{M}\ \} \quad \quad
     \exptype{}{\ol{Y}}\ U\ \texttt{m}(\ol{U}\ \ol{x}) \{ \ldots \} \in \ol{M}
   }{
-    \textit{mtype}_\textit{Ass}(\texttt{m}) = \exptype{C}{\ol{X} \triangleleft \ol{N}} \to \exptype{}{\ol{Y}} (\ol{U} \to U )
+    \textit{mtype}_\textit{Ass}(\texttt{m}, \exptype{C}{\ol{X} \triangleleft \ol{N}}) =  \set{\exptype{}{\ol{Y}} (\ol{U} \to U )}
   }
 \end{align*}
 \begin{align*}
@@ -363,11 +363,22 @@ This is due to the fact that there can be multiple methods and fields with the s
     \textit{ftype}_\textit{Ass}(\texttt{f}) = \exptype{C}{\ol{X} \triangleleft \ol{N}} \to T
   }
 \end{align*}
-\item We do not include casts in the syntax and therefore remove the \texttt{GT-DCAST}, \texttt{GT-UCAST} and \texttt{GT-SCAST} typing rules.
+\item If the input for the type inference algorithm consists out of multiple classes we compile them one by one.
+Additionally we add the types of the already compiled classes to the assumption set.
+Therefore it is possible to have intersection types already in the assumptions.
 \end{enumerate}
 
 
 \subsection{GFJTYPE}
+The \textbf{GFJTYPE} algorithm produces two kinds of constraints.
+\begin{description}
+\item[Constraint] A constraint consists of two types or type variables and an operator.
+The operator can either be a $\doteq$ (same type) or $\lessdot$ (subtype).
+Example: $(a \lessdot \mathtt{Object})$, means that the type variable $a$ should be a subtype of \texttt{Object}.
+\item[OrConstraint] An OrConstraint consists out of multiple constraint sets.
+For example $\textbf{OrConstraint}(\{ \ \{ (a \lessdot b), (a \leq \mathtt{Object}) \} \ , \ \{ (a \lessdot b)\} \ \})$
+is an Or-Constraint consisting of two constraint sets.
+\end{description}
 
 The algorithm \textbf{GFJTYPE} is given as follows:
 
@@ -447,14 +458,14 @@ $\begin{array}{@{}l@{}l@{}l}
 & (rty, ConS) = \textbf{TYPEExpr}(Ass, e_r),\\
 & & \forall e_i \in \overline{e} : (pt_i, ConS_i) = \textbf{TYPEExpr}(Ass, e_i)  ,\\
 & & \textbf{fresh} = \text{a mapping from each variable in}\ \ol{X} \ \text{to a fresh type variable},\\
-& & Ass_{m} = \textit{mtype}_{Ass}(m) = \exptype{C}{\ol{X} \triangleleft \ol{N}} \to \exptype{}{\ol{Y}} (\ol{T} \to T) \\
+& & Ass_{m} =  \set{\exptype{}{\ol{Y}} (\ol{T} \to T) \,|\, \exptype{}{\ol{Y}} (\ol{T} \to T) \in \textit{mtype}(m, \exptype{C}{\ol{X}})} \\
 & & \begin{array}{@{}l@{}l}
-        Cons_{m} = \{\ & rty \doteq \exptype{C}{\textbf{fresh}(\ol{X})}, a \doteq \textbf{fresh}(T),\\
-                    & \bigcup_{T_i \in \overline{T}} (pt_i \lessdot \textbf{fresh}(T_i)) \} %, \textbf{fresh}(\ol{X}) \lessdot \textbf{fresh}(\ol{N})\},\\
+        Cons_{m} = \{\ & rty \doteq \exptype{C}{\textbf{fresh}(\ol{X})}, a \doteq \textbf{fresh}(T), \bigcup_{T_i \in \overline{T}} (pt_i \lessdot \textbf{fresh}(T_i))\\
+                    & |\, \exptype{}{\ol{Y}} (\ol{T} \to T) \in \textit{mtype}(m, \exptype{C}{\ol{X}}) \} %, \textbf{fresh}(\ol{X}) \lessdot \textbf{fresh}(\ol{N})\},\\
     \end{array}\\
 & \mathbf{in}% \\
 % &
-& (a, ConS \cup Cons_{m} \cup \bigcup_i ConS_i))\\
+& (a, ConS \cup \bigcup_i ConS_i \cup \textbf{OrConstraint}(Cons_{m}))\\
 & & \text{where\ } a \text{\ is\ a\ fresh\
   type\ variable}\\ 
 \end{array}
@@ -543,7 +554,14 @@ or fail $Uni = \emptyset$.
 %The unifiers have the form of $Uni = \{ \sigma_1, \ldots , \sigma_n \}$.
 \end{description}
 
-The algorithm starts by setting $Eq_{set} = \set{ Cons_{in} }$.
+The unify algorithm first has to build the cartesian product of all the \textbf{OrConstraint}s and the remaining normal constraints:
+\begin{align*}
+\Omega &= \text{All }\mathbf{OrConstraints} \text{ in } {Cons}_{in}\\
+C &= {Cons}_{in} \setminus \Omega \\
+Eq_{set} &= \Omega_1 \times \ldots \times \Omega_n \times C \quad \text{for all }\Omega_i \in \Omega
+\end{align*}
+
+%The algorithm starts by setting $Eq_{set} = \set{ Cons_{in} }$.
 Afterwards the following steps are repeatedly executed on $Eq_{set}$ until the algorithm termiates:
 %For every $Eq \in Eq_{set}$ the following steps are applied.
 %The resulting unifiers $\sigma$ from each $Eq$ merged together form the result of the \textbf{Unify} algorithm.
