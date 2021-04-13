@@ -1,4 +1,15 @@
+Our type inference algorithm takes typeless GFJ classes as input.
+The generated output is mostly correct GFJ, although we have to alter some rules.
+This chapter defines the typing rules for our version of GFJ,
+which our type inference algorithm is able to process.
 
+We apply following changes to the type rules of GFJ:
+\begin{itemize}
+\item Removing the \texttt{MT-CLASS}, \texttt{D-CAST}, \texttt{U-CAST}, \texttt{S-CAST} rules
+\item The \texttt{GT-METHOD} rule is changed
+\item Overriding of methods is removed
+\item The \texttt{GT-INVK} rule is changed to support intersection types
+\end{itemize}
 
 MT-CLASS: - This rule is not used by us
 \begin{align*}
@@ -97,7 +108,8 @@ GT-NEW:
 GT-INVK:
 \begin{align*}
 \ddfrac{\begin{array}{c}
-\triangle; \Gamma \vdash e_0 : T_0 \quad \quad \mathit{mtype}(m, \mathit{bound}_\triangle (T_0))=\exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{U} \to U\\
+\triangle; \Gamma \vdash e_0 : T_0 \quad \quad
+\exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{U} \to U \in \mathit{mtype}(m, \mathit{bound}_\triangle (T_0))\\
 \triangle \vdash \ol{V} \ \texttt{OK} \quad \quad
 \triangle \vdash \ol{V} <: [\ol{V}/\ol{Y}]\ol{P} \quad \quad
 \triangle; \Gamma \vdash \ol{e} : \ol{S} \quad \quad
@@ -150,7 +162,7 @@ GT-METHOD:
 \triangle ; \ol{x}:\ol{T}, this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
 \triangle \vdash S <: T \\
 \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots \} \quad \quad
-\textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{T} \to T)
+%\textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{T} \to T)
 \end{array}}
 {\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
 \end{align*}
