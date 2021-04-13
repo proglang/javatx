@@ -21,7 +21,101 @@ OOlong: an extensible concurrent object calculus. SAC 2018: 1022-1029
 Martin: unification
 The type unification problem which is addressed in section \ref{sec:unify} is
 well-known from polymorphic order-sorted unification which is used in logic
-programming languages with order-sorted types. 
+programming languages with polymorphically order-sorted types
+\cite{GS89,MH91,HiTo92,CB95}.
+
+ In \cite{GS89} the type unification problem
+is mentioned as an open problem. For the logical language \textsf{TEL} in
+\cite{GS89} an incomplete type inference algorithm is given. The incompleteness
+is caused by the fact, that subtype relationships
+of polymorphic types which have different arities  (e.g. $\texttt{List(a)} \sub
+\texttt{myLi(a,b)}$) are allowed. This leads to the property that there are
+infinite chains in the type term ordering. In \textsf{TEL} for \texttt{List(a)}
+$\,\leq\,$ \texttt{myLi(a,b)} holds: 
+
+\smallskip
+{\centering $\texttt{List(a)} \,\leq\, \texttt{myLi(a,List(a))} \,\leq\,
+\texttt{myLi(a,myLi(a,List(a)))}  \leq \ldots$\\}
+
+Caused by the invariance of Java--Types this problem arises only if wildcards
+are allowed. This means in FGJ this problem is not present.
+
+\medskip
+Nevertheless, the type unification 
+fails in some cases without infinite chains, although there is a unifier. Let
+for example $\texttt{nat} 
+\sub \texttt{int}$, and the set of inequations $\set{\mathtt{nat} \lessdot \mathtt{a}, \mathtt{int}
+  \lessdot \mathtt{a}}$ be given, then $\set{\mathtt{a} \mapsto \mathtt{nat}}$
+is determined, such that 
+$\set{\mathtt{int} \lessdot \mathtt{nat}}$ fails, although $\set{\mathtt{a}\mapsto \mathtt{int}}$ is
+a unifier. For $\set{\mathtt{int} \lessdot \mathtt{a}, \mathtt{nat} \lessdot
+  \mathtt{a}}$ the algorithm determines the correct unifier
+$\set{\mathtt{a}\mapsto \mathtt{int}}$.
+
+In the typed logic programs of \cite{HiTo92} subtype
+relationships of polymorphic types are allowed only between type
+constructors of the same arity which menas that there are no infinite chains.
+In this approach a \emph{most general type unifier (mgtu)} is
+defined as an upper bound of different principal type unifiers. In general
+there are no upper bounds of two given type terms in the type term ordering,
+which means that there is in general no mgtu in the sense of \cite{HiTo92}.
+For example for  $\texttt{nat} \sub \texttt{int}$, $\texttt{neg} 
+\sub \texttt{int}$, and the set of inequations $\set{\mathtt{nat} \lessdot
+  \mathtt{a}$, $\mathtt{neg} \lessdot \mathtt{a}}$ the mgtu $\set{\mathtt{a} \mapsto \texttt{int}}$ is
+determined. If the type term ordering is extended by $\mathtt{int} \sub
+\mathtt{index}$ and $\mathtt{int} \sub \mathtt{expr}$, then there are three
+unifiers $\set{\mathtt{a} \mapsto \texttt{int}}$, $\set{\mathtt{a} \mapsto
+  \mathtt{index}}$, and $\set{\mathtt{a} \mapsto 
+\mathtt{expr}}$, but none of them is a mgtu in the sense of \cite{HiTo92}.
+
+The type system of \textsf{PROTOS-L} \cite{CB95} was
+derived from \textsf{TEL} by disallowing any explicit subtype relationships
+between polymorphic type constructors. 
+
+In \cite{CB95}
+a complete type unification algorithm is given, which can be extended to the
+type system of \cite{HiTo92}. They solved the type unification problem for type
+term orderings following the restrictions of \textsf{PROTOS-L} respectively the
+restrictions of \cite{HiTo92}. Additionally, the result of this paper is, that
+the type unification problem is not unitary, but finitary. This means in
+general that there is more than one general type unifier. 
+
+For the above example the algorithm determines, where $\texttt{nat} \sub
+\texttt{int}$, $\texttt{neg} \sub \texttt{int}$, $\mathtt{int} \sub
+\mathtt{index}$, and $\mathtt{int} \sub \mathtt{expr}$ and the set of
+inequations $\set{\mathtt{nat} \lessdot
+  \mathtt{a}$, $\mathtt{neg} \lessdot \mathtt{a}}$ is given, the three general
+unifiers $\set{\mathtt{a} \mapsto \texttt{int}}$, $\set{\mathtt{a} \mapsto
+  \mathtt{index}}$, and $\set{\mathtt{a} \mapsto \mathtt{expr}}$. 
+
+In \cite{plue09_1} the open problem of infinite chains from \cite{GS89} was
+solved. It is showed that in any infinite chain there is a finite number of elements such that
+all other elements of the chain are instances of them which means that these
+elements are more more genaral than the other elements of the chain. This type
+unfication algorithm is used for the type inference algorithm for Java--5 with
+wildcards in \cite{Plue07_3}. As FGJ allows no wildcards we used in this paper
+a reduction  of the unification algorithm in \cite{plue09_1}.
+
+Type inference
+
+The base of many type inference algorithms is the algorithm ${\cal W}$
+that was presented by Damas and Milner \cite{DM82}. The fundamental idea
+of the algorithm is to determine types by many-sorted type term
+unification \cite{Rob65, MM82} where the unification is called for any
+application in the functional program. This is an efficient way to infer the types
+as many-sorted unification is unitary which means that there iis at most one
+most general result.  In \cite{Plue07_3} the Milner's approach is adopted
+directly to Java. This means that at any method application in the Java program
+the finitary unfication is called which means that the result sets are multiplied in
+many cases. In \cite{plue15_2} Pl\"umicke changes the approach. There 
+type constraints are collected by parsing the abstract syntax tree. After that the
+constraints are unified. The used Java-calculus in \cite{plue15_2} has
+indeed lambda expressions but there are no methods. Functions are realized by
+lambda expressions assingnd to class fields. This means that there is no
+overloading, as fields in Java cannot be overloaded.
+
+
+
 \begin{thebibliography}{5}
 \bibitem{HiTo92}
 Hill, P.M., Topor, R.W.:
