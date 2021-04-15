@@ -175,26 +175,39 @@ Our global type inference algorithm is able to infer every type annotation.
 For the sake of simplicity we will only consider method types in this
 paper and assume that field types are specified.
 \begin{lstlisting}
+class List<A> {
+  List<A> add(A item) {...}
+  A get() { ... }
+}
 class Global{
-  method1(a){
-    a.add(this);
-    return a.get();
+  m(a){
+    return a.add(this).get();
   }
 }
-class List<A> {
-  add(A item){...}
-  A get() ...
-}
 \end{lstlisting}
-In \texttt{method1} neither the return type nor the type for the parameter \texttt{a} are specified.
-The return type of the method depends on the type of \texttt{a}.
-If we set in the type \texttt{List<Object>} here, then \texttt{method1} would return \texttt{Object}.
-The type \texttt{List<Global>} would also be correct.
-Then the return type of the method can also be the type
-\texttt{Global}.
-\todo[inline]{Not clear what's going on. (Not FGJ code.) If you see
-  \lstinline{a.add()}, do you assume that any class with an
-  \lstinline{add} method is a candidate for the type of \lstinline{a}?}
+In this setting, we can safely assume that the types for the methods of the \lstinline{List} classs
+are already available, either because they are given (as in the code
+fragment) or because they were
+inferred before considering class \lstinline{Global} as inference
+proceeds in order of dependency.
+
+The method \texttt{m} in class \texttt{Global} first applies
+\texttt{add} to \texttt{a}, so the type of \texttt{a} must be
+\lstinline{List<T>}, for some \lstinline{T}. As \lstinline{this} has
+type \lstinline{Global}, it must be that \lstinline{Global} is a
+subtype of \lstinline{T}. From that we find that the return type is
+that same type \lstinline{T}.
+
+But now we are in a dilemma because there are two possibilities for
+\lstinline{T} in this program, \lstinline{Global} and
+\lstinline{Object}, and they give rise to two incomparable types for
+\lstinline{m}, \lstinline{List<Global> -> Global} and
+\lstinline{List<Object> -> Object}. So there are two different FGJ
+programs that are completions of the \lstinline{Global} class.
+
+For that reason, our inference procedure returns an intersection type
+for the method in this situation. This way, a completion can use a
+more specific type than the inferred type.
 
 \subsection{Contributions}
 \label{sec:contributions}
