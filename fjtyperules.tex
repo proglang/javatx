@@ -1,156 +1,180 @@
+Our type inference algorithm takes typeless GFJ classes as input.
+The generated output is mostly correct GFJ, although we have to alter some rules.
+This chapter defines the typing rules for our version of GFJ,
+which our type inference algorithm is able to process.
 
+We apply following changes to the type rules of GFJ:
+\begin{itemize}
+\item Removing the \texttt{MT-CLASS}, \texttt{D-CAST}, \texttt{U-CAST}, \texttt{S-CAST} rules
+\item The \texttt{GT-METHOD} rule is changed
+\item Overriding of methods is removed for our typeless GFJ version. Therefore also the rule \texttt{MT-SUPER} is removed.
+\item The \texttt{GT-INVK} rule is changed to support intersection types
+\end{itemize}
 
-MT-CLASS: - This rule is not used by us
-\begin{align*}
-\ddfrac{\begin{array}{c}
-\texttt{class} \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \ \{ \ol{S} \ \ol{f}; \ K \ol{M} \}\\
-\exptype{}{\ol{Y} \triangleleft \ol{P}} U \ m(\ol{U} \ \ol{x})\{  \texttt{return} \ e; \} \in \ol{M}
-\end{array}}
-{\mathit{mtype}(m, \exptype{C}{\ol{Z}}) = [\ol{T}/\ol{X}](\exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{U} \to U)}
-\end{align*}
+\fbox{
+\begin{minipage}{\textwidth}
+  \textbf{Subtyping:}\\
+\begin{tabular}{l l}
+%  $
+%  \ddfrac{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ol{S}\ \ol{f};\ K \ \ol{M} \}
+%  \quad \quad m \in \ol{M}}
+%  {\mathit{mtype}(m, \exptype{C}{\ol{Z}}) = \mathit{mtype}(m, [\ol{T}/\ol{X}]N)}
+%  $
+%  & MT-SUPER \\
+%& \\
 
-MT-SUPER:
-\begin{align*}
-\ddfrac{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ol{S}\ \ol{f};\ K \ \ol{M} \}
-\quad \quad m \in \ol{M}}
-{\mathit{mtype}(m, \exptype{C}{\ol{Z}}) = \mathit{mtype}(m, [\ol{T}/\ol{X}]N)}
-\end{align*}
+  $
+  \triangle \vdash T <: T
+  $
+  &   S-REFL \\
 
-S-REFL:
-\begin{align*}
-\triangle \vdash T <: T
-\end{align*}
-
-S-TRANS:
-\begin{align*}
-\ddfrac{
+& \\
+$\ddfrac{
     \triangle \vdash S <: T \quad \quad \triangle \vdash T <: U
 }{
     \triangle \vdash S <: U
-}
-\end{align*}
+}$ & S-TRANS \\
 
-S-VAR:
-\begin{align*}
+& \\
+
+$
 \triangle \vdash X <: \triangle(X)
-\end{align*}
-
-S-CLASS:
-\begin{align*}
-\ddfrac{
+$ & S-VAR \\
+& \\
+$\ddfrac{
   \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \set{ \ldots }
 }{
   \triangle \vdash \exptype{C}{\ol{T}} <: [\ol{T}/\ol{X}]N
+}$ & S-CLASS 
+\end{tabular}
+\end{minipage}
 }
-\end{align*}
 
-WF-OBJECT:
-\begin{align*}
-\triangle \vdash \texttt{Object}\ \text{ok}
-\end{align*}
+\fbox{
+\begin{minipage}{\textwidth}
+  \textbf{Well-formed types:}\\
+\begin{tabular}{l l}
+$\triangle \vdash \texttt{Object}\ \text{ok}
+$ & WF-OBJECT\\
 
-WF-VAR:
-\begin{align*}
-\ddfrac{
+& \\
+$\ddfrac{
     X \in \textit{dom}(\triangle)
 }{
     \triangle \vdash X \ \text{ok}
 }
-\end{align*}
-
-WF-CLASS:
-\begin{align*}
-\ddfrac{\begin{array}{c}
+$ & WF-VAR \\
+& \\
+$\ddfrac{\begin{array}{c}
 \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots \} \\
 \triangle \vdash \ol{T} \ \text{ok} \quad \quad \triangle \vdash \ol{T} <: [\ol{T}/\ol{X}]\ol{N}
 \end{array}
 }{
 \triangle \vdash \exptype{C}{\ol{T}} \ \text{ok}
 }
-\end{align*}
+$ & WF-CLASS
+\end{tabular}
+\end{minipage}
+}
 
-Downcast and override rules are left out
 
-Expression typing:
-
-GT-VAR:
-\begin{align*}
+\fbox{
+\begin{minipage}{\textwidth}
+\textbf{Expression Typing:}\\
+\begin{tabular}{l l}
+$
 \triangle ; \Gamma \vdash x : \Gamma(x)
-\end{align*}
+$ & GT-VAR \\
+& \\
 
-
-GT-FIELD:
-\begin{align*}
-\ddfrac{\Gamma \vdash e_0:T_0 \quad \quad \mathit{fields}(\mathit{bound}_\triangle(T_0)) = \overline{T} \ \overline{f}}
+$\ddfrac{\Gamma \vdash e_0:T_0 \quad \quad \mathit{fields}(\mathit{bound}_\triangle(T_0)) = \overline{T} \ \overline{f}}
 {\Gamma \vdash e_0.\mathtt{f}_i : T_i}
-\end{align*}
-GT-NEW:
-\begin{align*}
-  \ddfrac{\triangle \vdash N \ \texttt{ok} \quad \quad \textit{fields}(N) = \ol{T}\ \ol{f} \quad \quad
+$ & GT-FIELD \\
+& \\
+$ \ddfrac{\triangle \vdash N \ \texttt{ok} \quad \quad \textit{fields}(N) = \ol{T}\ \ol{f} \quad \quad
   \triangle; \Gamma \vdash \ol{e} : \ol{S} \quad \quad \triangle \vdash \ol{S} <: \ol{T}
 }{
   \triangle; \Gamma \vdash \texttt{new N}(\ol{e}): N
-}
-\end{align*}
+}$ & GT-NEW \\
 
+& \\
 
-GT-INVK:
-\begin{align*}
-\ddfrac{\begin{array}{c}
-\triangle; \Gamma \vdash e_0 : T_0 \quad \quad \mathit{mtype}(m, \mathit{bound}_\triangle (T_0))=\exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{U} \to U\\
+$\ddfrac{\begin{array}{c}
+\triangle; \Gamma \vdash e_0 : T_0 \quad \quad
+\exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{U} \to U \in \mathit{mtype}(m, \mathit{bound}_\triangle (T_0))\\
 \triangle \vdash \ol{V} \ \texttt{OK} \quad \quad
 \triangle \vdash \ol{V} <: [\ol{V}/\ol{Y}]\ol{P} \quad \quad
 \triangle; \Gamma \vdash \ol{e} : \ol{S} \quad \quad
 \triangle \vdash \ol{S} <: [\ol{V}/\ol{Y}]\ol{U}
 \end{array}}
 {\triangle; \Gamma \vdash \mathtt{e_0.\exptype{m}{\ol{V}}(\overline{e}) : [\ol{V}/\ol{Y}]U }}
-\end{align*}
-
-
-GT-METHOD:
-\begin{align*}
-\ddfrac{\begin{array}{c}
-\triangle \vdash \ol{X} <: \ol{N}, \ol{Y} <: \ol{P}  \quad \quad 
-\triangle \vdash \ol{T}, T \ \texttt{ok} \\
-\triangle ; \ol{x}:\ol{T}, this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
-\triangle \vdash S <: T \\
-\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots \} \quad \quad
-%\textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{T} \to T)
-\textit{mtype}(m, \exptype{C}{\ol{X}}) := \ol{T} \to T \\
-%\textit{override}(m, N,)
-\end{array}}{
-%{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
-\textit{mtype}(m, \exptype{C}{\ol{Z}}) = [\ol{Z} / \ol{X}](\exptype{}{\ol{Y}} \ol{T} \to T)
+$ & GT-INVK
+\end{tabular}
+\end{minipage}
 }
-\end{align*}
 
-Cast typing rules are left out.
+\fbox{
+\begin{minipage}{\textwidth}
+\begin{tabular}{l l}
 
-GT-CLASS: - This rule is modified by us
-\begin{align*}
-\ddfrac{
-  \begin{array}{c}
-  K = C(\overline{D} \ \overline{g}, \overline{C} \ \overline{f}) \{ \texttt{super}(\overline{g}); \ \texttt{this}.\overline{f}=\overline{f}; \} 
-  \quad \quad \textit{fields}(D) = \overline{D} \ \overline{g} \\
-  %\quad \quad \overline{M} \ \texttt{OK IN C} \\
-  \texttt{class}\ \exptype{C}{\ldots} \triangleleft N \{ \ldots \ol{M} \ldots \} \quad \quad 
-  U\ m(\ol{U}) \{ \ldots \} \in \ol{M} \\
-  \textit{mtype}(m, \exptype{C}{\ol{Z}}) = (\exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{T} \to T)
-  \quad \quad \ol{X} <: \ol{N} \vdash \ol{N}, N, \ol{T}\ \texttt{ok}
-\end{array}
-  }
-{\texttt{class C extends D}\{ \overline{C} \ \overline{f}; \ K \ \overline{M} \} \ \texttt{OK}}
-\end{align*}
+  \textbf{Method Typing:} & \\
+  & \\
+  $\ddfrac{\begin{array}{c}
+  \triangle \vdash \ol{X} <: \ol{N}, \ol{Y} <: \ol{P}  \quad \quad 
+  \triangle \vdash \ol{T}, T \ \texttt{ok} \\
+  \triangle ; \ol{x}:\ol{T}, this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
+  \triangle \vdash S <: T \\
+  \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots \} \quad \quad
+  %\textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{T} \to T)
+  \textit{mtype}(m, \exptype{C}{\ol{X}}) := \ol{T} \to T \\
+  %\textit{override}(m, N,)
+  \end{array}}{
+  %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
+  \textit{mtype}(m, \exptype{C}{\ol{Z}}) = [\ol{Z} / \ol{X}](\exptype{}{\ol{Y}} \ol{T} \to T)
+  }$ & GT-METHOD \\
+  
+  & \\
 
-GT-METHOD:
-\begin{align*}
-\ddfrac{\begin{array}{c}
-\triangle \vdash \ol{X} <: \ol{N}, \ol{Y} <: \ol{P} \quad \quad 
-\triangle \vdash \ol{T}, T, \ol{P} \ \texttt{ok} \\
-\triangle ; \ol{x}:\ol{T}, this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
-\triangle \vdash S <: T \\
-\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots \} \quad \quad
-\textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{T} \to T)
-\end{array}}
-{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
-\end{align*}
+\textbf{Class Typing:} & \\
+& \\
+  %GT-CLASS: - This rule is modified by us
+  $\ddfrac{
+    \begin{array}{c}
+    K = C(\overline{D} \ \overline{g}, \overline{C} \ \overline{f}) \{ \texttt{super}(\overline{g}); \ \texttt{this}.\overline{f}=\overline{f}; \} 
+    \quad \quad \textit{fields}(D) = \overline{D} \ \overline{g} \\
+    %\quad \quad \overline{M} \ \texttt{OK IN C} \\
+    \texttt{class}\ \exptype{C}{\ldots} \triangleleft N \{ \ldots \ol{M} \ldots \} \quad \quad 
+    U\ m(\ol{U}) \{ \ldots \} \in \ol{M} \\
+    \textit{mtype}(m, \exptype{C}{\ol{Z}}) = (\exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{T} \to T)
+    \quad \quad \ol{X} <: \ol{N} \vdash \ol{N}, N, \ol{T}\ \texttt{ok}
+  \end{array}
+    }
+  {\texttt{class C extends D}\{ \overline{C} \ \overline{f}; \ K \ \overline{M} \} \ \texttt{OK}}
+  $ & GT-CLASS
+\end{tabular}
+\end{minipage}
+}
+
+
+
+%MT-CLASS: - This rule is not used by us
+%\begin{align*}
+%\ddfrac{\begin{array}{c}
+%\texttt{class} \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \ \{ \ol{S} \ \ol{f}; \ K \ol{M} \}\\
+%\exptype{}{\ol{Y} \triangleleft \ol{P}} U \ m(\ol{U} \ \ol{x})\{  \texttt{return} \ e; \} \in \ol{M}
+%\end{array}}
+%{\mathit{mtype}(m, \exptype{C}{\ol{Z}}) = [\ol{T}/\ol{X}](\exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{U} \to U)}
+%\end{align*}
+
+%GT-METHOD:
+%\begin{align*}
+%\ddfrac{\begin{array}{c}
+%\triangle \vdash \ol{X} <: \ol{N}, \ol{Y} <: \ol{P} \quad \quad 
+%\triangle \vdash \ol{T}, T, \ol{P} \ \texttt{ok} \\
+%\triangle ; \ol{x}:\ol{T}, this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
+%\triangle \vdash S <: T \\
+%\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots \} \quad \quad
+%\textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{T} \to T)
+%\end{array}}
+%{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
+%\end{align*}

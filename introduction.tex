@@ -142,18 +142,17 @@ Inferred types are generic as much as possible, but do not include bounds.
 Java has some features which make global type inference hard:
 \begin{itemize}
 \item subtyping and overloading combined with a nominal type system;
-  we show NP-hardness even without overloading,
+  we show NP-hardness even without overloading
   \todo[inline]{correct?}
 \item mutable local variables and mutable object state,
-\item polymorphic recursion in method calls,
-\item every method can potentially call every other method all the
-  time,
-  \todo[inline]{meaning?}
-\item method call graphs can go in circles which is not possible in
-  Hindley-Milner type inference,
-  \todo[inline]{why not?}
+\item polymorphic recursion in method calls
+\item Inside a Java method it is possible to call every other declared Java method
+  \todo[inline]{meaning? The letrec-rule works on the fact that in a let statement:
+  \lstinline{let x = e in e2} the expression \texttt{e} is not able to use \texttt{x}}
 \item methods can have side effects.
 \end{itemize}
+
+
 
 For Generic Featherweight Java it is easier to decide because there is no state and therefore no wildcard types.
 Also we exclude polymorphic recursion.

@@ -216,7 +216,7 @@ GT-METHOD:
 \triangle \vdash S <: T \\
 \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots \} \quad \quad
 %\textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{T} \to T)
-\textit{mtype}(m, \exptype{C}{\ol{X}}) := \ol{T} \to T \\
+\ol{T} \to T  \in \textit{mtype}(m, \exptype{C}{\ol{X}}) \\
 %\textit{override}(m, N,)
 \end{array}}{
 %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
@@ -225,85 +225,42 @@ GT-METHOD:
 \end{align*}
 \end{enumerate}
 
-\subsection{Principal Type}
-%TODO: Subtype definition:
-
-%In our input set we exclude method overloading.
-%Also every method name has to be unique.
-%These assumptions allows us to make the following definition of a principal type:
-
-GFJ supports two kinds of types;
-Type variables and nonvariable types.
-Nonvariable types have the form $\exptype{C}{\ol{T}}$ and can contain multiple type variables.
-The type $T_2 = [N/X]\exptype{C}{\ol{T}}$ is a generic instantiation,
-where all occurences of the type variable $X$ are replaced by the nonvariable type $N$.
-
-\textbf{Principal Type:}
-A nonvariable type for a declaration is a principal nonvariable type,
-if any other type-scheme for the declaration is a subtype of a generic instance
-of the type-scheme.
-
-Additionally we define the subtype relation of methods as follows:
-\begin{align*}
-\ddfrac{
-\ol{U} \ <: \ \ol{T} \quad \quad T \ <: \ U
-}{
-(\ol{T} \to T) \ <: \ (\ol{U} \to U)
-}
-\end{align*}
-
-%\begin{theoremAndi}
-%  \label{theo:uniquePrincipalType}
-%  \textbf{There is one unique principal type for any set of types}
-%\end{theoremAndi}
-
-%what about: c<A,Int>, c<Int, A> which is principal type?
-
-\begin{theoremAndi}
-  \label{theo:uniquePrincipalType}
-  \textbf{There is one unique principal type for every method}
-\end{theoremAndi}
-Proof:
-%We excluded polymorphic recursion
-%Every expression $e$ in GFJ has a definitive type.
-%%There is only one possible type our type inference algorithm can apply to any expression $e$.
-%We will show this for every kind of expression:
-%\begin{description}
-  %\item[NEW] \texttt{new} can only have one type according to the \texttt{GT-NEW} type rule.
-  %\item[Field access] A field access $e.f$ can only have one type according to the \texttt{GT-FIELD} type rule.
-  %This also applies to our typeless GFJ version, because every field name has to be unique.
-  %\item[Method call] We assume method names are also unique and cannot be overloaded.
-  %Due to this assumption and the changed \texttt{GT-METHOD} rule a method type of a method \texttt{m}
-  %is: $\textit{mtype(m, N) = \ol{T} \to T}$.
-  %%The type of the respective method call $e.m(\ldots)$ is defined by \texttt{GT-INVK} as $T$.
-  %%The return type $T$ of the method \texttt{m} is unique, because the 
-%\end{description}
-
-We exclude polymorphic recursion, remove overloading and assume every method and field name to be unique.
-Now every method $T\ \texttt{m}(\ol{T}\ \ol{x})\{\ \texttt{return}\ e;\ \}$ has one principal type.
-This is when its return type $T$ is the same type as its return expression $e$.
-For the parameter types $\ol{T}$ the principal type is chosen.
-
-\textit{Example:}
-A method \texttt{m} can have multiple possible types due to the fact that GFJ has subtypes.
-
+\subsection{Principal Type and Intersection Types}
+Generic Featherweight Java has no principal typing.
+We can show this easily with an example.
+We try to find the principal type for the method \texttt{method1}.
 \begin{lstlisting}
-class C1 {
-  C1 f;
-}
-class C2 extends C1{
-  m(x){
-    return x.f;
+class Global{
+  method1(a){
+    a.add(this);
+    return a.get();
   }
 }
+class List<A> {
+  add(A item){...}
+  A get() ...
+}
 \end{lstlisting}
-The method \texttt{m} can either have the type \texttt{C1 m(C1 x)}
-or \texttt{C1 m(C2 x)}.
-In this case the principal type would be \texttt{C1 m(C1 x)}.
-This type has the type of the return expression as its return type
-and for every parameter type it has the principal type.
-%The principal type is unique
-%No overloading, therefore no types int -> int, byte -> byte
+In \texttt{method1} neither the return type nor the type for the parameter \texttt{a} are specified.
+The return type of the method depends on the type of \texttt{a}.
+If we set in the type \texttt{List<Object>} here, then \texttt{method1} would return \texttt{Object}.
+The type \texttt{List<Global>} would also be correct.
+Then the return type of the method can also be the type \texttt{Global}.
+
+The principal type would either be an intersection type or the method \texttt{method1} has to be overloaded.
+GFJ neither supports intersection types nor overloading.
+Therefore we cannot set in the principal type and have to stick with one of the possible solutions,
+for example\\
+\texttt{List<Global> method1(List<Global> a)}.
+
+We therefore infer intersection types for methods.
+The same method body can now have multiple return and parameter type combinations.
+
+\begin{align*}
+\textit{mtype}(\texttt{method}, \exptype{C}{\ol{X}}) = \set{ \exptype{List}{Object} \to \texttt{Object}
+\ || \ \exptype{List}{String} \to \texttt{String}} 
+\end{align*}
+
 
 \section{Type inference algorithm}
 In this chapter we present our type inference algorithm.
@@ -395,7 +352,7 @@ This is due to the fact that there can be multiple methods and fields with the s
     class\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\ \{\ \ol{N}\ \ol{f};\ K\ \ol{M}\ \} \quad \quad
     \exptype{}{\ol{Y}}\ U\ \texttt{m}(\ol{U}\ \ol{x}) \{ \ldots \} \in \ol{M}
   }{
-    \textit{mtype}_\textit{Ass}(\texttt{m}) = \exptype{C}{\ol{X} \triangleleft \ol{N}} \to \exptype{}{\ol{Y}} (\ol{U} \to U )
+    \textit{mtype}_\textit{Ass}(\texttt{m}, \exptype{C}{\ol{X} \triangleleft \ol{N}}) =  \set{\exptype{}{\ol{Y}} (\ol{U} \to U )}
   }
 \end{align*}
 \begin{align*}
@@ -406,11 +363,22 @@ This is due to the fact that there can be multiple methods and fields with the s
     \textit{ftype}_\textit{Ass}(\texttt{f}) = \exptype{C}{\ol{X} \triangleleft \ol{N}} \to T
   }
 \end{align*}
-\item We do not include casts in the syntax and therefore remove the \texttt{GT-DCAST}, \texttt{GT-UCAST} and \texttt{GT-SCAST} typing rules.
+\item If the input for the type inference algorithm consists out of multiple classes we compile them one by one.
+Additionally we add the types of the already compiled classes to the assumption set.
+Therefore it is possible to have intersection types already in the assumptions.
 \end{enumerate}
 
 
 \subsection{GFJTYPE}
+The \textbf{GFJTYPE} algorithm produces two kinds of constraints.
+\begin{description}
+\item[Constraint] A constraint consists of two types or type variables and an operator.
+The operator can either be a $\doteq$ (same type) or $\lessdot$ (subtype).
+Example: $(a \lessdot \mathtt{Object})$, means that the type variable $a$ should be a subtype of \texttt{Object}.
+\item[OrConstraint] An OrConstraint consists out of multiple constraint sets.
+For example $\textbf{OrConstraint}(\{ \ \{ (a \lessdot b), (a \leq \mathtt{Object}) \} \ , \ \{ (a \lessdot b)\} \ \})$
+is an Or-Constraint consisting of two constraint sets.
+\end{description}
 
 The algorithm \textbf{GFJTYPE} is given as follows:
 
@@ -490,14 +458,14 @@ $\begin{array}{@{}l@{}l@{}l}
 & (rty, ConS) = \textbf{TYPEExpr}(Ass, e_r),\\
 & & \forall e_i \in \overline{e} : (pt_i, ConS_i) = \textbf{TYPEExpr}(Ass, e_i)  ,\\
 & & \textbf{fresh} = \text{a mapping from each variable in}\ \ol{X} \ \text{to a fresh type variable},\\
-& & Ass_{m} = \textit{mtype}_{Ass}(m) = \exptype{C}{\ol{X} \triangleleft \ol{N}} \to \exptype{}{\ol{Y}} (\ol{T} \to T) \\
+& & Ass_{m} =  \set{\exptype{}{\ol{Y}} (\ol{T} \to T) \,|\, \exptype{}{\ol{Y}} (\ol{T} \to T) \in \textit{mtype}(m, \exptype{C}{\ol{X}})} \\
 & & \begin{array}{@{}l@{}l}
-        Cons_{m} = \{\ & rty \doteq \exptype{C}{\textbf{fresh}(\ol{X})}, a \doteq \textbf{fresh}(T),\\
-                    & \bigcup_{T_i \in \overline{T}} (pt_i \lessdot \textbf{fresh}(T_i)) \} %, \textbf{fresh}(\ol{X}) \lessdot \textbf{fresh}(\ol{N})\},\\
+        Cons_{m} = \{\ & rty \doteq \exptype{C}{\textbf{fresh}(\ol{X})}, a \doteq \textbf{fresh}(T), \bigcup_{T_i \in \overline{T}} (pt_i \lessdot \textbf{fresh}(T_i))\\
+                    & |\, \exptype{}{\ol{Y}} (\ol{T} \to T) \in \textit{mtype}(m, \exptype{C}{\ol{X}}) \} %, \textbf{fresh}(\ol{X}) \lessdot \textbf{fresh}(\ol{N})\},\\
     \end{array}\\
 & \mathbf{in}% \\
 % &
-& (a, ConS \cup Cons_{m} \cup \bigcup_i ConS_i))\\
+& (a, ConS \cup \bigcup_i ConS_i \cup \textbf{OrConstraint}(Cons_{m}))\\
 & & \text{where\ } a \text{\ is\ a\ fresh\
   type\ variable}\\ 
 \end{array}
@@ -575,6 +543,7 @@ Fieldnames by default are unique in the GFJ language.
 \end{description}
 
 \section{Unify}
+\label{sec:unify}
 This chapter describes the \textbf{GenericUnify} algorithm
 which is used to find type solutions for the constraints generated by \textbf{FGJType}.
 
@@ -585,7 +554,14 @@ or fail $Uni = \emptyset$.
 %The unifiers have the form of $Uni = \{ \sigma_1, \ldots , \sigma_n \}$.
 \end{description}
 
-The algorithm starts by setting $Eq_{set} = \set{ Cons_{in} }$.
+The unify algorithm first has to build the cartesian product of all the \textbf{OrConstraint}s and the remaining normal constraints:
+\begin{align*}
+\Omega &= \text{All }\mathbf{OrConstraints} \text{ in } {Cons}_{in}\\
+C &= {Cons}_{in} \setminus \Omega \\
+Eq_{set} &= \Omega_1 \times \ldots \times \Omega_n \times C \quad \text{for all }\Omega_i \in \Omega
+\end{align*}
+
+%The algorithm starts by setting $Eq_{set} = \set{ Cons_{in} }$.
 Afterwards the following steps are repeatedly executed on $Eq_{set}$ until the algorithm termiates:
 %For every $Eq \in Eq_{set}$ the following steps are applied.
 %The resulting unifiers $\sigma$ from each $Eq$ merged together form the result of the \textbf{Unify} algorithm.
@@ -1045,6 +1021,59 @@ then the result \textbf{Unify} contains the principal type solution.
 \hfill $\square$
 \end{description}
 
+\section{Insert principal type}
+After generating all possible unifiers in the \textbf{Unify} we can insert the principal types.
+
+\begin{align*}
+\ddfrac{
+  A\ \texttt{m}(\ol{A}\ \ol{p}) \{ \ldots \} \in M \quad \quad \texttt{class}\ \exptype{C}{\ol{X}} \{ \ldots\ M,\ \ldots\}
+}{
+  \textit{mtype}(\texttt{m}, \exptype{C}{\ol{X}}) = \set{\sigma(\ol{A}) \to \sigma(A) \,|\, \sigma \in {Uni}}
+}
+\end{align*}
+
+The \textbf{Unify} algorithm returns a set of unifiers ${Uni}$.
+Each element of that set is a correct solution.
+The unifiers $\sigma$ map type placeholders to types.
+When generating the intersection types for the methods we have to make sure that the
+type placeholders for the return type as well as for the parameter types get replaced by the same unifier $\sigma$.
+It can happen that two unifiers $\sigma_1$ and $\sigma_2$ lead to the same method type ($\sigma_1(A) = \sigma_2(A), \sigma_1(\ol A) = \sigma_2(\ol A)$).
+The set of all the distinct combinations then builds the intersection type for the method.
+
+\textbf{Example:}
+\begin{lstlisting}
+class Global{
+  method1(a){
+    a.add(this);
+    return a.get();
+  }
+}
+class List<A> {
+  add(A item){...}
+  A get() ...
+}
+\end{lstlisting}
+
+The method \texttt{method1} would get the type $\set{ \exptype{List}{Object} \to \texttt{Object}
+\ || \ \exptype{List}{String} \to \texttt{String}}$.
+If GFJ would support overloaded methods this could be written as:
+\begin{lstlisting}
+class Global{
+  Object method1(List<Object> a){
+    a.add(this);
+    return a.get();
+  }
+  String method1(List<String> a){
+    a.add(this);
+    return a.get();
+  }
+}
+class List<A> {
+  add(A item){...}
+  A get() ...
+}
+\end{lstlisting}
+
 \section{Examples}
 
 \textbf{Example 1}\\
@@ -1180,7 +1209,7 @@ $\sigma(X) = \texttt{Object}$.
 
 
 \bibliographystyle{ACM-Reference-Format}
-\bibliography{peter}
+\bibliography{peter,martin}
 
 \end{document}
 \endinput
