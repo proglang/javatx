@@ -1055,7 +1055,7 @@ class List<A> {
 \end{lstlisting}
 
 The method \texttt{method1} would get the type $\set{ \exptype{List}{Object} \to \texttt{Object}
-\ || \ \exptype{List}{String} \to \texttt{String}}$.
+\ || \ \exptype{List}{Global} \to \texttt{Global}}$.
 If GFJ would support overloaded methods this could be written as:
 \begin{lstlisting}
 class Global{
@@ -1063,7 +1063,7 @@ class Global{
     a.add(this);
     return a.get();
   }
-  String method1(List<String> a){
+  String method1(List<Global> a){
     a.add(this);
     return a.get();
   }
