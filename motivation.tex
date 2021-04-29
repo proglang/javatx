@@ -1,0 +1,24 @@
+\section{Motivation}
+\label{sec:motivation}
+
+Examples, examples, examples from simple to more advanced showing off
+the (difficult) features of inference.
+
+Features:
+\begin{itemize}
+\item no overloading inside of a single class (as in FGJ and FJ)
+\item same named methods in several classes are ok
+\item class header is complete in the form
+  $\mathtt{class}\ C\langle\overline X <: \overline N\rangle <: N \{
+  \overline T\ \overline f;\ K\ \overline M \}$
+\item constructor fully typed (as it is determined by the types of the
+  fields and the supertype)
+\item method signatures may be omitted, i.e., 
+  $M\ ::=\ m(\overline x) \{ \ \mathtt{return}\ e;\ \}$
+\item polymorphic recursive methods must be annotated.
+\end{itemize}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "TIforGFJ"
+%%% End:
