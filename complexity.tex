@@ -9,74 +9,42 @@
 
 \begin{figure}
 \begin{lstlisting}
-\begin{lstlisting}
-    class True{}
-    class False{}
-    
-    class NotTrue {
-      False not(True a){
-        return new False();
-      }
+  class True{}
+  class False{}
+  class Operations(){
+    False nand(True a, True b){ return new True();
     }
-    
-    class NotFalse {
-      True not(False a){
-        return new True();
-      }
+    True nand(False a, True b){
+      return new False();
     }
-    
-    class AndTrueTrue {
-      True and(True a, True b){
-        return new True();
-      }
+    True nand(True a, False b){
+      return new False();
     }
-    
-    class AndElse {
-      False and(Object a, Object b){
-        return new False();
-      }
+    True nand(False a, False b){
+      return new False();
     }
-
+  }
+  class SATExample{
+    True sat(a, b, c){
+      return |{\color{red}nand(c, nand(a, b))}|;
+    }
+  }
 \end{lstlisting}
 
-\caption{Representation for Boolean values and Operators in FJ code}
+\caption{Representation for a SAT problem in FJ code}
 \label{fig:fjSATcode}
 \end{figure}
 
 Any given boolean expression $B$ can be transformed to a typeless FJ program.
 A type inference algorithm finding a possible typisation of this FJ program also solves the boolean expression $B$.
-%Given a set $\Sigma$ of variables and 
-
-The first step is to define a method which transfers a SAT problem into
-a typeless FJ program in polynomial time.
-Using the \texttt{FJTYPE} algorithm on this typeless FJ program converts it to a valid typed FJ program.
-In the second step I will show how to get a correct assignment for the given SAT problem 
-out of this typed FJ program.
-
-%$\Omega( {sat} ) = \text{let } v = \texttt{set of variables in sat}$
-
-Consider any boolean expression $B_\text{in} = v_1 \land \neg (v_2 \land v_3) \land \ldots$ as an input.
-For the simplicity of this proof,
-lets assume that the boolean expression only consists out of $\land$ (AND) and $\neg$ (NOT) operators.
-Now generate a typeless FJ method \texttt{solve} with the return type \texttt{True}.
-This method has a Parameter \texttt{vi} for every variable $v_i$ in the boolean expression $B_\text{in}$.
-Also it has a parameter \texttt{opi} for every operator ($\land$ or $\lor$ in this example) inside $B_\text{in}$.
-For our example input this method looks like this:
-\begin{lstlisting}
-class SATProblem{
-  True solve(v1, v2, ... , vN, op1, op2, ..., opN){
-    return op1.and(v1, op2.not(op3.and(v2, v3)));
-  }
-}
-\end{lstlisting}
-The return expression of this method encodes the given expression $B_\text{in}$ as following.
-Each operator $\text{op}_i = e_l \land e_r$ is transformed to the Java code
-\texttt{opI.and(el, er)}.
-The same with the $\neg$ operator respectively.
-Finally add the classes from Figure \ref{fig:fjSATcode} to it.
-
+Figure \ref{fig:fjSATcode} shows an example of this.
+The classes \texttt{True}, \texttt{False} and \texttt{Operations} always stay the same.
+Here we assume that the boolean expression only consists out of $\land$ (AND) and $\neg$ (NOT) operators.
+Now any boolean expression $B_\text{in} = v_1 \land \neg (v_2 \land v_3) \land \ldots$ can be expressed as a Java method
+(see  Example in figure \ref{fig:fjSATcode}).
+We force the return type of the \texttt{sat} method to have the type \texttt{True}.
 When using the \texttt{FJTYPE} algorithm on the generated FJ code it will
-assign each parameter \texttt{v} with either the type \texttt{True}, \texttt{False}
+assign each parameter of the \texttt{sat} method with either the type \texttt{True}, \texttt{False}
 or \texttt{Object}.
 This represents a valid assignment for the expression $B_\text{in}$.
 \texttt{Object} means that either true of false can be used for this variable.
