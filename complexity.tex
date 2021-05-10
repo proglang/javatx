@@ -39,7 +39,7 @@ Any given boolean expression $B$ can be transformed to a typeless FJ program.
 A type inference algorithm finding a possible typisation of this FJ program also solves the boolean expression $B$.
 Figure \ref{fig:fjSATcode} shows an example of this.
 The classes \texttt{True}, \texttt{False} and \texttt{Operations} always stay the same.
-Here we assume that the boolean expression only consists out of $\land$ (AND) and $\neg$ (NOT) operators.
+Here we assume that the boolean expression only consists out of $\neg \land$ (NAND) operators.
 Now any boolean expression $B_\text{in} = v_1 \land \neg (v_2 \land v_3) \land \ldots$ can be expressed as a Java method
 (see  Example in figure \ref{fig:fjSATcode}).
 We force the return type of the \texttt{sat} method to have the type \texttt{True}.
@@ -50,6 +50,9 @@ This represents a valid assignment for the expression $B_\text{in}$.
 \texttt{Object} means that either true of false can be used for this variable.
 If the \texttt{FJTYPE} fails to compute a solution the $B_\text{in}$ also has no possible solution.
 
+Any SAT problem can be transferred in polynomial time to a typeless FJ program.
+This reduction of SAT to our type inference algorithm proofs that its complexity is atleast NP-Hard.
+\hfill $\square$
 
 \begin{theoremAndi}
   \label{theo:np-completeness}
@@ -58,4 +61,13 @@ If the \texttt{FJTYPE} fails to compute a solution the $B_\text{in}$ also has no
 \end{theoremAndi}
 
 \textit{Proof:} We know the algorithm is NP-hard (see \ref{theo:np-completeness}).
-TODO
+To proof NP-Completeness we have to show that it is possible to verify a solution in polynomial time.
+The verification of a type solution is the FJ typecheck.
+
+It is easy to see that the expression typing rules can be checked in polynomial time as long as subtyping between two types is verifiable in polynomial time.
+
+Assume $\exptype{C}{\ol{X}} \leq \exptype{D}{\ol{Y}}$ with the number of generics $\ol{X}$ and $\ol{Y}$ less or equal $n$.
+Also the number of classes in the subtyperelation is less or equal to $n$.
+With $n$ classes the \texttt{S-TRANS} rule can be applied a maximum of $n$ times.
+The \texttt{S-CLASS} rule can be calculated in two steps.
+
