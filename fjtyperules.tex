@@ -8,7 +8,7 @@ We apply following changes to the type rules of GFJ:
 \item Removing the \texttt{MT-CLASS}, \texttt{D-CAST}, \texttt{U-CAST}, \texttt{S-CAST} rules
 \item The \texttt{GT-METHOD} rule is changed
 \item Overriding of methods is removed for our typeless GFJ version. Therefore also the rule \texttt{MT-SUPER} is removed.
-\item The \texttt{GT-INVK} rule is changed to support intersection types
+\item The \texttt{GT-INVK} rule is changed to support overloading
 \end{itemize}
 
 \fbox{
@@ -23,10 +23,10 @@ We apply following changes to the type rules of GFJ:
 %  & MT-SUPER \\
 %& \\
 
-  $
-  \triangle \vdash T <: T
-  $
-  &   S-REFL \\
+$
+\triangle \vdash T <: T
+$
+&   S-REFL \\
 
 & \\
 $\ddfrac{
