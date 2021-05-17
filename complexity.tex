@@ -66,8 +66,12 @@ The verification of a type solution is the FJ typecheck.
 
 It is easy to see that the expression typing rules can be checked in polynomial time as long as subtyping between two types is verifiable in polynomial time.
 
+Subtyping is also solvable in polynomial time in Generic Featherweight Java.
 Assume $\exptype{C}{\ol{X}} \leq \exptype{D}{\ol{Y}}$ with the number of generics $\ol{X}$ and $\ol{Y}$ less or equal $n$.
 Also the number of classes in the subtyperelation is less or equal to $n$.
 With $n$ classes the \texttt{S-TRANS} rule can be applied a maximum of $n$ times.
-The \texttt{S-CLASS} rule can be calculated in two steps.
+Each time the \texttt{S-CLASS} rules is applied which sets in the variables $\ol{X}$ into the supertype.
+This operations also runs in polynomial time, so the subtyping relation is decidable in polynomial time.
 
+This shows that the time complexity of the GFJ type check is atleast polynomial or better.
+\hfill $\square$
