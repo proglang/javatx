@@ -1,5 +1,5 @@
 Our type inference algorithm takes typeless GFJ classes as input.
-The generated output is mostly correct GFJ, although we have to alter some rules.
+The generated output is correct GFJ, although we have to alter some rules.
 This chapter defines the typing rules for our version of GFJ,
 which our type inference algorithm is able to process.
 
@@ -101,7 +101,7 @@ $ \ddfrac{\triangle \vdash N \ \texttt{ok} \quad \quad \textit{fields}(N) = \ol{
 
 $\ddfrac{\begin{array}{c}
 \triangle; \Gamma \vdash e_0 : T_0 \quad \quad
-\exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{U} \to U \in \mathit{mtype}(m, \mathit{bound}_\triangle (T_0))\\
+(\exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{U} \to U) \in \mathit{mtype}(m, \mathit{bound}_\triangle (T_0))\\
 \triangle \vdash \ol{V} \ \texttt{OK} \quad \quad
 \triangle \vdash \ol{V} <: [\ol{V}/\ol{Y}]\ol{P} \quad \quad
 \triangle; \Gamma \vdash \ol{e} : \ol{S} \quad \quad
@@ -126,7 +126,7 @@ $ & GT-INVK
   \triangle \vdash S <: T \\
   \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots \} \quad \quad
   %\textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{T} \to T)
-  \textit{mtype}(m, \exptype{C}{\ol{X}}) := \ol{T} \to T \\
+  (\ol{T} \to T) \in \textit{mtype}(m, \exptype{C}{\ol{X}})\\
   %\textit{override}(m, N,)
   \end{array}}{
   %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
