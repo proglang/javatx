@@ -135,14 +135,25 @@ Therefore we cannot set in the principal type and have to stick with one of the 
 for example\\
 \texttt{List<Global> method1(List<Global> a)}.
 
-We therefore infer intersection types for methods.
-The same method body can now have multiple return and parameter type combinations.
-
-\begin{align*}
-\textit{mtype}(\texttt{method}, \exptype{C}{\ol{X}}) = \set{ \exptype{List}{Object} \to \texttt{Object}
-\ || \ \exptype{List}{String} \to \texttt{String}} 
-\end{align*}
-
+It is possible for a class to have multiple correct type solutions.
+This can lead to a type error when compiling multiple classes.
+\begin{lstlisting}
+  class Global{
+    method1(a){
+      a.add(this);
+      return a.get();
+    }
+  }
+  class Class2{
+    Object test(){
+      return new Global().method1(new List<Object>());
+    }
+  }
+\end{lstlisting}
+If we infer \texttt{List<Global>} as the parameter type for the \texttt{method1},
+then the class \texttt{Class2} would lead to a type error.
+In this case the type inference algorithm has to try another type solution for \texttt{method1}
+to make the program type correct.
 
 \section{Type inference algorithm}
 In this chapter we present our type inference algorithm.
@@ -169,6 +180,7 @@ But in that case there are some additional requirements for the input.
 
 We assume that the algorithm are given the input classes in the correct order $C_1, \ldots C_2$.
 Hereby there must exist a correct typisation for the class $C_1$ when existing on its own.
+\textbf{Example:}
 When there are two classes which depend on one another this would be invalid input for our algorithm.
 \begin{lstlisting}
 class C1 extends Object {
@@ -1074,6 +1086,60 @@ Remember that $(\exptype{SpecialMap}{A,B,C} \olsub \exptype{Map}{A,C}) \in S_\le
 
 After the \texttt{adapt} rule got applied we can already see that a correct unificator for this constraint would be
 $\sigma(X) = \texttt{Object}$.
+
+\textbf{Example 4 (Multiple type solutions):}
+\begin{lstlisting}
+class List<A> extends Object {
+  List<A> add(A p){...}
+}
+class C1 extends Object {
+  m1(ls){
+    return ls.add(this);
+  }
+}
+class C2 extends Object {
+  m2(){
+    return new C1().m1(new List<C1>());
+  }
+}
+\end{lstlisting}
+When compiling the class \texttt{C1} there are two possible method typings for \texttt{m1}.
+One of it would 
+\begin{lstlisting}
+class List<A> extends Object {
+  List<A> add(A p){...}
+}
+class C1 extends Object {
+  List<Object> m1((*@\color{red}List<Object>@*) ls){
+    return ls.add(this);
+  }
+}
+class C2 extends Object {
+  m2(){
+    return new C1().m1((*@\color{red}new List<C1>()@*));
+  }
+}
+\end{lstlisting}
+\texttt{List<Object>} would be a correct type for the parameter \texttt{ls}.
+The call \texttt{ls.add(this)} still works because the type of \texttt{this} is a subtype of \texttt{Object}.
+But then the method \texttt{m2} will be incorrect when compiling the class \texttt{C2}.
+Our algorithm has to backtrack to the class \texttt{C1} and use the other possible typing.
+The following would be the correct solution with \texttt{List<C1>} as the type for \texttt{ls}.
+\begin{lstlisting}
+class List<A> extends Object {
+  List<A> add(A p){...}
+}
+class C1 extends Object {
+  List<C1> m1((*@\color{green}List<C1>@*) ls){
+    return ls.add(this);
+  }
+}
+class C2 extends Object {
+  List<C1> m2(){
+    return new C1().m1((*@\color{green}new List<C1>()@*));
+  }
+}
+\end{lstlisting}
 
 \section{Assessment}
 \label{sec:assessment}
