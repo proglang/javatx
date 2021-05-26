@@ -107,8 +107,8 @@ GT-METHOD:
 \end{align*}
 \end{enumerate}
 
-\subsection{Principal Type and Intersection Types}
-Generic Featherweight Java has no principal typing.
+\subsection{Principal Type}
+Generic Featherweight Java has no unique principal typing.
 We can show this easily with an example.
 We try to find the principal type for the method \texttt{method1}.
 \begin{lstlisting}
@@ -135,7 +135,7 @@ Therefore we cannot set in the principal type and have to stick with one of the 
 for example\\
 \texttt{List<Global> method1(List<Global> a)}.
 
-It is possible for a class to have multiple correct type solutions.
+It is possible for a class to have multiple principal type solutions.
 This can lead to a type error when compiling multiple classes.
 \begin{lstlisting}
   class Global{
@@ -150,7 +150,8 @@ This can lead to a type error when compiling multiple classes.
     }
   }
 \end{lstlisting}
-If we infer \texttt{List<Global>} as the parameter type for the \texttt{method1},
+Our type inference algorithm is able to infer all of the principal type solutions, but only one of them can be set in.
+If we set in \texttt{List<Global>} as the parameter type for the \texttt{method1},
 then the class \texttt{Class2} would lead to a type error.
 In this case the type inference algorithm has to try another type solution for \texttt{method1}
 to make the program type correct.
@@ -378,11 +379,14 @@ $\begin{array}{@{}l@{}l@{}l}
 \end{array}
 $
 
-\subsubsection{Completeness}
+\subsubsection{Completeness of the type inference algorithm}
 Theorem: The Unify algorithm is complete
 Theorem: \textbf{FJTYPE} generates the principal type
-Proof: The \textbf{Unify} algorithm is complete, so the principal type is included in the solution set.
-We only have to choose the principal type out of those solutions.
+Proof: The \textbf{Unify} algorithm is complete, so every correct type is included in the solution set.
+We only have to choose the right type out of those solutions.
+When compiling multiple classes the problem arises,
+that only one of the type solutions calculated by \textbf{Unify} is correct
+in respective to the other classes that will be compiled afterwards.
 
 All types that are possible under the GFJ typing rules, plus our additional assumptions,
 also comply with the generated constraints.
@@ -777,7 +781,7 @@ No constraint is altered, deleted or modified during this step.
 %  type in $S_\leq$.
 %  \end{theoremAndi}
 \begin{theoremAndi}\label{theo:unifyCompleteness}
-  \textbf{(Completeness):} The \textbf{Unify} algorithm calculates the principal type solution for the input set of constraints ($Cons_{in}$).
+  \textbf{(Completeness):} The \textbf{Unify} algorithm calculates all principal type solutions for the input set of constraints ($Cons_{in}$).
   A unifier $\sigma$ is a principal type solution for $Cons_{in}$ if it unifies $Cons_{in}$
   and for every other unifier $\omega$ there is a unifier $\lambda$ so that $\omega(x) = \lambda(\sigma(x))$.
 \end{theoremAndi}
