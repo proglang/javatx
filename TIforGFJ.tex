@@ -154,11 +154,11 @@ Our type inference algorithm is able to infer all of the principal type solution
 If we set in \texttt{List<Global>} as the parameter type for the \texttt{method1},
 then the class \texttt{Class2} would lead to a type error.
 In this case the type inference algorithm has to try another type solution for \texttt{method1}
-to make the program type correct.
+to render the program type correct.
 
 \section{Type inference algorithm}
 In this chapter we present our type inference algorithm.
-The algorithm is split into following parts:
+The algorithm is split into following parts, which are executed on a single class at a time:
 
 \begin{enumerate}
 \item Create assumptions and subtype relation
@@ -207,6 +207,12 @@ By moving \texttt{m1} to class \texttt{C2} we create a valid input for our algor
 
 When processing the second class the first step of the algorithm (create assumptions) also considers the first and already compiled class.
 A class $C_n$ therefore can use and reference all the classes before it ($C_1, \ldots, C_{n-1}$).
+
+Another problem with multiple classes is the fact that there can be more than a single principal typing for a method.
+When considering only one class at once it is not possible to set in the correc type right away.
+This problem can be solved with backtracking.
+Whenever the \textbf{Unify} algorithm gives more than one type solution, we pick the first one and continue.
+If the algorithm fails at some point it has to backtrack to this point and try one of the other solutions.
 
 \subsection{Generate Assumptions}
 % Every empty Type T in the input is assigned a type variable.
