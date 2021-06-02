@@ -55,7 +55,7 @@ class Pair<X,Y> {
   }
 }  
 \end{lstlisting}
-    \caption{Generic FJ}
+    \caption{Featherweight Generic Java (FGJ)}
     \label{fig:intro-example-generic-fj}
   \end{subfigure}
   ~
@@ -73,7 +73,7 @@ class Pair<X,Y> {
   }
 }  
 \end{lstlisting}
-    \caption{Generic FJ with global type inference}
+    \caption{FGJ with global type inference}
     \label{fig:intro-example-generic-jtx}
   \end{subfigure}
   \caption{Example code}
@@ -136,6 +136,7 @@ motivation to study global type inference is threefold.
 \begin{lstlisting}[basicstyle=\ttfamily\fontsize{8}{9.6}\selectfont]
 Map<String, Map<String, Object>> outerMap = ...
 \end{lstlisting}
+  Global type inference finds most general types.
 \item Programmers may write types that are more specific than
   necessary instead of using (more verbose) generic types. Here, type
   inference helps programmers to find the most general type. Suppose
@@ -167,14 +168,33 @@ In this paper, we report a theoretical study based on Featherweight
 Generic Java \cite{DBLP:journals/toplas/IgarashiPW01} (FGJ), which is backed
 by an implementation for full Java.
 
-We proceed to give a bird's eye view of our results, leaving the
-details to Section
-Our global type inference algorithm is able to infer the types in
+We proceed to give a bird's eye view of our results.
+
+Our global type inference algorithm infers the types in
 method signatures (parameter types and return types) for all
 FGJ programs that specify the full class header and all field types,
 but do not make use of polymorphic recursion.
 Inferred types are generic as much as possible, but do not include bounds.
 
+\begin{lstlisting}
+class Pair<X,Y> {
+  X fst;
+  Y snd;
+  Pair(fst, snd) {
+   this.fst=fst; 
+   this.snd=snd;
+  }
+  setfst(fst) {
+    return new Pair(this.snd, fst);
+  }
+  swap() {
+    return new Pair (this.snd, this.fst);
+  }
+  polyrec(p) {
+    return polyrec (p.swap());
+  }
+}
+\end{lstlisting}
 
 Java has some features which make global type inference hard:
 \begin{itemize}
