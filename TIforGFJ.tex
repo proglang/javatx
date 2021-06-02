@@ -1,4 +1,6 @@
-
+% APLAS 21: 18 pages in the Springer LNCS format(LaTeX template),
+% including bibliography and figures
+% APLAS 2021 will use a lightweight double-blind reviewing process.
 \documentclass[runningheads]{llncs}
 
 \usepackage{todonotes} % [disable]
@@ -6,6 +8,7 @@
 \usepackage{hyperref}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{subcaption}
 \usepackage{prolog}
 
 \begin{document}
@@ -157,6 +160,7 @@ In this case the type inference algorithm has to try another type solution for \
 to render the program type correct.
 
 \section{Type inference algorithm}
+\label{sec:type-infer-algor}
 In this chapter we present our type inference algorithm.
 The algorithm is split into following parts, which are executed on a single class at a time:
 
