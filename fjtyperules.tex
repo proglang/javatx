@@ -1,9 +1,15 @@
-Our type inference algorithm takes typeless GFJ classes as input.
-The generated output is correct GFJ, although we have to alter some rules.
-This chapter defines the typing rules for our version of GFJ,
-which our type inference algorithm is able to process.
+The input for our type inference algorithm is based on Generic Featherweight Java (GFJ).
+GFJ is defined by syntax and typing rules.
+We already changed the syntax to allow typeless GFJ programs as input for our algorithm.
+Additionally we alter the typing rules slightly, which is presented in this chapter.
 
-We apply following changes to the type rules of GFJ:
+%Our type inference algorithm takes typeless GFJ classes as input.
+%The generated output is correct GFJ, although we have to alter some rules.
+%This chapter defines the typing rules for our version of GFJ,
+%which our type inference algorithm is able to process.
+
+Most of them stay the same as in the original GFJ language,
+except from the following changes:
 \begin{itemize}
 \item Removing the \texttt{MT-CLASS}, \texttt{D-CAST}, \texttt{U-CAST}, \texttt{S-CAST} rules
 \item The \texttt{GT-METHOD} rule is changed
