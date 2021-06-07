@@ -11,7 +11,7 @@ Additionally we alter the typing rules slightly, which is presented in this chap
 Most of them stay the same as in the original GFJ language,
 except from the following changes:
 \begin{itemize}
-\item Removing the \texttt{MT-CLASS}, \texttt{D-CAST}, \texttt{U-CAST}, \texttt{S-CAST} rules
+\item We remove the \texttt{MT-CLASS}, \texttt{D-CAST}, \texttt{U-CAST}, \texttt{S-CAST} rules
 \item The \texttt{GT-METHOD} rule is changed
 \item Overriding of methods is removed for our typeless GFJ version. Therefore also the rule \texttt{MT-SUPER} is removed.
 \item The \texttt{GT-INVK} rule is changed to support overloading
@@ -106,10 +106,10 @@ $ \ddfrac{\triangle \vdash N \ \texttt{ok} \quad \quad \textit{fields}(N) = \ol{
 & \\
 
 $\ddfrac{\begin{array}{c}
+\mathit{mtype}(m, \mathit{bound}_\triangle (T_0)) = (\exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{U} \to U)\\
 \triangle; \Gamma \vdash e_0 : T_0 \quad \quad
-(\exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{U} \to U) \in \mathit{mtype}(m, \mathit{bound}_\triangle (T_0))\\
 \triangle \vdash \ol{V} \ \texttt{OK} \quad \quad
-\triangle \vdash \ol{V} <: [\ol{V}/\ol{Y}]\ol{P} \quad \quad
+\triangle \vdash \ol{V} <: [\ol{V}/\ol{Y}]\ol{P} \\ %\quad \quad
 \triangle; \Gamma \vdash \ol{e} : \ol{S} \quad \quad
 \triangle \vdash \ol{S} <: [\ol{V}/\ol{Y}]\ol{U}
 \end{array}}
@@ -126,14 +126,12 @@ $ & GT-INVK
   \textbf{Method Typing:} & \\
   & \\
   $\ddfrac{\begin{array}{c}
+  \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots\ \ol{M}\ \ldots\} \\
+  \Gamma_m = \set{\textit{mtype}(m, \exptype{C}{\ol{X}}) = (\ol{T} \to T) \ |\ m \in \ol{M}}\\
   \triangle \vdash \ol{X} <: \ol{N}, \ol{Y} <: \ol{P}  \quad \quad 
   \triangle \vdash \ol{T}, T \ \texttt{ok} \\
-  \triangle ; \ol{x}:\ol{T}, this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
+  \triangle ; \Gamma_m,\ \ol{x}:\ol{T},\ this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
   \triangle \vdash S <: T \\
-  \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots \} \quad \quad
-  %\textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{T} \to T)
-  (\ol{T} \to T) \in \textit{mtype}(m, \exptype{C}{\ol{X}})\\
-  %\textit{override}(m, N,)
   \end{array}}{
   %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
   \textit{mtype}(m, \exptype{C}{\ol{Z}}) = [\ol{Z} / \ol{X}](\exptype{}{\ol{Y}} \ol{T} \to T)
@@ -160,6 +158,11 @@ $ & GT-INVK
 \end{tabular}
 \end{minipage}
 }
+
+In the typing system of GFJ \textit{mtype} is a global function which gives the type for every method in every class.
+It is defined by the \texttt{MT-CLASS} rule.
+In our type system it is also a global function but it is defined by the \texttt{GT-METHOD} rule.
+The difference to GFJ is that methods are typechecked one after another.
 
 
 
