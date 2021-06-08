@@ -4,18 +4,128 @@
 Examples, examples, examples from simple to more advanced showing off
 the (difficult) features of inference.
 
-Features:
-\begin{itemize}
-\item overloaded methods
-\item class header is complete in the form
-  $\mathtt{class}\ C\langle\overline X <: \overline N\rangle <: N \{
-  \overline T\ \overline f;\ K\ \overline M \}$
-\item constructor fully typed (as it is determined by the types of the
-  fields and the supertype)
-\item method signatures may be omitted, i.e., 
-  $M\ ::=\ m(\overline x) \{ \ \mathtt{return}\ e;\ \}$
-\item polymorphic recursive methods must be annotated.
-\end{itemize}
+\subsection{Polymorphic Recursion}
+\label{sec:polym-recurs}
+\begin{figure}[tp]
+  \begin{minipage}{0.5\linewidth}
+\begin{lstlisting}
+class UsePair {
+  <X,Y> Object prec(Pair<X,Y> p) {
+    return this.prec<Y,X> (p.swap<X,Y>());
+} }
+\end{lstlisting}
+  \end{minipage}
+  ~$\left|
+  \begin{minipage}{0.48\linewidth}
+\begin{lstlisting}
+class UsePair {
+  prec(p) {
+    return this.prec (p.swap());
+
+} }
+\end{lstlisting}
+  \end{minipage}\right.$
+  \caption{Examples for polymorphic recursion}
+  \label{fig:examples-poly-rec}
+\end{figure}
+
+As a toy example for polymorphic recursion consider a class in FGJ with a
+generic method \texttt{prec} that invokes itself
+recursively on a swapped version of its argument pair
+(Figure~\ref{fig:examples-poly-rec}, left).
+This method makes use of polymorphic recursion because the type of the
+recursive call is different from the type of the original call. More
+precisely, the original argument has type \texttt{Pair<X,Y>} whereas
+the argument of the recursive call has type
+\texttt{Pair<Y,X>}---an instance of the original type.
+
+For this particular example, global type inference succeeds on the
+corresponding stripped program shown in
+Figure~\ref{fig:examples-poly-rec}, right, but it yields a more restrictive
+typing of \texttt{<X> Object prec (Pair<X,X> p)} for the method. 
+A variation of the program with a non-variable instantiation makes type inference fail entirely:
+\begin{lstlisting}
+class UsePair2 {
+  <X,Y> Object prec(Pair<X,Y> p) {
+    return this.prec<Y,Pair<X,Y>> (new Pair (p.snd, p));
+  }
+}
+\end{lstlisting}
+
+
+
+Polymorphic recursion is known to make type inference intractable
+\cite{DBLP:journals/toplas/Henglein93,DBLP:journals/toplas/KfouryTU93}
+because it can be reduced to an undecidable semi-unification problem
+\cite{DBLP:journals/iandc/KfouryTU93}. However, type checking with
+polymorphic is tractable and routinely used in languages like Haskell
+and Java.
+
+\subsection{Multiple results}
+\label{sec:multiple-results}
+% Our global type inference algorithm is able to infer every type annotation.
+% For the sake of simplicity we will only consider method types in this
+% paper and assume that field types are specified.
+\begin{lstlisting}[float,caption={Types are not unique},label={lst:example-global}]
+class List<A> {
+  List<A> add(A item) {...}
+  A get() { ... }
+}
+class Global{
+  m(a){
+    return a.add(this).get();
+  }
+}
+\end{lstlisting}
+Consider the two classes in Listing~\ref{lst:example-global}.
+Global type inference processes classes in order of
+dependency. In this example, \texttt{Global} may depend on
+\texttt{List} because the \texttt{List} class defines methods \texttt{add} and
+\texttt{get} which may be used in \texttt{Global}. 
+
+Hence, it is safe to assume that the types for the methods of class \texttt{List}
+are already available, either because they are given (as in the code
+fragment) or because they were inferred before considering class \lstinline{Global}.
+
+The method \texttt{m} in class \texttt{Global} first applies
+\texttt{add} to \texttt{a}, so the type of \texttt{a} as well as the
+return type of \texttt{a.add(this)} must be
+\texttt{List<T>}, for some \texttt{T}. As \texttt{this} has
+type \texttt{Global}, it must be that \lstinline{Global} is a
+subtype of \lstinline{T}. By the typing of \texttt{get()} we find that
+the return type is also \lstinline{T}.
+
+But now we are in a dilemma because there are two possibilities for
+\lstinline{T} in this program, \lstinline{Global} and
+\lstinline{Object}, and they give rise to two incomparable types for
+\lstinline{m}, \lstinline{List<Global> -> Global} and
+\lstinline{List<Object> -> Object}. So there are two different FGJ
+programs that are completions of the \lstinline{Global} class.
+
+For that reason, our inference procedure returns an intersection type
+for the method in this situation. This way, a completion can use a
+more specific type than the inferred type.
+
+\begin{lstlisting}
+class Global {
+  <Global <: T> T m( List<T> a ) {
+    return a.add(this).get();
+}
+\end{lstlisting}
+
+
+% Features:
+% \begin{itemize}
+% \item overloaded methods
+% \item class header is complete in the form
+%   $\mathtt{class}\ C\langle\overline X <: \overline N\rangle <: N \{
+%   \overline T\ \overline f;\ K\ \overline M \}$
+% \item constructor fully typed (as it is determined by the types of the
+%   fields and the supertype)
+% \item method signatures may be omitted, i.e., 
+%   $M\ ::=\ m(\overline x) \{ \ \mathtt{return}\ e;\ \}$
+% \item polymorphic recursive methods must be annotated.
+% \end{itemize}
 
 %%% Local Variables:
 %%% mode: latex
