@@ -47,11 +47,14 @@ class Pair<X,Y> {
   X fst;
   Y snd;
   Pair<X,Y>(X fst, Y snd) {
-   this.fst=fst;
-   this.snd=snd;
+    this.fst=fst;
+    this.snd=snd;
   }
   Pair<X,Y> setfst(X fst) {
     return new Pair(fst, this.snd);
+  }
+  Pair<Y,X> swap() {
+    return new Pair(this.snd, this.fst);
   }
 }  
 \end{lstlisting}
@@ -65,11 +68,14 @@ class Pair<X,Y> {
   X fst;
   Y snd;
   Pair(fst, snd) {
-   this.fst=fst; 
-   this.snd=snd;
+    this.fst=fst; 
+    this.snd=snd;
   }
   setfst(fst) {
     return new Pair(fst, this.snd);
+  }
+  swap() {
+    return new Pair(this.snd, this.fst);
   }
 }  
 \end{lstlisting}
@@ -138,7 +144,7 @@ Map<String, Map<String, Object>> outerMap = ...
 \end{lstlisting}
   Global type inference finds most general types.
 \item Programmers may write types that are more specific than
-  necessary instead of using (more verbose) generic types. Here, type
+  necessary instead of using generic types. Here, type
   inference helps programmers to find the most general type. Suppose
   we wanted to add a static  method \lstinline/equalPair/ for pairs of integers to the
   \lstinline/Pair/ class.
@@ -147,131 +153,60 @@ boolean equalPair (Pair<Integer,Integer> p) {
   return p.fst.equals(p.snd);
 }
 \end{lstlisting}
-  With global type inference it would be sufficient to write
+  With global type inference it is sufficient to write the code on the
+  left of Figure~\ref{fig:equal-pair} and obtain the FGJ code with the most general type on the right.
+\end{itemize}
+  \begin{figure}[t]
+    \begin{minipage}[t]{0.49\linewidth}
 \begin{lstlisting}
 equalPair (p) {
   return p.fst.equals(p.snd);
 }
 \end{lstlisting}
-  to obtain the most general type
+    \end{minipage}
+    \begin{minipage}[t]{0.49\linewidth}
 \begin{lstlisting}
 <T> boolean equalPair (Pair<T,T> p) {
-  return p.fst.equals(p.snd);
+  return p.fst.equals<T>(p.snd);
 }
 \end{lstlisting}
-\todo[inline]{Is this example ok?}
+    \end{minipage}
+    \caption{equalPair}
+    \label{fig:equal-pair}
+  \end{figure}
 % \item Sometimes, it can be hard to find a correct typing at all.
 % \todo[inline]{example?}
-\end{itemize}
 
-In this paper, we report a theoretical study based on Featherweight
+In this paper, we study global type inference for Featherweight
 Generic Java \cite{DBLP:journals/toplas/IgarashiPW01} (FGJ), which is backed
-by an implementation for full Java.
+by an implementation for full Java. Our type inference algorithm
+applies to FGJ programs that specify the full class header and all field types,
+but omit all method signatures. 
+Given this input, our algorithm
+infers a set of most general method signatures (parameter types and return types).
+Inferred types are generic as much as possible, but do not include
+bounds.
 
-We proceed to give a bird's eye view of our results.
-
-Our global type inference algorithm infers the types in
-method signatures (parameter types and return types) for all
-FGJ programs that specify the full class header and all field types,
-but do not make use of polymorphic recursion.
-Inferred types are generic as much as possible, but do not include bounds.
-
-\begin{lstlisting}
-class Pair<X,Y> {
-  X fst;
-  Y snd;
-  Pair(fst, snd) {
-   this.fst=fst; 
-   this.snd=snd;
-  }
-  setfst(fst) {
-    return new Pair(this.snd, fst);
-  }
-  swap() {
-    return new Pair (this.snd, this.fst);
-  }
-  polyrec(p) {
-    return polyrec (p.swap());
-  }
-}
-\end{lstlisting}
-
-Java has some features which make global type inference hard:
-\begin{itemize}
-\item subtyping and overloading combined with a nominal type system;
-  we show NP-hardness even without overloading
-  \todo[inline]{correct?}
-\item mutable local variables and mutable object state,
-\item polymorphic recursion in method calls
-\item Inside a Java method it is possible to call every other declared Java method
-  \todo[inline]{meaning? The letrec-rule works on the fact that in a let statement:
-  \lstinline{let x = e in e2} the expression \texttt{e} is not able to use \texttt{x}}
-\item methods can have side effects.
-\end{itemize}
+The inferred signatures have the following round-trip property
+(relative completeness). If we
+start with an FGJ program that does not make use of polymorphic
+recursion (see Section~\ref{sec:polym-recurs}), strip all types from
+method signatures, and run the algorithm on the 
+resulting stripped program, then at least one of the inferred typings is more
+general than the types in the original FGJ program.
 
 
 
-For Generic Featherweight Java it is easier to decide because there is no state and therefore no wildcard types.
-Also we exclude polymorphic recursion.
 
-Example for local type inference in Java:
-\begin{lstlisting}{java}
-// Java 8 code:
-class Local {
-  // type inference puts in "ArrayList<String>()"
-  List<String> field = new ArrayList<>();
-}
-\end{lstlisting}
-\todo[inline]{Is this a drawback for LVTI? Does GTI put
-  \lstinline{List<String>} or \lstinline{Map} in the
-  \lstinline{outerMap} example?}
 
-\textbf{Example for global type inference:}
-Our global type inference algorithm is able to infer every type annotation.
-For the sake of simplicity we will only consider method types in this
-paper and assume that field types are specified.
-\begin{lstlisting}
-class List<A> {
-  List<A> add(A item) {...}
-  A get() { ... }
-}
-class Global{
-  m(a){
-    return a.add(this).get();
-  }
-}
-\end{lstlisting}
-In this setting, we can safely assume that the types for the methods of the \lstinline{List} classs
-are already available, either because they are given (as in the code
-fragment) or because they were
-inferred before considering class \lstinline{Global} as inference
-proceeds in order of dependency.
-
-The method \texttt{m} in class \texttt{Global} first applies
-\texttt{add} to \texttt{a}, so the type of \texttt{a} must be
-\lstinline{List<T>}, for some \lstinline{T}. As \lstinline{this} has
-type \lstinline{Global}, it must be that \lstinline{Global} is a
-subtype of \lstinline{T}. From that we find that the return type is
-that same type \lstinline{T}.
-
-But now we are in a dilemma because there are two possibilities for
-\lstinline{T} in this program, \lstinline{Global} and
-\lstinline{Object}, and they give rise to two incomparable types for
-\lstinline{m}, \lstinline{List<Global> -> Global} and
-\lstinline{List<Object> -> Object}. So there are two different FGJ
-programs that are completions of the \lstinline{Global} class.
-
-For that reason, our inference procedure returns an intersection type
-for the method in this situation. This way, a completion can use a
-more specific type than the inferred type.
 
 \subsection{Contributions}
 \label{sec:contributions}
 
 \begin{itemize}
-\item Algorithm for global type inference for FGJ (which technical 
-  results: soundness, completeness?)
-\item Global type inference for FGJ is NP hard.
+\item Algorithm for global type inference for FGJ. This algorithm is
+  sound and relatively complete for programs without polymorphic recursion.
+\item Global type inference for FGJ is NP complete.
 \item Implementation of global type inference for (full?) Java.
 \end{itemize}
 
