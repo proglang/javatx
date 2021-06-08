@@ -127,10 +127,12 @@ $ & GT-INVK
   & \\
   $\ddfrac{\begin{array}{c}
   \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots\ \ol{M}\ \ldots\} \\
-  \Gamma_C = \set{\textit{mtype}(m, \exptype{C}{\ol{X}}) = (\ol{T_m} \to T_m) \ |\ m \in \ol{M}}\\
-  \triangle \vdash \ol{X} <: \ol{N}, \ol{Y} <: \ol{P}  \quad \quad 
+  \texttt{meth}(\ol{x}) \{\texttt{return}\ e_0;\} \in \ol{M} \\
+  \Gamma_C = \set{ (\textit{mtype}(m, \exptype{C}{\ol{X}}) = \ol{T_m} \to T_m) \ |\ m \in \ol{M}}\\
+  (\textit{mtype}(\texttt{meth}, \exptype{C}{\ol{X}}) = \ol{T} \to T) \in \Gamma_C\\
+  \triangle \vdash \ol{X} <: \ol{N}  \quad \quad 
   \triangle \vdash \ol{T}, T \ \texttt{ok} \\
-  \triangle ; \Gamma_m,\ \ol{x}:\ol{T},\ this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
+  \triangle ; \Gamma_C,\ \ol{x}:\ol{T},\ this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
   \triangle \vdash S <: T \\
   \end{array}}{
   %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
@@ -144,12 +146,11 @@ $ & GT-INVK
   %GT-CLASS: - This rule is modified by us
   $\ddfrac{
     \begin{array}{c}
-    K = C(\overline{D} \ \overline{g}, \overline{C} \ \overline{f}) \{ \texttt{super}(\overline{g}); \ \texttt{this}.\overline{f}=\overline{f}; \} 
-    \quad \quad \textit{fields}(D) = \overline{D} \ \overline{g} \\
+    K = C(\overline{D} \ \overline{g}, \overline{C} \ \overline{f}) \{ \texttt{super}(\overline{g}); \ \texttt{this}.\overline{f}=\overline{f}; \} \\
     %\quad \quad \overline{M} \ \texttt{OK IN C} \\
     \texttt{class}\ \exptype{C}{\ldots} \triangleleft N \{ \ldots \ol{M} \ldots \} \quad \quad 
     U\ m(\ol{U}) \{ \ldots \} \in \ol{M} \\
-    \Gamma_C \vdash \textit{mtype}(m, \exptype{C}{\ol{Z}}) = (\exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{T} \to T)
+    \forall m \in \ol{M}:\ \Gamma_C \vdash \textit{mtype}(m, \exptype{C}{\ol{Z}}) = (\exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{T} \to T) \\
     \quad \quad \ol{X} <: \ol{N} \vdash \ol{N}, N, \ol{T}\ \texttt{ok}
   \end{array}
     }
@@ -165,7 +166,7 @@ In our type system it is also a global function but it is defined by the \texttt
 The difference to GFJ is that methods are typechecked one after another.
 There has to be one method which initially does not call any other method in the input program,
 except the ones in the same class.
-Also the resulting \textit{mtype} from the \texttt{GT-METHOD} rule is bound to the local method type context $\Gamma_C$.
+%Also the resulting \textit{mtype} from the \texttt{GT-METHOD} rule is bound to the local method type context $\Gamma_C$.
 
 The rule \texttt{GT-CLASS} only is valid, if every method in a class $C$ could satisfy the \texttt{GT-METHOD} rule with the same $\Gamma_C$.
 
