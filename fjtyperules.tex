@@ -134,10 +134,25 @@ $ & GT-INVK
   \triangle \vdash \ol{T}, T \ \texttt{ok} \\
   \triangle ; \Gamma_C,\ \ol{x}:\ol{T},\ this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
   \triangle \vdash S <: T \\
-  \end{array}}{
+  \end{array}} {
   %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
   \Gamma_C \vdash \textit{mtype}(m, \exptype{C}{\ol{Z}}) = [\ol{Z} / \ol{X}](\exptype{}{\ol{Y}} \ol{T} \to T)
   }$ & GT-METHOD \\
+  & \\
+  $\ddfrac{\begin{array}{c}
+  \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots\ \ol{M}\ \ldots\} \\
+  \textit{mtype}(m, \exptype{C}{\ol{X}}) = \ol{T_m} \to T_m \textrm{ for } m \in \ol{M}\\
+  \triangle \vdash \ol{X} <: \ol{N}  \quad \quad 
+  \triangle \vdash \ol{T}, T \ \texttt{ok} \\
+  \triangle ; \ol{x}:\ol{T_\mathit{meth}},\ this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
+  \triangle \vdash S <: T_\mathit{meth} \\
+  \end{array}} {
+  %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{
+  %\texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft
+  %\ol{N}}}
+   \exptype{}{\ol{Y}} T_\mathit{meth}\ \texttt{meth}(\ol{T_\mathit{meth}}\ \ol{\mathtt{x}}) \{\texttt{return}\ \mathtt{e}_0;\}
+  \texttt{ OK in }\exptype{C}{\ol{X} \triangleleft \ol{N}} 
+  }$ & GT-METHOD neu\\
   
   & \\
 
@@ -146,12 +161,13 @@ $ & GT-INVK
   %GT-CLASS: - This rule is modified by us
   $\ddfrac{
     \begin{array}{c}
+      \ol{X} <: \ol{N} \vdash \ol{N}, N, \ol{T}\ \texttt{ok}
+      \quad\quad fields(\mathtt{N}) = \ol{\mathtt{U}} \ \ol{\mathtt{g}}\\
+      \exptype{}{\ol{Y}} T_\mathit{m}\ \texttt{m}(\ol{T_\mathit{m}}\ \ol{\mathtt{x}}) \{\texttt{return}\ \mathtt{e}_0;\}
+  \texttt{ OK in }\exptype{C}{\ol{X} \triangleleft \ol{N}}  \textrm{ for all } m
+      \in \ol{\mathtt{M}}\\
     K = C(\overline{D} \ \overline{g}, \overline{C} \ \overline{f}) \{ \texttt{super}(\overline{g}); \ \texttt{this}.\overline{f}=\overline{f}; \} \\
     %\quad \quad \overline{M} \ \texttt{OK IN C} \\
-    \texttt{class}\ \exptype{C}{\ldots} \triangleleft N \{ \ldots \ol{M} \ldots \} \quad \quad 
-    U\ m(\ol{U}) \{ \ldots \} \in \ol{M} \\
-    \forall m \in \ol{M}:\ \Gamma_C \vdash \textit{mtype}(m, \exptype{C}{\ol{Z}}) = (\exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{T} \to T) \\
-    \quad \quad \ol{X} <: \ol{N} \vdash \ol{N}, N, \ol{T}\ \texttt{ok}
   \end{array}
     }
   {\texttt{class C extends D}\{ \overline{C} \ \overline{f}; \ K \ \overline{M} \} \ \texttt{OK}}
@@ -159,6 +175,26 @@ $ & GT-INVK
 \end{tabular}
 \end{minipage}
 }
+
+\fbox{
+\begin{minipage}{\textwidth}
+\begin{tabular}{l l}
+
+  \textbf{Method type lookup:} & \\
+  & \\
+  $\ddfrac{\begin{array}{c}
+  \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\triangleleft
+             \ol{N}\{ \overline{C} \ \overline{f}; \ K \ \overline{M} \} \ \mathtt{OK}\\
+  \exptype{}{\ol{Y}} T_\mathit{meth}\ \texttt{meth}(\ol{T_\mathit{meth}}\ \ol{\mathtt{x}}) \{\texttt{return}\ \mathtt{e}_0;\}
+  \texttt{ OK in }\exptype{C}{\ol{X} \triangleleft \ol{N}}
+  \end{array}} {
+  %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
+  \textit{mtype}(m, \exptype{C}{\ol{Z}}) = [\ol{Z} / \ol{X}](\exptype{}{\ol{Y}} \ol{T} \to T)
+  }$ & MT-CLASS
+\end{tabular}
+\end{minipage}
+}
+
 
 In the typing system of GFJ \textit{mtype} is a global function which gives the type for every method in every class.
 It is defined by the \texttt{MT-CLASS} rule.
