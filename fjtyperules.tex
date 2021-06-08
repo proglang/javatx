@@ -127,14 +127,14 @@ $ & GT-INVK
   & \\
   $\ddfrac{\begin{array}{c}
   \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots\ \ol{M}\ \ldots\} \\
-  \Gamma_m = \set{\textit{mtype}(m, \exptype{C}{\ol{X}}) = (\ol{T} \to T) \ |\ m \in \ol{M}}\\
+  \Gamma_C = \set{\textit{mtype}(m, \exptype{C}{\ol{X}}) = (\ol{T_m} \to T_m) \ |\ m \in \ol{M}}\\
   \triangle \vdash \ol{X} <: \ol{N}, \ol{Y} <: \ol{P}  \quad \quad 
   \triangle \vdash \ol{T}, T \ \texttt{ok} \\
   \triangle ; \Gamma_m,\ \ol{x}:\ol{T},\ this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
   \triangle \vdash S <: T \\
   \end{array}}{
   %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
-  \textit{mtype}(m, \exptype{C}{\ol{Z}}) = [\ol{Z} / \ol{X}](\exptype{}{\ol{Y}} \ol{T} \to T)
+  \Gamma_C \vdash \textit{mtype}(m, \exptype{C}{\ol{Z}}) = [\ol{Z} / \ol{X}](\exptype{}{\ol{Y}} \ol{T} \to T)
   }$ & GT-METHOD \\
   
   & \\
@@ -149,7 +149,7 @@ $ & GT-INVK
     %\quad \quad \overline{M} \ \texttt{OK IN C} \\
     \texttt{class}\ \exptype{C}{\ldots} \triangleleft N \{ \ldots \ol{M} \ldots \} \quad \quad 
     U\ m(\ol{U}) \{ \ldots \} \in \ol{M} \\
-    \textit{mtype}(m, \exptype{C}{\ol{Z}}) = (\exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{T} \to T)
+    \Gamma_C \vdash \textit{mtype}(m, \exptype{C}{\ol{Z}}) = (\exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{T} \to T)
     \quad \quad \ol{X} <: \ol{N} \vdash \ol{N}, N, \ol{T}\ \texttt{ok}
   \end{array}
     }
@@ -163,7 +163,11 @@ In the typing system of GFJ \textit{mtype} is a global function which gives the 
 It is defined by the \texttt{MT-CLASS} rule.
 In our type system it is also a global function but it is defined by the \texttt{GT-METHOD} rule.
 The difference to GFJ is that methods are typechecked one after another.
+There has to be one method which initially does not call any other method in the input program,
+except the ones in the same class.
+Also the resulting \textit{mtype} from the \texttt{GT-METHOD} rule is bound to the local method type context $\Gamma_C$.
 
+The rule \texttt{GT-CLASS} only is valid, if every method in a class $C$ could satisfy the \texttt{GT-METHOD} rule with the same $\Gamma_C$.
 
 
 %MT-CLASS: - This rule is not used by us
