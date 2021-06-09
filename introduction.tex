@@ -146,10 +146,10 @@ Map<String, Map<String, Object>> outerMap = ...
 \item Programmers may write types that are more specific than
   necessary instead of using generic types. Here, type
   inference helps programmers to find the most general type. Suppose
-  we wanted to add a static  method \lstinline/equalPair/ for pairs of integers to the
+  we wanted to add a static  method \texttt{eqPair} for pairs of integers to the
   \lstinline/Pair/ class.
 \begin{lstlisting}[basicstyle=\ttfamily\fontsize{8}{9.6}\selectfont]
-boolean equalPair (Pair<Integer,Integer> p) {
+boolean eqPair (Pair<Integer,Integer> p) {
   return p.fst.equals(p.snd);
 }
 \end{lstlisting}
@@ -159,19 +159,19 @@ boolean equalPair (Pair<Integer,Integer> p) {
   \begin{figure}[t]
     \begin{minipage}[t]{0.49\linewidth}
 \begin{lstlisting}
-equalPair (p) {
+eqPair (p) {
   return p.fst.equals(p.snd);
 }
 \end{lstlisting}
     \end{minipage}
     \begin{minipage}[t]{0.49\linewidth}
 \begin{lstlisting}
-<T> boolean equalPair (Pair<T,T> p) {
+<T> boolean eqPair (Pair<T,T> p){
   return p.fst.equals<T>(p.snd);
 }
 \end{lstlisting}
     \end{minipage}
-    \caption{equalPair}
+    \caption{eqPair}
     \label{fig:equal-pair}
   \end{figure}
 % \item Sometimes, it can be hard to find a correct typing at all.
