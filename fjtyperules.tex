@@ -119,25 +119,13 @@ $ & GT-INVK
 \end{minipage}
 }
 
+
+
 \fbox{
 \begin{minipage}{\textwidth}
 \begin{tabular}{l l}
 
-  \textbf{Method Typing:} & \\
-  & \\
-  $\ddfrac{\begin{array}{c}
-  \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots\ \ol{M}\ \ldots\} \\
-  \texttt{meth}(\ol{x}) \{\texttt{return}\ e_0;\} \in \ol{M} \\
-  \Gamma_C = \set{ (\textit{mtype}(m, \exptype{C}{\ol{X}}) = \ol{T_m} \to T_m) \ |\ m \in \ol{M}}\\
-  (\textit{mtype}(\texttt{meth}, \exptype{C}{\ol{X}}) = \ol{T} \to T) \in \Gamma_C\\
-  \triangle \vdash \ol{X} <: \ol{N}  \quad \quad 
-  \triangle \vdash \ol{T}, T \ \texttt{ok} \\
-  \triangle ; \Gamma_C,\ \ol{x}:\ol{T},\ this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
-  \triangle \vdash S <: T \\
-  \end{array}} {
-  %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
-  \Gamma_C \vdash \textit{mtype}(m, \exptype{C}{\ol{Z}}) = [\ol{Z} / \ol{X}](\exptype{}{\ol{Y}} \ol{T} \to T)
-  }$ & GT-METHOD \\
+  \textbf{Method Typing:} 
   & \\
   $\ddfrac{\begin{array}{c}
   \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots\ \ol{M}\ \ldots\} \\
@@ -152,7 +140,7 @@ $ & GT-INVK
   %\ol{N}}}
    \exptype{}{\ol{Y}} T_\mathit{meth}\ \texttt{meth}(\ol{T_\mathit{meth}}\ \ol{\mathtt{x}}) \{\texttt{return}\ \mathtt{e}_0;\}
   \texttt{ OK in }\exptype{C}{\ol{X} \triangleleft \ol{N}} 
-  }$ & GT-METHOD neu\\
+  }$ & GT-METHOD\\
   
   & \\
 
@@ -175,6 +163,28 @@ $ & GT-INVK
 \end{tabular}
 \end{minipage}
 }
+\commentarymargin{
+\begin{tabular}{l l}
+
+  \textbf{Method Typing:} & \\
+  & \\
+  $\ddfrac{\begin{array}{c}
+  \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots\ \ol{M}\ \ldots\} \\
+  \texttt{meth}(\ol{x}) \{\texttt{return}\ e_0;\} \in \ol{M} \\
+  \Gamma_C = \set{ (\textit{mtype}(m, \exptype{C}{\ol{X}}) = \ol{T_m} \to T_m) \ |\ m \in \ol{M}}\\
+  (\textit{mtype}(\texttt{meth}, \exptype{C}{\ol{X}}) = \ol{T} \to T) \in \Gamma_C\\
+  \triangle \vdash \ol{X} <: \ol{N}  \quad \quad 
+  \triangle \vdash \ol{T}, T \ \texttt{ok} \\
+  \triangle ; \Gamma_C,\ \ol{x}:\ol{T},\ this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
+  \triangle \vdash S <: T \\
+  \end{array}} {
+  %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
+  \Gamma_C \vdash \textit{mtype}(m, \exptype{C}{\ol{Z}}) = [\ol{Z} / \ol{X}](\exptype{}{\ol{Y}} \ol{T} \to T)
+  }$ & GT-METHOD
+\end{tabular}
+}
+
+
 
 \fbox{
 \begin{minipage}{\textwidth}
@@ -196,7 +206,7 @@ $ & GT-INVK
 }
 
 
-In the typing system of GFJ \textit{mtype} is a global function which gives the type for every method in every class.
+\commentarymargin{In the typing system of GFJ \textit{mtype} is a global function which gives the type for every method in every class.
 It is defined by the \texttt{MT-CLASS} rule.
 In our type system it is also a global function but it is defined by the \texttt{GT-METHOD} rule.
 The difference to GFJ is that methods are typechecked one after another.
@@ -204,7 +214,24 @@ There has to be one method which initially does not call any other method in the
 except the ones in the same class.
 %Also the resulting \textit{mtype} from the \texttt{GT-METHOD} rule is bound to the local method type context $\Gamma_C$.
 
-The rule \texttt{GT-CLASS} only is valid, if every method in a class $C$ could satisfy the \texttt{GT-METHOD} rule with the same $\Gamma_C$.
+The rule \texttt{GT-CLASS} only is valid, if every method in a class $C$ could satisfy the \texttt{GT-METHOD} rule with the same $\Gamma_C$.}
+
+
+\medskip
+In the typing system of GFJ \textit{mtype} is a global function which gives the type for every method in every class.
+In our type system it is also a global function but it is differed between
+methods declared in the actual class and methods from other classes.
+
+The main difference between the type system of GFJ and our type system is that
+in the \texttt{MT-CLASS} rule the correspondig class has to be proved as \texttt{OK}
+by the \texttt{GT-CLASS} rule which means that for all methods of the class a type has to
+be assumed and proved as correct be the \texttt{GT-METHOD} rule.
+In this rule
+for all methods in the actual class a type is assumed by the
+declaration of the \texttt{mtype} function.
+These assumptions have to be proved as correct. Then the assumed type is
+\texttt{OK} in the correspondig class. 
+
 
 
 %MT-CLASS: - This rule is not used by us
