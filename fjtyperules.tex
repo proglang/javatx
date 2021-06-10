@@ -230,7 +230,10 @@ In this rule
 for all methods in the actual class a type is assumed by the
 declaration of the \texttt{mtype} function.
 These assumptions have to be proved as correct. Then the assumed type is
-\texttt{OK} in the correspondig class. 
+\texttt{OK} in the correspondig class. Additionally, the containing type
+variables are generalized (marked by $\exptype{}{\ol{Y}}$). The type variables
+$\ol{\mathtt{Y}}$ are not generalized during the prove. The reason is the
+undecidablity of polymorphic recursion (cp. Sec. \ref{sec:polym-recurs}).
 
 
 
