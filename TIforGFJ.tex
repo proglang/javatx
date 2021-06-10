@@ -54,11 +54,8 @@ Peter Thiemann}
 
 \section{Preliminaries}
 \label{sec:preliminaries}
-
-\subsection{Featherweight Java Typing Rules}
-\input{fjtyperules}
-
-\subsection{Input assumptions}
+\subsection{The language}
+\commentarymargin{Input assumptions}
 % No overloaded methods
 % No Or-Constraints
 The input is a GFJ program lacking the type assignments for method parameters and method return types.
@@ -82,6 +79,11 @@ We declare the syntax for TGFJ as follows:
 
 All type annotations in our TGFJ language can be omitted ($T = \epsilon$).
 The only exception are fields which must be given a concrete type.
+
+\subsection{Featherweight Java Typing Rules}
+\input{fjtyperules}
+
+
 
 Another difference to the syntax of GFJ is that we added the special variable \texttt{this} to the syntax.
 FJ treats \texttt{this} as a normal variable

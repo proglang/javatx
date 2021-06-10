@@ -1,4 +1,4 @@
-
+\usepackage{color,ulem}
 \usepackage{listings}
 \lstset{language=Java,
   showspaces=false,
@@ -27,4 +27,8 @@
 
 \newcommand{\set}[1]{\{ #1 \} }
 
+\definecolor{red}{rgb}{1,0,0}
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+
 \newcommand{\commentarymargin}[1]{\marginpar[\tiny #1]{\tiny #1}}
+\newcommand{\erased}[1]{\commentarymargin{\sout{erased:\\ #1}}}
