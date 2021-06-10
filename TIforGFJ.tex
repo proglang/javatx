@@ -52,113 +52,7 @@ Peter Thiemann}
 
 \input{motivation}
 
-\section{Preliminaries}
-\label{sec:preliminaries}
-
-\subsection{Featherweight Java Typing Rules}
-\input{fjtyperules}
-
-\subsection{Input assumptions}
-% No overloaded methods
-% No Or-Constraints
-The input is a GFJ program lacking the type assignments for method parameters and method return types.
-
-
-The Typeless Generic Featherweight Java (TGFJ) syntax is different in that from normal Generic Featherweight Java (GFJ) that it is possible
-to omit the type annotations for methods.%, except the ones for casts and \texttt{new} calls.
-We declare the syntax for TGFJ as follows:
-
-\begin{align*}
-  T ::=& X \, | \, N \\
-  N ::=& \exptype{C}{\ol{T}}\\
-  L ::=& \mathtt{class } \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \ \triangleleft \ N \{ \overline{T} \ \overline{f}; \, K \, \overline{M} \} \\
-  K ::=& C(\overline{T} \ \overline{f})\{\mathtt{super}(\overline{f}); \ \mathtt{this}.\overline{f}=\overline{f};\} \\
-  %M ::=& \exptype{}{\ol{X} \triangleleft \ol{X}}\ T \ \mathtt{m}(\overline{T} \, \overline{x})\{ \mathtt{ return }\ e; \} \\
-  M ::=& \mathtt{m}(\overline{x})\{ \mathtt{ return }\ e; \} \\
-  e ::=& \mathtt{this} \, | \, x \, | \, e.f \, | \, e.\mathtt{m}(\overline{e}) \, | \, \mathtt{new }\ N(\overline{e})
-  %M ::=& T \ \mathtt{m}(\overline{T} \, \overline{x})\{ \mathtt{ return }\ e; \} \\
-  %e ::=& \mathtt{this} \, | \, x \, | \, e.f \, | \, e.\exptype{\mathtt{m}}{\ol{T}}(\overline{e}) \, | \, \mathtt{new }\ C(\overline{e}) \, | \, (C) e \\
-\end{align*}
-
-All type annotations in our TGFJ language can be omitted ($T = \epsilon$).
-The only exception are fields which must be given a concrete type.
-
-Another difference to the syntax of GFJ is that we added the special variable \texttt{this} to the syntax.
-FJ treats \texttt{this} as a normal variable
-but our algorithm treats it as a special variable which always has a predetermined type;
-the type of the class it is used in.
-
-Type inference for polymorphic recursion is undecidable.
-Therefore we have to alter the GFJ typing rules to exclude polymorphic recursion in method calls:
-\begin{enumerate}
-    \item The \texttt{MT-CLASS} rule is removed.
-    \item We change the \texttt{GT-METHOD} rule:
-GT-METHOD:
-\begin{align*}
-\ddfrac{\begin{array}{c}
-\triangle \vdash \ol{X} <: \ol{N}, \ol{Y} <: \ol{P}  \quad \quad 
-\triangle \vdash \ol{T}, T \ \texttt{ok} \\
-\triangle ; \ol{x}:\ol{T}, this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
-\triangle \vdash S <: T \\
-\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots \} \quad \quad
-%\textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{T} \to T)
-\ol{T} \to T  \in \textit{mtype}(m, \exptype{C}{\ol{X}}) \\
-%\textit{override}(m, N,)
-\end{array}}{
-%{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
-\textit{mtype}(m, \exptype{C}{\ol{Z}}) = [\ol{Z} / \ol{X}](\exptype{}{\ol{Y}} \ol{T} \to T)
-}
-\end{align*}
-\end{enumerate}
-
-\subsection{Principal Type}
-Generic Featherweight Java has no unique principal typing.
-We can show this easily with an example.
-We try to find the principal type for the method \texttt{method1}.
-\begin{lstlisting}
-class Global{
-  method1(a){
-    a.add(this);
-    return a.get();
-  }
-}
-class List<A> {
-  add(A item){...}
-  A get() ...
-}
-\end{lstlisting}
-In \texttt{method1} neither the return type nor the type for the parameter \texttt{a} are specified.
-The return type of the method depends on the type of \texttt{a}.
-If we set in the type \texttt{List<Object>} here, then \texttt{method1} would return \texttt{Object}.
-The type \texttt{List<Global>} would also be correct.
-Then the return type of the method can also be the type \texttt{Global}.
-
-The principal type would either be an intersection type or the method \texttt{method1} has to be overloaded.
-GFJ neither supports intersection types nor overloading.
-Therefore we cannot set in the principal type and have to stick with one of the possible solutions,
-for example\\
-\texttt{List<Global> method1(List<Global> a)}.
-
-It is possible for a class to have multiple principal type solutions.
-This can lead to a type error when compiling multiple classes.
-\begin{lstlisting}
-  class Global{
-    method1(a){
-      a.add(this);
-      return a.get();
-    }
-  }
-  class Class2{
-    Object test(){
-      return new Global().method1(new List<Object>());
-    }
-  }
-\end{lstlisting}
-Our type inference algorithm is able to infer all of the principal type solutions, but only one of them can be set in.
-If we set in \texttt{List<Global>} as the parameter type for the \texttt{method1},
-then the class \texttt{Class2} would lead to a type error.
-In this case the type inference algorithm has to try another type solution for \texttt{method1}
-to render the program type correct.
+\input{preliminaries}
 
 \section{Type inference algorithm}
 \label{sec:type-infer-algor}
@@ -399,13 +293,13 @@ When compiling multiple classes the problem arises,
 that only one of the type solutions calculated by \textbf{Unify} is correct
 in respective to the other classes that will be compiled afterwards.
 
-All types that are possible under the GFJ typing rules, plus our additional assumptions,
+All types that are possible under the FGJ typing rules, plus our additional assumptions,
 also comply with the generated constraints.
 
 We match every generated constraint with the respective type rule to show completeness of our \textbf{FJTYPE} algorithm.
-This shows that none of the generated constraints remove a type which otherwise would be possible under the GFJ typing rules.
+This shows that none of the generated constraints remove a type which otherwise would be possible under the FGJ typing rules.
 The constraints are generated on expression statements.
-We now compare the constraints for each expression with the appropriate type rule from GFJ:
+We now compare the constraints for each expression with the appropriate type rule from FGJ:
 \begin{description}
   \item [this]
   has always the type of the surrounding class and generates no constraints.
@@ -414,12 +308,12 @@ We now compare the constraints for each expression with the appropriate type rul
   \item[Method invocation]
 By direct comparison we show that each of the generated constraints do not apply more restrictions than the \texttt{GT-INVK} rule.
 The \texttt{GT-INVK} rule states the condition $\textit{mtype}(m, \textit{bound}_\triangle(T_0)) = \exptype{}{\ol{Y}}\ \ol{U} \to U$.
-%In our version of typeless GFJ every method name is unique
+%In our version of typeless FGJ every method name is unique
 %and there is only one class with that particular method.
 The constraint $rty \lessdot \exptype{C}{\textbf{fresh}(\ol{X})}$ assures that the type of the expression $e_0$ contains the method \texttt{m}.
 
 \begin{tabular}{l|l}
-  \textbf{GFJ Type rule} & \textbf{Constraints} \\
+  \textbf{FGJ Type rule} & \textbf{Constraints} \\
   $\triangle; \Gamma \vdash e_o : T_0$ & $(rty, ConS) = \textbf{TYPEExpr}(Ass, e_r)$\\ 
   $\quad \textit{mtype}(m, \textit{bound}_\triangle(T_0)) = \exptype{}{\ol{Y}}\ \ol{U} \to U$ & $rty \lessdot \exptype{C}{\textbf{fresh}(\ol{X})}$ \\
  %$\textit{mtype}(m, \textit{bound}_\triangle(T_0)) = \ol{U} \to U$ & $rty \doteq cl$\\
@@ -431,10 +325,10 @@ The constraint $rty \lessdot \exptype{C}{\textbf{fresh}(\ol{X})}$ assures that t
 \textit{Note}: The \textbf{TYPEExpr} function only generates constraints which apply to our assumption.
  \item[Field access]
 Mostly the same as method invocation.
-Fieldnames by default are unique in the GFJ language.
+Fieldnames by default are unique in the FGJ language.
 
  \begin{tabular}{l|l}
-   \textbf{GFJ Type rule} & \textbf{Constraints} \\
+   \textbf{FGJ Type rule} & \textbf{Constraints} \\
    $\Gamma \vdash e_0:T_0$ & $(rty, ConS) = \textbf{TYPEExpr}(Ass, e_r)$\\ 
    $\quad \mathit{fields}(\mathit{bound}_\triangle(T_0)) = \overline{T} \ \overline{f}$ & $rty \doteq \exptype{C}{\textbf{fresh}(\ol{X})}$ \\
   %$\textit{mtype}(m, \textit{bound}_\triangle(T_0)) = \ol{U} \to U$ & $rty \doteq cl$\\
@@ -706,7 +600,7 @@ Proof:
 \item[$(a \lessdot \exptype{C}{\ol{X}})$] If $\sigma$ is a correct unifier for a set containing $(a \doteq \exptype{D}{\ol{A}})$
 and $(\ol{X} \doteq \ol{Y'})$
 , then $\sigma$ is also a correct unifier for the set containing $(a \lessdot \exptype{C}{\ol{X}})$.
-The reason is the \texttt{S-CLASS} subtype rule of GFJ. %TODO: Hier etwas ausführlicher?
+The reason is the \texttt{S-CLASS} subtype rule of FGJ. %TODO: Hier etwas ausführlicher?
 %TODO:
 %\item[$(\exptype{C}{\ol{T}} \lessdot a)$] Same goes the other way. If $\exptype{C}{\ol{X} leq \theta$ and $\sigma$ is correct for $(C \lessdot \theta)$
 %then $\sigma$ is also correct for $(a \doteq \theta)$
@@ -732,7 +626,7 @@ $\ddfrac{
 }{
   \triangle \vdash \exptype{C}{\ol{T}} <: [\ol{T}/\ol{X}]N
 }$ 
-\caption{Generic Featherweight Java subtyping rules}\label{fig:gfj-subtyping-rules}
+\caption{Featherweight Generic Java subtyping rules}\label{fig:gfj-subtyping-rules}
 \end{figure}
 
 \footnote{
@@ -896,15 +790,15 @@ This means there are only two kinds of constraints left.
 %We can set all TVs equal, because we allow only same TVs when having circles in a method call.
 %This still will lead to the principal type.
 
-The GFJ language does not allow subtype constraints for generic types.
+The FGJ language does not allow subtype constraints for generic types.
 A constraint like $(A \lessdot B)$ in a solution could be inserted as the typing shown in the example below.
-But this is not allowed by the syntax of GFJ.
+But this is not allowed by the syntax of FGJ.
 That is why we can treat this constraint as $(A \doteq B)$.
 
 %TODO: This does not alter the outcome because the solution set is not modified anymore. All other TVs alread have a type like A =. Typ
 
 \textit{Example:}
-This would be a valid Java program but is not allowed in GFJ:
+This would be a valid Java program but is not allowed in FGJ:
 \begin{lstlisting}
 class Example {
   <A extends Object, B extends A> A id(B a){
@@ -965,7 +859,7 @@ class List<A> {
 
 The method \texttt{method1} would get the type $\set{ \exptype{List}{Object} \to \texttt{Object}
 \ || \ \exptype{List}{Global} \to \texttt{Global}}$.
-If GFJ would support overloaded methods this could be written as:
+If FGJ would support overloaded methods this could be written as:
 \begin{lstlisting}
 class Global{
   Object method1(List<Object> a){
@@ -1063,7 +957,7 @@ class TwoMethods extends Object {
 
 \textbf{Example 3}\\
 %TODO: Ein Beispiel für die Unify-adapt Regel
-GFJ allows subtype relations like the following:
+FGJ allows subtype relations like the following:
 \begin{lstlisting}
 class Map<A,B> extends Object {
   Map<A,B>() { super(); }
@@ -1186,7 +1080,7 @@ Java has some features which make global type inference hard:
 \end{itemize}
 
 
-For Generic Featherweight Java it is easier to decide because there is no state and therefore no wildcard types.
+For Featherweight Generic Java it is easier to decide because there is no state and therefore no wildcard types.
 Also we exclude polymorphic recursion.
 
 % Example for local type inference in Java:
@@ -1215,3 +1109,8 @@ Also we exclude polymorphic recursion.
 \endinput
 %%
 %% End of file `TIforGFJ.tex'.
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

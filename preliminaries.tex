@@ -1,0 +1,112 @@
+\section{Preliminaries}
+\label{sec:preliminaries}
+
+\subsection{Featherweight Java Typing Rules}
+\input{fjtyperules}
+
+\subsection{Input assumptions}
+% No overloaded methods
+% No Or-Constraints
+The input is a FGJ program lacking the type assignments for method parameters and method return types.
+
+
+The Typeless Featherweight Generic Java (TFGJ) syntax is different in that from normal Featherweight Generic Java (FGJ) that it is possible
+to omit the type annotations for methods.%, except the ones for casts and \texttt{new} calls.
+We declare the syntax for TFGJ as follows:
+
+\begin{align*}
+  T ::=& X \, | \, N \\
+  N ::=& \exptype{C}{\ol{T}}\\
+  L ::=& \mathtt{class } \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \ \triangleleft \ N \{ \overline{T} \ \overline{f}; \, K \, \overline{M} \} \\
+  K ::=& C(\overline{T} \ \overline{f})\{\mathtt{super}(\overline{f}); \ \mathtt{this}.\overline{f}=\overline{f};\} \\
+  %M ::=& \exptype{}{\ol{X} \triangleleft \ol{X}}\ T \ \mathtt{m}(\overline{T} \, \overline{x})\{ \mathtt{ return }\ e; \} \\
+  M ::=& \mathtt{m}(\overline{x})\{ \mathtt{ return }\ e; \} \\
+  e ::=& \mathtt{this} \, | \, x \, | \, e.f \, | \, e.\mathtt{m}(\overline{e}) \, | \, \mathtt{new }\ N(\overline{e})
+  %M ::=& T \ \mathtt{m}(\overline{T} \, \overline{x})\{ \mathtt{ return }\ e; \} \\
+  %e ::=& \mathtt{this} \, | \, x \, | \, e.f \, | \, e.\exptype{\mathtt{m}}{\ol{T}}(\overline{e}) \, | \, \mathtt{new }\ C(\overline{e}) \, | \, (C) e \\
+\end{align*}
+
+All type annotations in our TFGJ language can be omitted ($T = \epsilon$).
+The only exception are fields which must be given a concrete type.
+
+Another difference to the syntax of FGJ is that we added the special variable \texttt{this} to the syntax.
+FJ treats \texttt{this} as a normal variable
+but our algorithm treats it as a special variable which always has a predetermined type;
+the type of the class it is used in.
+
+Type inference for polymorphic recursion is undecidable.
+Therefore we have to alter the FGJ typing rules to exclude polymorphic recursion in method calls:
+\begin{enumerate}
+    \item The \texttt{MT-CLASS} rule is removed.
+    \item We change the \texttt{GT-METHOD} rule:
+GT-METHOD:
+\begin{align*}
+\ddfrac{\begin{array}{c}
+\triangle \vdash \ol{X} <: \ol{N}, \ol{Y} <: \ol{P}  \quad \quad 
+\triangle \vdash \ol{T}, T \ \texttt{ok} \\
+\triangle ; \ol{x}:\ol{T}, this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
+\triangle \vdash S <: T \\
+\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots \} \quad \quad
+%\textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{T} \to T)
+\ol{T} \to T  \in \textit{mtype}(m, \exptype{C}{\ol{X}}) \\
+%\textit{override}(m, N,)
+\end{array}}{
+%{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
+\textit{mtype}(m, \exptype{C}{\ol{Z}}) = [\ol{Z} / \ol{X}](\exptype{}{\ol{Y}} \ol{T} \to T)
+}
+\end{align*}
+\end{enumerate}
+
+\subsection{Principal Type}
+Featherweight Generic Java has no unique principal typing.
+We can show this easily with an example.
+We try to find the principal type for the method \texttt{method1}.
+\begin{lstlisting}
+class Global{
+  method1(a){
+    a.add(this);
+    return a.get();
+  }
+}
+class List<A> {
+  add(A item){...}
+  A get() ...
+}
+\end{lstlisting}
+In \texttt{method1} neither the return type nor the type for the parameter \texttt{a} are specified.
+The return type of the method depends on the type of \texttt{a}.
+If we set in the type \texttt{List<Object>} here, then \texttt{method1} would return \texttt{Object}.
+The type \texttt{List<Global>} would also be correct.
+Then the return type of the method can also be the type \texttt{Global}.
+
+The principal type would either be an intersection type or the method \texttt{method1} has to be overloaded.
+FGJ neither supports intersection types nor overloading.
+Therefore we cannot set in the principal type and have to stick with one of the possible solutions,
+for example\\
+\texttt{List<Global> method1(List<Global> a)}.
+
+It is possible for a class to have multiple principal type solutions.
+This can lead to a type error when compiling multiple classes.
+\begin{lstlisting}
+  class Global{
+    method1(a){
+      a.add(this);
+      return a.get();
+    }
+  }
+  class Class2{
+    Object test(){
+      return new Global().method1(new List<Object>());
+    }
+  }
+\end{lstlisting}
+Our type inference algorithm is able to infer all of the principal type solutions, but only one of them can be set in.
+If we set in \texttt{List<Global>} as the parameter type for the \texttt{method1},
+then the class \texttt{Class2} would lead to a type error.
+In this case the type inference algorithm has to try another type solution for \texttt{method1}
+to render the program type correct.
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "TIforGFJ"
+%%% End:
