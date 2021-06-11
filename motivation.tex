@@ -4,6 +4,8 @@
 Examples, examples, examples from simple to more advanced showing off
 the (difficult) features of inference.
 
+It would be good to have an example with inheritance!
+
 \begin{lstlisting}
 // given this (abstract) class
 class Function<S,T> {
@@ -13,7 +15,7 @@ class Function<S,T> {
 class Box<S> {
   S val;
   map(f) {
-    return new Box(f.apply(this.val));
+    return new Box<>(f.apply(this.val));
 } }
 // the desired outcome is
 class Box<S> {
@@ -22,7 +24,40 @@ class Box<S> {
     return new Box<T>(f.apply<S,T>(this.val));
 } }
 \end{lstlisting}
+What happens if we add subclasses of \texttt{Function} as in
+\begin{lstlisting}
+class Not <: Function<Bool,Bool> {
+  apply(b) { return b.not(); }
+}
+class Negate <: Function<Int,Int> {
+  apply(x) { return x.negate(); }
+}
+\end{lstlisting}
 
+\begin{lstlisting}
+class MultPair {
+  mult (p) { return p.fst * p.snd; }
+}
+\end{lstlisting}
+The \texttt{MultPair} example is problematic because it relies on the overloading
+multiplication operator. But given this \texttt{Int} class and the
+generic \texttt{Pair} class, it could fly.
+\begin{lstlisting}
+class Int {
+  Int mult(Int y) {...}
+}
+class MultPair {
+  mult (p) { return p.fst.mult(p.snd); }
+}
+\end{lstlisting}
+Assume $\mv p:P$
+\begin{itemize}
+\item From \texttt{p.fst}: $P \le \mathtt{Pair}<X,Y>$ and
+  $\texttt{p.fst} : X$
+\item From \texttt{p.snd}: $P \le \mathtt{Pair}<X,Y>$ and
+  $\texttt{p.snd} : Y$
+\item From \texttt{.mult (p.snd)}: $X \le \mathtt{Int}$ and $Y \le \mathtt{Int}$.
+\end{itemize}
 \subsection{Multiple results}
 \label{sec:multiple-results}
 % Our global type inference algorithm is able to infer every type annotation.
