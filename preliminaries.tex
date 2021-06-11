@@ -1,10 +1,7 @@
 \section{Preliminaries}
 \label{sec:preliminaries}
-
-\subsection{Featherweight Java Typing Rules}
-\input{fjtyperules}
-
-\subsection{Input assumptions}
+\subsection{The language}
+\commentarymargin{Input assumptions}
 % No overloaded methods
 % No Or-Constraints
 \begin{figure}[tp]
@@ -30,11 +27,13 @@ program in Typeless Featherweight Generic Java (TFGJ). Its syntax
 from Featherweight Generic Java (FGJ) in that it is possible to omit
 the type annotations for method parameters and return types.%, except the ones for casts and \texttt{new} calls.
 
-
-
-
-All type annotations in our TFGJ language can be omitted ($T = \epsilon$).
+All type annotations in our TGFJ language can be omitted ($T = \epsilon$).
 The only exception are fields which must be given a concrete type.
+
+\subsection{Featherweight Java Typing Rules}
+\input{fjtyperules}
+
+
 
 Another difference to the syntax of FGJ is that we added the special variable \texttt{this} to the syntax.
 FJ treats \texttt{this} as a normal variable
