@@ -7,24 +7,31 @@
 \subsection{Input assumptions}
 % No overloaded methods
 % No Or-Constraints
-The input is a FGJ program lacking the type assignments for method parameters and method return types.
-
-
-The Typeless Featherweight Generic Java (TFGJ) syntax is different in that from normal Featherweight Generic Java (FGJ) that it is possible
-to omit the type annotations for methods.%, except the ones for casts and \texttt{new} calls.
-We declare the syntax for TFGJ as follows:
-
+\begin{figure}[tp]
 \begin{align*}
-  T ::=& X \, | \, N \\
-  N ::=& \exptype{C}{\ol{T}}\\
-  L ::=& \mathtt{class } \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \ \triangleleft \ N \{ \overline{T} \ \overline{f}; \, K \, \overline{M} \} \\
-  K ::=& C(\overline{T} \ \overline{f})\{\mathtt{super}(\overline{f}); \ \mathtt{this}.\overline{f}=\overline{f};\} \\
-  %M ::=& \exptype{}{\ol{X} \triangleleft \ol{X}}\ T \ \mathtt{m}(\overline{T} \, \overline{x})\{ \mathtt{ return }\ e; \} \\
-  M ::=& \mathtt{m}(\overline{x})\{ \mathtt{ return }\ e; \} \\
-  e ::=& \mathtt{this} \, | \, x \, | \, e.f \, | \, e.\mathtt{m}(\overline{e}) \, | \, \mathtt{new }\ N(\overline{e})
+  \mv T &::= \mv X \, | \, \mv N \\
+  \mv N &::= \exptype{C}{\ol{T}}\\
+  \mv L &::= \mathtt{class} \ \exptype{C}{\ol{X} \triangleleft \ol{N}}
+             \triangleleft \ \mv N \{ \ol{T} \ \ol{f}; \,\mv K \, \ol{M} \} \\
+  \mv K &::= \mv C(\ol{T} \ \ol{f})\{\mathtt{super}(\ol{f}); \ \mathtt{this}.\ol{f}=\ol{f};\} \\
+  %M &::= \exptype{}{\ol{X} \triangleleft \ol{X}}\ T \ \mathtt{m}(\overline{T} \, \overline{x})\{ \mathtt{ return }\ e; \} \\
+  \mv M &::= \mathtt{m}(\ol{x})\{ \mathtt{ return}\ \mv e; \} \\
+  \mv e &::= \mathtt{this} \, | \, \mv x \, | \, \mv e.\mv f \, | \,
+             \mv e.\mathtt{m}(\ol{e}) \, | \, \mathtt{new}\ \mathtt{C}{\diamond}(\ol{e})
   %M ::=& T \ \mathtt{m}(\overline{T} \, \overline{x})\{ \mathtt{ return }\ e; \} \\
   %e ::=& \mathtt{this} \, | \, x \, | \, e.f \, | \, e.\exptype{\mathtt{m}}{\ol{T}}(\overline{e}) \, | \, \mathtt{new }\ C(\overline{e}) \, | \, (C) e \\
 \end{align*}
+  \caption{Syntax of TFGJ}
+  \label{fig:syntax-tfgj}
+\end{figure}
+The input of GTI is a
+program in Typeless Featherweight Generic Java (TFGJ). Its syntax
+(shown in Figure~\ref{fig:syntax-tfgj}) differs
+from Featherweight Generic Java (FGJ) in that it is possible to omit
+the type annotations for method parameters and return types.%, except the ones for casts and \texttt{new} calls.
+
+
+
 
 All type annotations in our TFGJ language can be omitted ($T = \epsilon$).
 The only exception are fields which must be given a concrete type.

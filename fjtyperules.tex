@@ -48,9 +48,10 @@ $
 $ & S-VAR \\
 & \\
 $\ddfrac{
-  \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \set{ \ldots }
+  \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}
+  \triangleleft \mv N \set{ \ldots }
 }{
-  \triangle \vdash \exptype{C}{\ol{T}} <: [\ol{T}/\ol{X}]N
+  \triangle \vdash \exptype{C}{\ol{T}} <: [\ol{T}/\ol{X}]\mv N
 }$ & S-CLASS 
 \end{tabular}
 \end{minipage}
@@ -258,3 +259,8 @@ undecidablity of polymorphic recursion (cp. Sec. \ref{sec:polym-recurs}).
 %\end{array}}
 %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
 %\end{align*}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "TIforGFJ"
+%%% End:
