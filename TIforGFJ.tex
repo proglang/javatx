@@ -238,7 +238,7 @@ $\begin{array}{@{}l@{}l@{}l}
 % &
 & (rty, ConS) = \textbf{TYPEExpr}(Ass, e),\\
 & & \textbf{fresh} = \text{a mapping from each variable in}\ \ol{X} \ \text{to a fresh type variable},\\
-& & Ass_{f} = \textit{ftype}_{Ass}(f) = \exptype{C}{\ol{X} \triangleleft \ol{N}} \to T \\
+& & Ass_{f} = \textit{ftype}_{Ass}(\textit{bound}_\triangle(f)) = \exptype{C}{\ol{X} \triangleleft \ol{N}} \to T \\
 & & Cons_{f} = \{\ rty \doteq \exptype{C}{\textbf{fresh}(\ol{X})}, a \doteq \textbf{fresh}(T)\},\\
 %& & OrCons = \{ \{ rty \doteq cl, a \doteq t_f \} \ | \ cl.f : t_f \in Ass \},\\
 & \mathbf{in}% \\
