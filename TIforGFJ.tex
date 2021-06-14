@@ -273,14 +273,24 @@ $
 
 \smallskip
 
+The \texttt{new}-statement comes without the generic variables
+(\texttt{new Classname(...)} instead of \texttt{new Classname<Class>(...)}).
+The correct type will be inferred by our type inference algorithm.
+We generate new type variables $\ol{X'}$ for the generic variables of the class \texttt{C},
+so the \textbf{Unify} algorithm can later set in the correct types for these variables.
+He has to comply to the bounds given by $\ol{N}$, which is why we add $\ol{X'} \lessdot \ol{N}$ to the constraints.
+It is important to change every occurence of $\ol{X}$ with the fresh type variables $\ol{X'}$ in the generated constraints.
+$\ol{X}$ can occur in the bound $\ol{N}$ aswell as in the types of the constructor parameters $\ol{T}$.
+
 $\begin{array}{@{}l@{}l@{}l}
-\textbf{TY}& \textbf{PE} & \textbf{Expr} (Ass, \mathtt{new }\ N(\overline{e}) ) = \\
+\textbf{TY}& \textbf{PE} & \textbf{Expr} (Ass, \mathtt{new }\ C(\overline{e}) ) = \\
 & \textbf{let} % \\
-& \forall e_i \in \overline{e} : (pt_i, ConS_i) = \textbf{TYPEExpr}(Ass, e_i)  ,\\
-& & Cons = \{ \bigcup_{T_i \in \overline{T}} (pt_i \lessdot T_i) \ | \ \mathtt{constructor }\ \exptype{C}{\ol{X}}(\overline{T} \overline{x}) \in Ass \},\\
+& \forall e_i \in \overline{e} : (pt_i, Cons_i) = \textbf{TYPEExpr}(Ass, e_i)  ,\\
+& & Cons = \{ \bigcup_{T_i \in \overline{T}} (pt_i \lessdot T_i) \ | \ \mathtt{class }\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\{ \ldots, \texttt{C}(\overline{T} \overline{x}), \ldots \} \},\\
+& & \ol{X'} = \textbf{fresh}(\ol{X}),\\
 & \mathbf{in}% \\
 % &
-& (C, ConS \cup \bigcup_i ConS_i)\\
+& (\exptype{C}{\ol{X'}}, [\ol{X'}/\ol{X}](Cons \cup \bigcup_i Cons_i \cup \ol{X'} \lessdot \ol{N}))\\
 \end{array}
 $
 

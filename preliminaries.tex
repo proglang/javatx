@@ -1,6 +1,6 @@
 \section{Preliminaries}
 \label{sec:preliminaries}
-\subsection{The language}
+\subsection{Syntax}
 \commentarymargin{Input assumptions}
 % No overloaded methods
 % No Or-Constraints
@@ -14,7 +14,8 @@
   %M &::= \exptype{}{\ol{X} \triangleleft \ol{X}}\ T \ \mathtt{m}(\overline{T} \, \overline{x})\{ \mathtt{ return }\ e; \} \\
   \mv M &::= \mathtt{m}(\ol{x})\{ \mathtt{ return}\ \mv e; \} \\
   \mv e &::= \mathtt{this} \, | \, \mv x \, | \, \mv e.\mv f \, | \,
-             \mv e.\mathtt{m}(\ol{e}) \, | \, \mathtt{new}\ \mathtt{C}{\diamond}(\ol{e})
+             \mv e.\mathtt{m}(\ol{e}) \, | \, \mathtt{new}\ \mathtt{C}(\ol{e})
+             \ |\ (N)\ e
   %M ::=& T \ \mathtt{m}(\overline{T} \, \overline{x})\{ \mathtt{ return }\ e; \} \\
   %e ::=& \mathtt{this} \, | \, x \, | \, e.f \, | \, e.\exptype{\mathtt{m}}{\ol{T}}(\overline{e}) \, | \, \mathtt{new }\ C(\overline{e}) \, | \, (C) e \\
 \end{align*}
@@ -26,42 +27,18 @@ program in Typeless Featherweight Generic Java (TFGJ). Its syntax
 (shown in Figure~\ref{fig:syntax-tfgj}) differs
 from Featherweight Generic Java (FGJ) in that it is possible to omit
 the type annotations for method parameters and return types.%, except the ones for casts and \texttt{new} calls.
+Also we leave out the generic type variables of the \texttt{new}-statement.
 
-All type annotations in our TGFJ language can be omitted ($T = \epsilon$).
-The only exception are fields which must be given a concrete type.
-
-\subsection{Featherweight Java Typing Rules}
-\input{fjtyperules}
-
-
+%All type annotations in our TGFJ language can be omitted ($T = \epsilon$).
+%The only exception are fields which must be given a concrete type.
 
 Another difference to the syntax of FGJ is that we added the special variable \texttt{this} to the syntax.
 FJ treats \texttt{this} as a normal variable
 but our algorithm treats it as a special variable which always has a predetermined type;
 the type of the class it is used in.
 
-Type inference for polymorphic recursion is undecidable.
-Therefore we have to alter the FGJ typing rules to exclude polymorphic recursion in method calls:
-\begin{enumerate}
-    \item The \texttt{MT-CLASS} rule is removed.
-    \item We change the \texttt{GT-METHOD} rule:
-GT-METHOD:
-\begin{align*}
-\ddfrac{\begin{array}{c}
-\triangle \vdash \ol{X} <: \ol{N}, \ol{Y} <: \ol{P}  \quad \quad 
-\triangle \vdash \ol{T}, T \ \texttt{ok} \\
-\triangle ; \ol{x}:\ol{T}, this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
-\triangle \vdash S <: T \\
-\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots \} \quad \quad
-%\textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{T} \to T)
-\ol{T} \to T  \in \textit{mtype}(m, \exptype{C}{\ol{X}}) \\
-%\textit{override}(m, N,)
-\end{array}}{
-%{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
-\textit{mtype}(m, \exptype{C}{\ol{Z}}) = [\ol{Z} / \ol{X}](\exptype{}{\ol{Y}} \ol{T} \to T)
-}
-\end{align*}
-\end{enumerate}
+\subsection{Featherweight Java Typing Rules}
+\input{fjtyperules}
 
 \subsection{Principal Type}
 Featherweight Generic Java has no unique principal typing.
