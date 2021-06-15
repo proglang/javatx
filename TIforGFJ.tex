@@ -80,8 +80,10 @@ But in that case there are some additional requirements for the input.
 
 We assume that the algorithm are given the input classes in the correct order $C_1, \ldots C_2$.
 Hereby there must exist a correct typisation for the class $C_1$ when existing on its own.
+This is also regulated by our typing rules (see chapter \ref{chapter:type-rules}).
+
 \textbf{Example:}
-When there are two classes which depend on one another this would be invalid input for our algorithm.
+We give an example for a incorrect input program for our algorithm, where none of the given classes cannot be compiled on its own.
   \begin{figure}
     \centering
     \begin{minipage}{.5\textwidth}
@@ -124,7 +126,7 @@ Figure \ref{fig:correctinput} shows a possible way to alter the incorrect input 
 The method \texttt{m1} was moved into the class \texttt{C2}.
 Now both methods still call each other, but they are inherited by the same class.
 
-Another problem with multiple classes is the fact that there can be more than a single principal typing for a method.
+Another problem we face when compiling multiple classes is the fact that there can be more than a single principal typing for a method.
 When considering only one class at once it is not possible to set in the correc type right away.
 This problem can be solved with backtracking.
 Whenever the \textbf{Unify} algorithm gives more than one type solution, we pick the first one and continue.
