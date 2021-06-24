@@ -53,6 +53,51 @@ class MultPair {
 \subsection{Inheritance}
 \label{sec:inheritance}
 
+\begin{lstlisting}[float,caption={Method overriding},label={lst:method-overriding}]
+class A {
+  m(x) { return x.add(x); }
+}
+class B extends A {
+  m(x) { return x; }
+}
+\end{lstlisting}
+Let's start with an artificial example in Listing~\ref{lst:method-overriding}. Class \texttt{A} has
+a method \texttt{m} of inferred type \texttt{Int -> Int}. Class \texttt{B} is a
+subclass of \texttt{A} which ought to override \texttt{m}, but its inferred
+type is \texttt{<T> T -> T}.
+However, a generic type for \texttt{B.m()} is is not a correct
+method override for \texttt{A.m()}. In Java proper, we would either
+have two different overloaded methods in \texttt{B} or we would have
+to impose
+the typing \texttt{Int B.m(Int)} to enforce overriding of
+\texttt{A.m()}. As FGJ does not support overloading, the type of
+\texttt{B.m()} has to be restricted accordingly.
+\todo[inline]{This example shows that GTI must first infer the type
+  for \texttt{A.m{}} in the superclass. Later, when it infers the types for a subclass
+  like \texttt{B}, GTI must constrain the type of \texttt{B.m()} by
+  the type of \texttt{A.m()} transported to the subclass.}
+
+Otherwise, we would get strange results. Consider extending the
+program with \texttt{A} and \texttt{B} by the following class.
+\begin{lstlisting}
+class C {
+  mbool(x) { return x.m(new Bool()); }
+}
+\end{lstlisting}
+Inferring the type of \texttt{C.mbool()} using \texttt{A.m()} would
+fail because \texttt{Int} and \texttt{Bool} are not
+unifiable. However, inferring the type of \texttt{C.mbool()} using
+\texttt{B.m()} (with the generic type) would succeed and yield the
+typing
+\begin{lstlisting}
+class C {
+  Bool mbool(B x) { return x.m(new Bool()); }
+}
+\end{lstlisting}
+
+\subsection{Inheritance and Generics}
+\label{sec:inheritance-generics}
+
 
 \begin{lstlisting}[float,caption={Function class}, label={lst:function-class}]
 class Function<S,T> {
@@ -75,7 +120,7 @@ Listing~\ref{lst:function-class}, the \texttt{apply} method is considered a gene
 The typing of \texttt{apply} in Listing~\ref{lst:function-class} is an
 instance of this result, so that completeness of GTI is preserved!
 
-It is not impossible to  force GTI to infer the intended typing, but it requires some awkward coding.
+While it is possible to  force GTI to infer the intended typing, it requires some awkward coding.
 \begin{lstlisting}
 class Function<S,T> {
   S in;
@@ -106,9 +151,9 @@ GTI finds the following constraints
 \item hence \texttt{T1 <: T} and \texttt{S <: S1} (because
   \texttt{this.val : S}),
 \end{itemize}
-  \todo[inline]{why is this resolved to \texttt{T1 = T} and
-    \texttt{S = S1}?}
-and resolves them to the desired outcome.
+and resolves them to the desired outcome where \texttt{T1=T} and
+\texttt{S=S1} using the methods of
+Simonet~\cite{DBLP:conf/aplas/Simonet03}. 
 \begin{lstlisting}
 class Box<S> {
   S val;
@@ -118,10 +163,10 @@ class Box<S> {
 \end{lstlisting}
 But what happens if we add useful subclasses of \texttt{Function} as in
 \begin{lstlisting}
-class Not <: Function<Bool,Bool> {
+class Not extends Function<Bool,Bool> {
   apply(b) { return b.not(); }
 }
-class Negate <: Function<Int,Int> {
+class Negate extends Function<Int,Int> {
   apply(x) { return x.negate(); }
 }
 \end{lstlisting}
@@ -139,6 +184,24 @@ be satisfied because \texttt{S} is a generic type variable. With
 \emph{directly} invoke \texttt{Not.apply} or \texttt{Negate.apply}
 from \texttt{Box.map}, but it may happen indirectly via inheritance.
 
+Here is another subclass of \texttt{Function<S,T>} that we might want
+to consider.
+\begin{lstlisting}
+class Identity<S> extends Function<S,S> {
+  S apply(S arg) { return arg; }
+}
+\end{lstlisting}
+Here, we obtain the following type constraints
+\begin{itemize}
+\item \texttt{apply} is defined in class \texttt{Identity<S1>} with
+  type \texttt{S1 apply (S1 arg)},
+\item hence \texttt{S1 <: T} and \texttt{S <: S1}.
+\end{itemize}
+Resolving the constraints yields \texttt{S = T} thus the typing
+\begin{lstlisting}
+Box<S> map(Identity<S> f);
+\end{lstlisting}
+which is an instance of the previous typing.
 
 \subsection{Multiple results}
 \label{sec:multiple-results}
