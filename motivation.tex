@@ -4,48 +4,29 @@
 Examples, examples, examples from simple to more advanced showing off
 the (difficult) features of inference.
 
-It would be good to have an example with inheritance!
-
+In this section, we present a sequence of more and more challenging
+examples for global type inference (GTI). To spice up our examples
+somewhat, we assume some predefined utility classes with the following
+interfaces.
 \begin{lstlisting}
-// given this (abstract) class
-class Function<S,T> {
-  T apply(S arg) { return this.apply (arg); }
+class Bool {
+  Bool not(); 
 }
-// I want to infer the type for this class
-class Box<S> {
-  S val;
-  map(f) {
-    return new Box<>(f.apply(this.val));
-} }
-// the desired outcome is
-class Box<S> {
-  S val;
-  <T> Box<T> map(Function<S,T> f) {
-    return new Box<T>(f.apply<S,T>(this.val));
-} }
-\end{lstlisting}
-What happens if we add subclasses of \texttt{Function} as in
-\begin{lstlisting}
-class Not <: Function<Bool,Bool> {
-  apply(b) { return b.not(); }
-}
-class Negate <: Function<Int,Int> {
-  apply(x) { return x.negate(); }
-}
-\end{lstlisting}
-
-\begin{lstlisting}
-class MultPair {
-  mult (p) { return p.fst * p.snd; }
-}
-\end{lstlisting}
-The \texttt{MultPair} example is problematic because it relies on the overloading
-multiplication operator. But given this \texttt{Int} class and the
-generic \texttt{Pair} class, it could fly.
-\begin{lstlisting}
 class Int {
-  Int mult(Int y) {...}
+  Int negate ();
+  Int add (Int that);
+  Int mult (Int that);
 }
+\end{lstlisting}
+
+\subsection{Multiplication}
+\label{sec:multiplication}
+
+For full-grown Java, we would consider the dot product or matrix
+multiplication. We would also have to deal with overloading of the
+multiplication operator. The FGJ adaptation is a method which multiplies the
+components of a pair.
+\begin{lstlisting}
 class MultPair {
   mult (p) { return p.fst.mult(p.snd); }
 }
@@ -58,6 +39,107 @@ Assume $\mv p:P$
   $\texttt{p.snd} : Y$
 \item From \texttt{.mult (p.snd)}: $X \le \mathtt{Int}$ and $Y \le \mathtt{Int}$.
 \end{itemize}
+Current result
+\begin{lstlisting}
+class MultPair {
+  Int mult (Pair<Int,Int> p) { return p.fst.mult(p.snd); }
+}
+class MultPair {
+  <X extends Int, Y extends Int>
+   Int mult (Pair<X,Y> p) { return p.fst.mult(p.snd); }
+}
+\end{lstlisting}
+
+\subsection{Inheritance}
+\label{sec:inheritance}
+
+
+\begin{lstlisting}[float,caption={Function class}, label={lst:function-class}]
+class Function<S,T> {
+  T apply(S arg) { return this.apply (arg); }
+}
+\end{lstlisting}
+Suppose we are given the generic FGJ class for modeling functions in Listing~\ref{lst:function-class}.
+This code is constructed to serve as an ``abstract'' super class to derive more
+interesting subclasses.
+The \texttt{Function<S,T>} class must be presented in this explicit
+way. Its type annotations \textbf{cannot} be inferred by GTI because
+the connection to the generic parameters cannot be inferred from the
+implementation.
+
+If we apply GTI to the type-erased version of
+Listing~\ref{lst:function-class}, the \texttt{apply} method is considered a generic method: 
+\begin{lstlisting}
+  apply (arg) { ... }  --GTI-->    <A,B> B apply (A arg) { ... }
+\end{lstlisting}
+The typing of \texttt{apply} in Listing~\ref{lst:function-class} is an
+instance of this result, so that completeness of GTI is preserved!
+
+It is not impossible to  force GTI to infer the intended typing, but it requires some awkward coding.
+\begin{lstlisting}
+class Function<S,T> {
+  S in;
+  T out;
+  dummy (arg) { return this.dummy(in); }
+  apply (arg) { return new Pair<>(this.out, this.dummy (arg)).fst; }
+}
+\end{lstlisting}
+
+Now that we have the abstract class \texttt{Function<S,T>} at our
+disposal, let's apply GTI to a class of boxed values with a
+\texttt{map} function:
+\begin{lstlisting}
+class Box<S> {
+  S val;
+  map(f) {
+    return new Box<>(f.apply(this.val));
+} }
+\end{lstlisting}
+GTI finds the following constraints
+\begin{itemize}
+\item the return value must be of type \texttt{Box<T>}, for some type
+  \texttt{T},
+\item \texttt{T} is a supertype of the type returned by
+  \texttt{f.apply},
+\item \texttt{apply} is defined in class \texttt{Function<S1,T1>} with
+  type \texttt{T1 apply(S1 arg)}, 
+\item hence \texttt{T1 <: T} and \texttt{S <: S1} (because
+  \texttt{this.val : S}),
+\end{itemize}
+  \todo[inline]{why is this resolved to \texttt{T1 = T} and
+    \texttt{S = S1}?}
+and resolves them to the desired outcome.
+\begin{lstlisting}
+class Box<S> {
+  S val;
+  <T> Box<T> map(Function<S,T> f) {
+    return new Box<T>(f.apply<S,T>(this.val));
+} }
+\end{lstlisting}
+But what happens if we add useful subclasses of \texttt{Function} as in
+\begin{lstlisting}
+class Not <: Function<Bool,Bool> {
+  apply(b) { return b.not(); }
+}
+class Negate <: Function<Int,Int> {
+  apply(x) { return x.negate(); }
+}
+\end{lstlisting}
+\todo[inline]{Does this approach really make sense? If we have a
+  subclass that overrides a method of the superclass, then the public
+  interface should be the one of the superclass. Subsequently, the
+  implementation of the method in the subclass should be checked
+  against the type inferred for the superclass.}
+If we rerun GTI with these classes, we now have additional
+possibilities to invoke the \texttt{apply} method. With \texttt{Not}
+we obtain the constraints \texttt{Bool <: T} and \texttt{S <: Bool}, but the latter cannot
+be satisfied because \texttt{S} is a generic type variable. With
+\texttt{Negate} we run into the same situation with the constraints
+\texttt{Int <: T} and \texttt{S <: Int}. That means there is no way to
+\emph{directly} invoke \texttt{Not.apply} or \texttt{Negate.apply}
+from \texttt{Box.map}, but it may happen indirectly via inheritance.
+
+
 \subsection{Multiple results}
 \label{sec:multiple-results}
 % Our global type inference algorithm is able to infer every type annotation.
