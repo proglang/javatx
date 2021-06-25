@@ -199,14 +199,18 @@ For example $\textbf{OrConstraint}(\{ \ \{ (a \lessdot b), (a \leq \mathtt{Objec
 is an Or-Constraint consisting of two constraint sets.
 \end{description}
 
+Before the algorithm starts we equip every untyped method with type variables.
+Every method parameter gets a unique type variable as a type aswell as every method gets a unique type variable as a return type.
+After our algorithm found a correct typisation we replace the type variables with the inferred types and generate a GFJ program.
+
 The algorithm \textbf{FJTYPE} is given as follows:
 
 \textbf{FJTYPE}:
-$\texttt{TypeAssumptions} \times
+$
 \texttt{Class} \rightarrow \texttt{Constraints}\\
  \begin{array}{@{}l@{}l@{}l}
- \textbf{FJT}&\textbf{Y} & \textbf{PE}(Ass, \mathtt{class } \ C \ \mathtt{ extends } \ D \{ \overline{T} \ \overline{f}; \, K \, \overline{M} \}) =\\
-& \multicolumn{2}{@{}l@{}}{ \{ \ \textbf{TYPEMethod}(\textit{Ass} \cup \{ \mathtt{this} : C \}, m_i) \quad | \quad m_i \in \overline{M} \ \} }\\ 
+ \textbf{FJT}&\textbf{Y} & \textbf{PE}(\mathtt{class } \ C \ \mathtt{ extends } \ D \{ \overline{T} \ \overline{f}; \, K \, \overline{M} \}) =\\
+& \multicolumn{2}{@{}l@{}}{ \{ \ \textbf{TYPEMethod}(\{ \mathtt{this} : C \}, m_i) \quad | \quad m_i \in \overline{M} \ \} }\\ 
 \end{array}$
 
 The \textbf{FJTYPE} function gets called for every class in the input.
@@ -252,13 +256,18 @@ $
 \smallskip
 
 $\begin{array}{@{}l@{}l@{}l}
-\textbf{TY}& \textbf{PE} & \textbf{Expr} (Ass, e.f ) = \\
+\textbf{TY}& \textbf{PE} & \textbf{Expr} (Ass, e.f) = \\
 & \textbf{let} % \\
 % &
 & (rty, ConS) = \textbf{TYPEExpr}(Ass, e),\\
 & & \textbf{fresh} = \text{a mapping from each variable in}\ \ol{X} \ \text{to a fresh type variable},\\
 & & Ass_{f} = \textit{ftype}_{Ass}(\textit{bound}_\triangle(f)) = \exptype{C}{\ol{X} \triangleleft \ol{N}} \to T \\
 & & Cons_{f} = \{\ rty \doteq \exptype{C}{\textbf{fresh}(\ol{X})}, a \doteq \textbf{fresh}(T)\},\\
+& & \begin{array}{@{}l@{}l}
+  Cons_{f} = \{\ & rty \doteq \exptype{C}{\ol{X}}, a \doteq T \\
+              & |\, \text{for every field}\ \exptype{}{\ol{Y}} T\ \texttt{m}(\ol{T}\  \ol{p}) \in \ol{M} \} \\%, \textbf{fresh}(\ol{X}) \lessdot \textbf{fresh}(\ol{N})\},\\
+              & ,\, \text{in every class}\ \exptype{C}{\ol{X}} \{ \ldots \ol{M} \ldots \}\ \text{in the input} \} 
+            \end{array}\\
 %& & OrCons = \{ \{ rty \doteq cl, a \doteq t_f \} \ | \ cl.f : t_f \in Ass \},\\
 & \mathbf{in}% \\
 % &
@@ -271,20 +280,20 @@ $
 \smallskip
 
 $\begin{array}{@{}l@{}l@{}l}
-\textbf{TY}& \textbf{PE} & \textbf{Expr} (Ass, e_r.\mathtt{m}(\overline{e}) ) = \\
+\textbf{TY}& \textbf{PE} & \textbf{Expr} (Ass, e.\mathtt{m}(\overline{e}) ) = \\
 & \textbf{let} % \\
 % &
-& (rty, ConS) = \textbf{TYPEExpr}(Ass, e_r),\\
-& & \forall e_i \in \overline{e} : (pt_i, ConS_i) = \textbf{TYPEExpr}(Ass, e_i)  ,\\
-& & \textbf{fresh} = \text{a mapping from each variable in}\ \ol{X} \ \text{to a fresh type variable},\\
-& & Ass_{m} =  \set{\exptype{}{\ol{Y}} (\ol{T} \to T) \,|\, \exptype{}{\ol{Y}} (\ol{T} \to T) \in \textit{mtype}(m, \exptype{C}{\ol{X}})} \\
+& (rty, ConS) = \textbf{TYPEExpr}(Ass, e),\\
+& & \forall e_i \in \overline{e} : (pt_i, ConS_i) = \textbf{TYPEExpr}(e_i)  ,\\
 & & \begin{array}{@{}l@{}l}
-        Cons_{m} = \{\ & rty \doteq \exptype{C}{\textbf{fresh}(\ol{X})}, a \doteq \textbf{fresh}(T), \bigcup_{T_i \in \overline{T}} (pt_i \lessdot \textbf{fresh}(T_i))\\
-                    & |\, \exptype{}{\ol{Y}} (\ol{T} \to T) \in \textit{mtype}(m, \exptype{C}{\ol{X}}) \} %, \textbf{fresh}(\ol{X}) \lessdot \textbf{fresh}(\ol{N})\},\\
-    \end{array}\\
+        Cons_{m} = \{\ & rty \doteq \exptype{C}{\ol{X}}, a \doteq T, \bigcup_{T_i \in \overline{T}} (pt_i \lessdot T_i)\\
+                    & |\, \text{for every method}\ \exptype{}{\ol{Y}} T\ \texttt{m}(\ol{T}\  \ol{p}) \in \ol{M} \} \\%, \textbf{fresh}(\ol{X}) \lessdot \textbf{fresh}(\ol{N})\},\\
+                    & ,\, \text{in every class}\ \exptype{C}{\ol{X}} \{ \ldots \ol{M} \ldots \}\ \text{in the input} \} 
+                  \end{array}\\
+& & OrCons = \textbf{OrConstraint}(Cons_{m})\\
 & \mathbf{in}% \\
 % &
-& (a, ConS \cup \bigcup_i ConS_i \cup \textbf{OrConstraint}(Cons_{m}))\\
+& (a, [\textbf{fresh}(\ol{X})/\ol{X}][\textbf{fresh}(\ol{Y})/\ol{Y}](ConS \cup \bigcup_i ConS_i \cup OrCons))\\
 & & \text{where\ } a \text{\ is\ a\ fresh\
   type\ variable}\\ 
 \end{array}
@@ -305,13 +314,14 @@ $\begin{array}{@{}l@{}l@{}l}
 \textbf{TY}& \textbf{PE} & \textbf{Expr} (Ass, \mathtt{new }\ C(\overline{e}) ) = \\
 & \textbf{let} % \\
 & \forall e_i \in \overline{e} : (pt_i, Cons_i) = \textbf{TYPEExpr}(Ass, e_i)  ,\\
-& & Cons = \{ \bigcup_{T_i \in \overline{T}} (pt_i \lessdot T_i) \ | \ \mathtt{class }\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\{ \ldots, \texttt{C}(\overline{T} \overline{x}), \ldots \} \},\\
-& & \ol{X'} = \textbf{fresh}(\ol{X}),\\
+& & Cons = \{ \bigcup_{T_i \in \overline{T}} (pt_i \lessdot T_i) \ | \ \mathtt{class }\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\{ \ldots, \texttt{C}(\overline{T} \overline{x}), \ldots \} \}\\
 & \mathbf{in}% \\
 % &
-& (\exptype{C}{\ol{X'}}, [\ol{X'}/\ol{X}](Cons \cup \bigcup_i Cons_i \cup \ol{X'} \lessdot \ol{N}))\\
+& (\exptype{C}{\ol{X'}}, [\textbf{fresh}(\ol{X})/\ol{X}](Cons \cup \bigcup_i Cons_i \cup \ol{X'} \lessdot \ol{N}))\\
 \end{array}
 $
+
+We do not generate constraints for casts.
 
 \subsubsection{Completeness of the type inference algorithm}
 %Theorem: The Unify algorithm is complete
