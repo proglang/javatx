@@ -436,9 +436,9 @@ Eq_{set}\\
    %     S_\leq})\\
     & %\times\, 
       (\displaystyle{\bigotimes_{(\exptype{C}{\overline{T}} \lessdot a) \in Eq'_2}}\!\!
-      \set{(a \doteq [\ol{T}/\ol{X}]N ) \ | \ (\exptype{C}{\overline{X} \triangleleft \ol{N}} \leq N) \in
-        S_\leq})\\
-    & \times\, \set{[a \doteq \theta \ | \  (a \doteq \theta) \in Eq'_2]} \times Eq_1 \\
+      \set{a \doteq [\ol{T}/\ol{X}]N ) \ | \ (\exptype{C}{\overline{X} \triangleleft \ol{N}} <: N})\\
+      & \times\, \set{[a \doteq \theta \ | \  (a \doteq \theta) \in Eq'_2]} \\
+      & \times\, \set{[a \lessdot \theta \ | \  (a \lessdot \theta) \in Eq'_2]} \times Eq_1 \\
 \end{align*}
 
 \item \label{subst-step}  Application of the following \emph{subst} rule
@@ -485,40 +485,29 @@ $Eq_{solved} = \set{ Eq \ | \ Eq \in Eq_{set}, Eq \ \text{is in solved form}}$
 \end{enumerate}
 \end{enumerate}
 
-
-\begin{figure}
-  \begin{center}
-      \leavevmode
-      \fbox{
-      \begin{tabular}[t]{ll}
-        (adapt)
-        & $
-        \begin{array}[c]{ll}
-        \begin{array}[c]{l}
-           Eq \cup \, \set{a \lessdot
-           \exptype{C}{\ol{X}},
-           a \lessdot
-            \exptype{D}{\ol{Y}}} \\ 
-          \hline
-          \vspace*{-0.4cm}\\
-          Eq \cup \set{a \lessdot \exptype{C}{\ol{X}}
-          , \exptype{C}{\ol{X}} \lessdot \exptype{D}{\ol{Y}}}
-        %Eq \cup \set{\theta_1 \doteq \lambda'_1 \ldo \theta_n \doteq \lambda'_n}
-        \end{array}
-        & \exptype{C}{\ol{Z}} <: \exptype{D}{\ol{N}} 
-        \end{array}
-        $
-      \\\\
-      \end{tabular}}
-    \end{center}
-  \caption{Reduce and adapt rules}\label{fig:fgjreduce-rules}
-  \end{figure}
-
 \begin{figure}
 \begin{center}
     \leavevmode
     \fbox{
     \begin{tabular}[t]{ll}
+      (match)
+      & $
+      \begin{array}[c]{ll}
+      \begin{array}[c]{l}
+         Eq \cup \, \set{a \lessdot
+         \exptype{C}{\ol{X}},
+         a \lessdot
+          \exptype{D}{\ol{Y}}} \\ 
+        \hline
+        \vspace*{-0.4cm}\\
+        Eq \cup \set{a \lessdot \exptype{C}{\ol{X}}
+        , \exptype{C}{\ol{X}} \lessdot \exptype{D}{\ol{Y}}}
+      %Eq \cup \set{\theta_1 \doteq \lambda'_1 \ldo \theta_n \doteq \lambda'_n}
+      \end{array}
+      & \exptype{C}{\ol{Z}} <: \exptype{D}{\ol{N}} 
+      \end{array}
+      $
+    \\\\
       (adapt)
       & $
       \begin{array}[c]{ll}
