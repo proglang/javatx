@@ -435,8 +435,11 @@ Eq_{set}\\
    %   \set{(a \doteq [\ol{T}/\ol{X}]N ) \ | \ (\exptype{C}{\overline{X}} \leq N) \in
    %     S_\leq})\\
     & %\times\, 
-      (\displaystyle{\bigotimes_{(\exptype{C}{\overline{T}} \lessdot a) \in Eq'_2}}\!\!
-      \set{a \doteq [\ol{T}/\ol{X}]N ) \ | \ (\exptype{C}{\overline{X} \triangleleft \ol{N}} <: N})\\
+    (\displaystyle{\bigotimes_{(\exptype{C}{\overline{T}} \lessdot a) \in Eq'_2}}\!\!
+    \set{a \doteq [\ol{T}/\ol{X}]N ) \ | \ (\exptype{C}{\overline{X} \triangleleft \ol{N}} <: N})\\
+    & \times\, 
+      (\displaystyle{\bigotimes_{((X \triangleleft M)\lessdot a) \in Eq'_2}}\!\!
+      \set{a \doteq N ) \ | \ M <: N })\\
       & \times\, \set{[a \doteq \theta \ | \  (a \doteq \theta) \in Eq'_2]} \\
       & \times\, \set{[a \lessdot \theta \ | \  (a \lessdot \theta) \in Eq'_2]} \times Eq_1 \\
 \end{align*}
@@ -484,6 +487,10 @@ $Eq_{solved} = \set{ Eq \ | \ Eq \in Eq_{set}, Eq \ \text{is in solved form}}$
 %        }}$
 \end{enumerate}
 \end{enumerate}
+
+\textbf{Solved form:} TODO
+- only one a < C constraint
+- otherwise only a < b and a = C constraints
 
 \begin{figure}
 \begin{center}
