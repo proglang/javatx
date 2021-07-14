@@ -439,9 +439,12 @@ Eq_{set}\\
     \set{a \doteq [\ol{T}/\ol{X}]N ) \ | \ (\exptype{C}{\overline{X} \triangleleft \ol{N}} <: N})\\
     & \times\, 
       (\displaystyle{\bigotimes_{((X \triangleleft M)\lessdot a) \in Eq'_2}}\!\!
-      \set{a \doteq N ) \ | \ M <: N })\\
-      & \times\, \set{[a \doteq \theta \ | \  (a \doteq \theta) \in Eq'_2]} \\
-      & \times\, \set{[a \lessdot \theta \ | \  (a \lessdot \theta) \in Eq'_2]} \times Eq_1 \\
+      \set{a \doteq N ) \ | \ M <: N } \cup \set{a \doteq (X \triangleleft M)})\\
+    & \times\, 
+      (\displaystyle{\bigotimes_{(a \lessdot (X \triangleleft M)) \in Eq'_2}}\!\!
+      \set{a \doteq N ) \ | \ N <: M } \cup \set{a \doteq (X \triangleleft M)})\\
+      & \times\, \set{[a \doteq N \ | \  (a \doteq N) \in Eq'_2]} \\
+      & \times\, \set{[a \lessdot N \ | \  (a \lessdot N) \in Eq'_2]} \times Eq_1 \\
 \end{align*}
 
 \item \label{subst-step}  Application of the following \emph{subst} rule
