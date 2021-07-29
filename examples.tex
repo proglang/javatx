@@ -1,0 +1,26 @@
+Our unify algorithm processes one or two constraints at a time.
+Lets look at some examples of different compositions of constraints
+and how our unify algorithm will transform them.
+
+\begin{enumerate}
+\item $Eq = \set{a \lessdot \exptype{C}{\ol{X}}, a \lessdot b}$ \\
+If this is an end configuration, the constraint set is solved.
+We can now put any type for $b$, which is a sub or supertype of $\exptype{C}{\ol{X}}$.
+The only exception is, when $b \in \ol{X}$.
+In this case $\sigma(b) = \tt{Object}$ is always a correct unifier.
+So there is atleast one possible solution.
+
+\item $Eq = \set{a \lessdot \exptype{C}{\ol{X}}, a \lessdot b, b \lessdot c}$
+It's the same as the example before.
+Replacing $b$ and $c$ with \tt{Object} is also a correct solution. 
+
+\item $Eq = \set{a \lessdot \exptype{C}{\ol{X}}, a \lessdot b, b \lessdot \exptype{D}{\ol{Y}}}$
+Here the adopt rule transforms this to:
+$\set{a \lessdot \exptype{C}{\ol{X}}, a \lessdot b, b \lessdot \exptype{D}{\ol{Y}}, a \lessdot \exptype{D}{\ol{Y}}}$
+and here it depends if $\exptype{C}{\ol{A}} <: \exptype{D}{\ol{B}}$ or $\exptype{D}{\ol{A}} <: \exptype{C}{\ol{B}}$.
+Either the $a \lessdot \exptype{C}{\ol{X}}$ or $b \lessdot \exptype{D}{\ol{Y}}$ constraint
+gets removed by the adopt rule.
+
+%\item $Eq = \set{a \lessdot \exptype{C}{\ol{X}}, a \lessdot b}$
+
+\end{enumerate}
