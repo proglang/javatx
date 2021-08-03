@@ -25,6 +25,7 @@ gets removed by the match rule.
 
 \end{enumerate}
 
+\textbf{match-rule:}\\
 The match-rule takes two constraints of the form $a \lessdot \exptype{C}{\ol{X}}, a \lessdot \exptype{D}{\ol{Y}}$
 and checks which one of the two types \texttt{C} and \texttt{D} is a subtype of the other.
 We only leave the constraint, which is more restrictive.
@@ -38,19 +39,47 @@ This constraint will then be processed by the adapt and the reduce rule.
 Example:
 $Eq = \set{a \lessdot \exptype{C}{b,\tt{String}}, a \lessdot \exptype{D}{b,b}}$
 with $\exptype{C}{A,B} <: \exptype{D}{B,B}$.
-\begin{align*}
-\ddfrac{
+\begin{displaymath}
+\prftree[r]{
+    reduce2
+        }{
+    \prftree[r]{
+        adopt
+            }{
+    \prftree[r]{
+        match
+            }{
     \set{a \lessdot \exptype{C}{b,\tt{String}}, a \lessdot \exptype{D}{b,b}}
-}{
-\ddfrac{
-    a \lessdot \exptype{C}{b,\tt{String}}, \exptype{C}{b,\tt{String}} \lessdot \exptype{D}{b,b}
-}{
-    \ddfrac{
-        a \lessdot \exptype{C}{b,\tt{String}}, \exptype{D}{\tt{String},\tt{String}} \doteq \exptype{D}{b,b}
     }{
-        a \lessdot \exptype{C}{b,\tt{String}}, b \doteq \tt{String}, b \doteq \tt{String}
-    } \quad \text{reduce2}
-} \quad \text{adopt}
-} & \quad \text{match}
-\end{align*}
+    a \lessdot \exptype{C}{b,\tt{String}}, \exptype{C}{b,\tt{String}} \lessdot \exptype{D}{b,b}
+    }
+    }{
+         a \lessdot \exptype{C}{b,\tt{String}}, \exptype{D}{\tt{String},\tt{String}} \doteq \exptype{D}{b,b}
+    }}
+    {
+       a \lessdot \exptype{C}{b,\tt{String}}, b \doteq \tt{String}, b \doteq \tt{String}
+        }
+\end{displaymath}
 
+\textbf{adopt-rule:}\\
+\begin{displaymath}
+\prftree[r]{
+    reduce2
+        }{
+    \prftree[r]{
+        adopt
+            }{
+    \prftree[r]{
+        match
+            }{
+    \set{a \lessdot \exptype{C}{b,\tt{String}}, a \lessdot \exptype{D}{b,b}}
+    }{
+    a \lessdot \exptype{C}{b,\tt{String}}, \exptype{C}{b,\tt{String}} \lessdot \exptype{D}{b,b}
+    }
+    }{
+         a \lessdot \exptype{C}{b,\tt{String}}, \exptype{D}{\tt{String},\tt{String}} \doteq \exptype{D}{b,b}
+    }}
+    {
+       a \lessdot \exptype{C}{b,\tt{String}}, b \doteq \tt{String}, b \doteq \tt{String}
+        }
+\end{displaymath}
