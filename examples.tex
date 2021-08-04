@@ -90,7 +90,7 @@ with $\exptype{C}{A,B} <: \exptype{D}{B,B}$.
     {
         \set{a \lessdot \exptype{C}{\tt{String}}, b \lessdot a, b \lessdot \exptype{C}{\tt{String}}, \tt{String} \doteq c}
     }}{
-    ?
+    ? \text{(solved form reached?)}
         }
 \end{displaymath}
 
@@ -120,6 +120,50 @@ with $\exptype{C}{A,B} <: \exptype{D}{B,B}$.
     \set{a \lessdot \exptype{C}{x}, b \lessdot a, b \lessdot \exptype{C}{x}, \exptype{C}{x} \lessdot \exptype{C}{x}, a \lessdot b, \exptype{C}{x} \lessdot \exptype{C}{x}}
 }}{
  \ldots
+        }
+\end{displaymath}
+
+\textbf{longer circle:}\\
+\begin{displaymath}
+    \prftree[r]{
+        adopt, adopt
+}{
+\set{a \lessdot \exptype{C}{x}, b \lessdot a, c \lessdot b, c \lessdot a}
+}{
+\set{a \lessdot \exptype{C}{x}, b \lessdot a,
+c \lessdot b, c \lessdot a, b \lessdot \exptype{C}{x}, c \lessdot \exptype{C}{x}}
+}
+\end{displaymath}
+
+\textbf{longer circle 2:}\\
+\begin{displaymath}
+    \prftree[r]{
+        match, reduce2
+    }{
+\prftree[r]{
+    adopt
+        }{
+    \prftree[r]{
+        match, reduce2
+            }{
+    \prftree[r]{
+        adopt, adopt
+}{
+\set{a \lessdot \exptype{C}{x}, b \lessdot a, c \lessdot b, c \lessdot a, b \lessdot \exptype{C}{String}}
+}{
+\set{a \lessdot \exptype{C}{x}, b \lessdot a,
+c \lessdot b, c \lessdot a, b \lessdot \exptype{C}{x}, b \lessdot \exptype{C}{\tt{String}}, c \lessdot \exptype{C}{\tt{String}}}
+}
+}{
+    \set{a \lessdot \exptype{C}{x}, b \lessdot a,
+    c \lessdot b, c \lessdot a, b \lessdot \exptype{C}{x}, c \lessdot \exptype{C}{\tt{String}}, x \doteq \tt{String}}    
+}}
+{
+    \set{a \lessdot \exptype{C}{x}, b \lessdot a,
+    c \lessdot b, c \lessdot a, b \lessdot \exptype{C}{x}, c \lessdot \exptype{C}{\tt{String}}, c \lessdot \exptype{C}{x}, x \doteq \tt{String}}   
+}}{
+    \set{a \lessdot \exptype{C}{x}, b \lessdot a,
+    c \lessdot b, c \lessdot a, b \lessdot \exptype{C}{x}, c \lessdot \exptype{C}{x}, x \doteq \tt{String}}   
         }
 \end{displaymath}
 
