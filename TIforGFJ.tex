@@ -553,15 +553,15 @@ An isolated type variable does only occur in constraints together with another i
       & $
       \begin{array}[c]{ll}
       \begin{array}[c]{l}
-         Eq \cup \, \set{\exptype{D}{\ol{A}} \lessdot
-          \exptype{C}{\ol{B}}} \\ 
+         Eq \cup \, \set{\exptype{C}{\ol{A}} \lessdot
+          \exptype{D}{\ol{B}}} \\ 
         \hline
         \vspace*{-0.4cm}\\
-        Eq \cup \set{\exptype{C}{[ \ol{A} / \ol{X} ]\ol{Y}}
-        \doteq \exptype{C}{\ol{B}}}
+        Eq \cup \set{\exptype{D}{[ \ol{A} / \ol{X} ]\ol{Y}}
+        \doteq \exptype{D}{\ol{B}}}
       %Eq \cup \set{\theta_1 \doteq \lambda'_1 \ldo \theta_n \doteq \lambda'_n}
       \end{array}
-      & \exptype{D}{\ol{X}} <:\ \exptype{C}{\ol{Y}}
+      & \exptype{C}{\ol{X}} <:\ \exptype{D}{\ol{Y}}
       \end{array}
       $
     \\\\
