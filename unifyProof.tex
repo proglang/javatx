@@ -122,6 +122,12 @@ is also correct for $Eq \cup \set{\theta \doteq \theta}$
 and $Eq \cup \set{\theta \lessdot \theta'}$, when $\theta \leq \theta'$.
 \item[swap-rule] does not change the unifier for the constraint set.
 $\doteq$ is a symmetric operator and parameters can be swapped freely.
+\item[match] The subtype relation is transitive, so if there is a correct solution for
+$a \lessdot \exptype{C}{\ol{X}}, \exptype{C}{\ol{X}} \lessdot \exptype{D}{\ol{Y}}$
+then this solution would also apply for $a \lessdot \exptype{C}{\ol{X}} \lessdot \exptype{D}{\ol{Y}}$
+or $a \lessdot \exptype{D}{\ol{Y}}$.
+\item[adopt] An unifier which is correct for $Eq \cup \set{a \lessdot \exptype{C}{\ol{X}}, a \lessdot b, b \lessdot \exptype{C}{\ol{X}}}$
+is also correct for $Eq \cup \set{a \lessdot \exptype{C}{\ol{X}}, a \lessdot b}$.
 \item[adapt] If there is a $\sigma$ which is a correct unifier for a set
 $Eq \cup \set{ \exptype{C}{[\ol{A}/\ol{X}]\ol{Y}} \doteq \exptype{C}{\ol{B}}}$ then it is also
 a correct unifier for the set $Eq \cup \set{ \exptype{D}{\ol{A}} \lessdot \exptype{C}{\ol{B}}}$,
@@ -178,6 +184,15 @@ Both rules do not change the set of possible solutions for the given constraint 
 \textbf{swap-rule:} $\doteq$ is a symmetric operator and parameters can be swapped freely.
 This operation does not change the meaning of the constraint set.
 
+\textbf{match-rule:}
+If there is a solution for $a \lessdot \exptype{C}{\ol{X}}, a \lessdot \exptype{D}{\ol{Y}}$,
+this is also a solution for $a \lessdot \exptype{C}{\ol{X}}, \exptype{C}{\ol{X}} \lessdot \exptype{D}{\ol{Y}}$.
+A correct unifier $\sigma$ has to find a type for $a$, which complies with $a \lessdot \exptype{C}{\ol{X}}$ and $a \lessdot \exptype{D}{\ol{Y}}$.
+Due to the subtyping relation being transitive this means that $\sigma(a) \lessdot \exptype{C}{\ol{X}} \lessdot \exptype{D}{\ol{Y}}$.
+
+\textbf{adopt-rule:} Subtyping in FJ is transitive,
+which allows us to apply the adopt rule without excluding any possible unifier.
+
 \textbf{adapt-rule:} Every solution which is correct for the constraints
 $Eq \cup \set{ \exptype{C}{[\ol{A}/\ol{X}]\ol{Y}} \doteq \exptype{C}{\ol{B}}}$ is also
 a correct solution for the set $Eq \cup \set{ \exptype{D}{\ol{A}} \lessdot \exptype{C}{\ol{B}}}$.
@@ -185,14 +200,6 @@ According to the \texttt{S-CLASS} rule there can only be a possible solution for
 $\exptype{C}{[\ol{A}/\ol{X}]\ol{Y}} \doteq \exptype{C}{\ol{B}}$
 if $\ol{B} = [\ol{A}/\ol{X}]\ol{Y}$.
 Therefore this transformation does not remove any possible solution from the constraint set.
-
-\textbf{match-rule:} A solution which solves both constraints $a \lessdot \exptype{C}{\ol{X}}, a \lessdot \exptype{D}{\ol{Y}}$
-also solves $a \lessdot \exptype{C}{\ol{X}}, \exptype{C}{\ol{X}} \lessdot \exptype{C}{\ol{Y}}$.
-When we delete the $a \lessdot \exptype{D}{\ol{Y}}$ constraint
-we have to make sure that $\ol{Y}$ gets also assigned the right types.
-We do this by adding the $\exptype{C}{\ol{X}} \lessdot \exptype{C}{\ol{Y}}$ constraint.
-When $\exptype{C}{\ol{X}}$ is a subtype of $\exptype{D}{\ol{Y}}$ and $a$ is a subtype of $\exptype{C}{\ol{X}}$
-then $a$ must also be a subtype of $\exptype{D}{\ol{Y}}$.
 
 \textbf{reduce-rule:}
 %The constraint is not altered
