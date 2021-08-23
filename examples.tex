@@ -1,0 +1,169 @@
+Our unify algorithm processes one or two constraints at a time.
+Lets look at some examples of different compositions of constraints
+and how our unify algorithm will transform them.
+
+\begin{enumerate}
+\item $Eq = \set{a \lessdot \exptype{C}{\ol{X}}, a \lessdot b}$ \\
+If this is an end configuration, the constraint set is solved.
+We can now put any type for $b$, which is a sub or supertype of $\exptype{C}{\ol{X}}$.
+The only exception is, when $b \in \ol{X}$.
+In this case $\sigma(b) = \tt{Object}$ is always a correct unifier.
+So there is atleast one possible solution.
+
+\item $Eq = \set{a \lessdot \exptype{C}{\ol{X}}, a \lessdot b, b \lessdot c}$
+It's the same as the example before.
+Replacing $b$ and $c$ with \texttt{Object} is also a correct solution. 
+
+\item $Eq = \set{a \lessdot \exptype{C}{\ol{X}}, a \lessdot b, b \lessdot \exptype{D}{\ol{Y}}}$
+Here the adopt rule transforms this to:
+$\set{a \lessdot \exptype{C}{\ol{X}}, a \lessdot b, b \lessdot \exptype{D}{\ol{Y}}, a \lessdot \exptype{D}{\ol{Y}}}$
+and here it depends if $\exptype{C}{\ol{A}} <: \exptype{D}{\ol{B}}$ or $\exptype{D}{\ol{A}} <: \exptype{C}{\ol{B}}$.
+Either the $a \lessdot \exptype{C}{\ol{X}}$ or $b \lessdot \exptype{D}{\ol{Y}}$ constraint
+gets removed by the match rule.
+This leads to $\set{a \lessdot \exptype{C}{\ol{X}}, a \lessdot b, b \lessdot \exptype{D}{\ol{Y}}}$.
+If $\texttt{C} = \texttt{D}$ and $\ol{X} = \ol{Y}$ we have the following situation:
+$\set{a \lessdot \exptype{C}{\ol{X}}, a \lessdot b, b \lessdot \exptype{D}{\ol{Y}}}$.
+Otherwise the match rule gets applied again.
+
+\item $Eq = \set{a \lessdot \exptype{C}{\ol{X}}, a \lessdot b, b \lessdot \exptype{C}{\ol{X}}}$
+TODO
+
+\end{enumerate}
+
+\textbf{match-rule:}\\
+The match-rule takes two constraints of the form $a \lessdot \exptype{C}{\ol{X}}, a \lessdot \exptype{D}{\ol{Y}}$
+and checks which one of the two types \texttt{C} and \texttt{D} is a subtype of the other.
+We only leave the constraint, which is more restrictive.
+If \texttt{C} and \texttt{D} do not have a subtype relation, the match-rule won't apply.
+This will lead to the constraint set never reaching solved form.
+We cannot remove the $a \lessdot \exptype{D}{\ol{Y}}$ constraint without matching the
+$\ol{Y}$ and $\ol{X}$.
+We do this by generating the constraint $\exptype{C}{\ol{X}} \lessdot \exptype{D}{\ol{Y}}$.
+This constraint will then be processed by the adapt and the reduce rule.
+
+Example:
+$Eq = \set{a \lessdot \exptype{C}{b,\tt{String}}, a \lessdot \exptype{D}{b,b}}$
+with $\exptype{C}{A,B} <: \exptype{D}{B,B}$.
+\begin{displaymath}
+\prftree[r]{
+    reduce2
+        }{
+    \prftree[r]{
+        adapt
+            }{
+    \prftree[r]{
+        match
+            }{
+    \set{a \lessdot \exptype{C}{b,\tt{String}}, a \lessdot \exptype{D}{b,b}}
+    }{
+    a \lessdot \exptype{C}{b,\tt{String}}, \exptype{C}{b,\tt{String}} \lessdot \exptype{D}{b,b}
+    }
+    }{
+         a \lessdot \exptype{C}{b,\tt{String}}, \exptype{D}{\tt{String},\tt{String}} \doteq \exptype{D}{b,b}
+    }}
+    {
+       a \lessdot \exptype{C}{b,\tt{String}}, b \doteq \tt{String}, b \doteq \tt{String}
+        }
+\end{displaymath}
+
+\textbf{adopt-rule:}\\
+\begin{displaymath}
+    \prftree[r]{
+        ?
+    }{
+\prftree[r]{
+    reduce2
+        }{
+    \prftree[r]{
+        match
+            }{
+    \prftree[r]{
+        adopt
+            }{
+    \set{a \lessdot \exptype{C}{\tt{String}}, b \lessdot a, b \lessdot \exptype{C}{c}}
+    }{
+        \set{a \lessdot \exptype{C}{\tt{String}}, b \lessdot a, b \lessdot \exptype{C}{\tt{String}}, b \lessdot \exptype{C}{c}}
+    }
+    }{
+        \set{a \lessdot \exptype{C}{\tt{String}}, b \lessdot a, b \lessdot \exptype{C}{\tt{String}}, \exptype{C}{\tt{String}} \lessdot \exptype{C}{c}}
+    }}
+    {
+        \set{a \lessdot \exptype{C}{\tt{String}}, b \lessdot a, b \lessdot \exptype{C}{\tt{String}}, \tt{String} \doteq c}
+    }}{
+    ? \text{(solved form reached?)}
+        }
+\end{displaymath}
+
+
+\textbf{circle:}\\
+\begin{displaymath}
+    \prftree[r]{
+        \ldots
+    }{
+\prftree[r]{
+    match
+        }{
+    \prftree[r]{
+        adopt
+            }{
+    \prftree[r]{
+        adopt
+            }{
+\set{a \lessdot \exptype{C}{x}, b \lessdot a, a \lessdot b}
+}{
+    \set{a \lessdot \exptype{C}{x}, b \lessdot a, b \lessdot \exptype{C}{x}, a \lessdot b}
+}
+}{
+    \set{a \lessdot \exptype{C}{x}, b \lessdot a, b \lessdot \exptype{C}{x}, a \lessdot b, a \lessdot \exptype{C}{x}}
+}}
+{
+    \set{a \lessdot \exptype{C}{x}, b \lessdot a, b \lessdot \exptype{C}{x}, \exptype{C}{x} \lessdot \exptype{C}{x}, a \lessdot b, \exptype{C}{x} \lessdot \exptype{C}{x}}
+}}{
+ \ldots
+        }
+\end{displaymath}
+
+\textbf{longer circle:}\\
+\begin{displaymath}
+    \prftree[r]{
+        adopt, adopt
+}{
+\set{a \lessdot \exptype{C}{x}, b \lessdot a, c \lessdot b, c \lessdot a}
+}{
+\set{a \lessdot \exptype{C}{x}, b \lessdot a,
+c \lessdot b, c \lessdot a, b \lessdot \exptype{C}{x}, c \lessdot \exptype{C}{x}}
+}
+\end{displaymath}
+
+\textbf{longer circle 2:}\\
+\begin{displaymath}
+    \prftree[r]{
+        match, reduce2
+    }{
+\prftree[r]{
+    adopt
+        }{
+    \prftree[r]{
+        match, reduce2
+            }{
+    \prftree[r]{
+        adopt, adopt
+}{
+\set{a \lessdot \exptype{C}{x}, b \lessdot a, c \lessdot b, c \lessdot a, b \lessdot \exptype{C}{String}}
+}{
+\set{a \lessdot \exptype{C}{x}, b \lessdot a,
+c \lessdot b, c \lessdot a, b \lessdot \exptype{C}{x}, b \lessdot \exptype{C}{\tt{String}}, c \lessdot \exptype{C}{\tt{String}}}
+}
+}{
+    \set{a \lessdot \exptype{C}{x}, b \lessdot a,
+    c \lessdot b, c \lessdot a, b \lessdot \exptype{C}{x}, c \lessdot \exptype{C}{\tt{String}}, x \doteq \tt{String}}    
+}}
+{
+    \set{a \lessdot \exptype{C}{x}, b \lessdot a,
+    c \lessdot b, c \lessdot a, b \lessdot \exptype{C}{x}, c \lessdot \exptype{C}{\tt{String}}, c \lessdot \exptype{C}{x}, x \doteq \tt{String}}   
+}}{
+    \set{a \lessdot \exptype{C}{x}, b \lessdot a,
+    c \lessdot b, c \lessdot a, b \lessdot \exptype{C}{x}, c \lessdot \exptype{C}{x}, x \doteq \tt{String}}   
+        }
+\end{displaymath}
+
