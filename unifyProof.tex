@@ -303,3 +303,16 @@ and the \textbf{Unify} algorithm does not exclude any of the possible unifiers,
 then the result \textbf{Unify} contains the principal type solution.
 \hfill $\square$
 \end{description}
+
+\textbf{Termination Proof:}
+Every step of the algorithm removes a $\lessdot$ constraint with the following exceptions:
+A few rules of Step 1 do not change the amount of $\lessdot$ constraints.
+Each of those rules can be applied only a finite amount of times on a finite set of constraints $Eq$.
+So thos will stop to be applied automatically.
+The only other exception is the \texttt{adopt} rule.
+This rule can only be applied once for each combination of 
+
+Does the adopt rule really terminate?
+no -> if there would be a circle, but circles are deleted by equals
+a <. b, b <. C<x1>, a <. C<x2>, b <. c, c <. C<x>, c <. a
+yes -> only finite combination of a <. b and a <. C
