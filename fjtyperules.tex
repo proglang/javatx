@@ -1,20 +1,30 @@
-The input for our type inference algorithm is based on Generic Featherweight Java (GFJ).
-GFJ is defined by syntax and typing rules.
-We already changed the syntax to allow typeless GFJ programs as input for our algorithm.
-Additionally we alter the typing rules slightly, which is presented in this chapter.
+As TFGJ omits some type annotations with respect to FGJ, we cannot use
+FGJ's typing rules directly. Hence, we give new typing rules which are
+close to FGJ's original rules, but adapted to cater for omitted types.
 
-%Our type inference algorithm takes typeless GFJ classes as input.
-%The generated output is correct GFJ, although we have to alter some rules.
-%This chapter defines the typing rules for our version of GFJ,
+% The input for our type inference algorithm is based on Featherweight Generic Java (FGJ).
+% FGJ is defined by syntax and typing rules.
+% We already changed the syntax to allow typeless FGJ programs as input for our algorithm.
+% Additionally we alter the typing rules slightly, which is presented in this chapter.
+
+%Our type inference algorithm takes typeless FGJ classes as input.
+%The generated output is correct FGJ, although we have to alter some rules.
+%This chapter defines the typing rules for our version of FGJ,
 %which our type inference algorithm is able to process.
 
-Most of them stay the same as in the original GFJ language,
-except from the following changes:
+Most rules stay the same as in FGJ, but we note the following changes:
+\todo[inline]{PT: In GT-INVK, the method call contains the instantiation
+  $\overline V$, which is not present in the syntax in
+  Figure~\ref{fig:syntax-tfgj}. Why and how is overloading supported? \\
+  GT-NEW should use \texttt{C} in place of \texttt{N}: see suggested GT-NEW'. \\
+  The font for types and expressions changes between math and typewriter. \\
+  $\triangle$ should be $\Delta$ (changed)
+}
 \begin{itemize}
-\item We remove the \texttt{MT-CLASS}, \texttt{D-CAST}, \texttt{U-CAST}, \texttt{S-CAST} rules
-\item The \texttt{GT-METHOD} rule is changed
-\item Overriding of methods is removed for our typeless GFJ version. Therefore also the rule \texttt{MT-SUPER} is removed.
-\item The \texttt{GT-INVK} rule is changed to support overloading
+\item We remove the \texttt{MT-CLASS}, \texttt{D-CAST}, \texttt{U-CAST}, \texttt{S-CAST} rules.
+\item The \texttt{GT-METHOD} rule is changed.
+\item Overriding of methods is removed for our typeless FGJ version. Therefore also the rule \texttt{MT-SUPER} is removed.
+\item The \texttt{GT-INVK} rule is changed to support overloading.
 \end{itemize}
 
 \fbox{
@@ -30,28 +40,28 @@ except from the following changes:
 %& \\
 
 $
-\triangle \vdash T <: T
+\Delta \vdash T <: T
 $
 &   S-REFL \\
 
 & \\
 $\ddfrac{
-    \triangle \vdash S <: T \quad \quad \triangle \vdash T <: U
+    \Delta \vdash S <: T \quad \quad \Delta \vdash T <: U
 }{
-    \triangle \vdash S <: U
+    \Delta \vdash S <: U
 }$ & S-TRANS \\
 
 & \\
 
 $
-\triangle \vdash X <: \triangle(X)
+\Delta \vdash X <: \Delta(X)
 $ & S-VAR \\
 & \\
 $\ddfrac{
   \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}
   \triangleleft \mv N \set{ \ldots }
 }{
-  \triangle \vdash \exptype{C}{\ol{T}} <: [\ol{T}/\ol{X}]\mv N
+  \Delta \vdash \exptype{C}{\ol{T}} <: [\ol{T}/\ol{X}]\mv N
 }$ & S-CLASS 
 \end{tabular}
 \end{minipage}
@@ -60,24 +70,24 @@ $\ddfrac{
 \fbox{
 \begin{minipage}{\textwidth}
   \textbf{Well-formed types:}\\
-\begin{tabular}{l l}
-$\triangle \vdash \texttt{Object}\ \text{ok}
+\begin{tabular}{l@{\quad}l}
+$\Delta \vdash \texttt{Object}\ \text{ok}
 $ & WF-OBJECT\\
 
 & \\
 $\ddfrac{
-    X \in \textit{dom}(\triangle)
+    X \in \textit{dom}(\Delta)
 }{
-    \triangle \vdash X \ \text{ok}
+    \Delta \vdash X \ \text{ok}
 }
 $ & WF-VAR \\
 & \\
 $\ddfrac{\begin{array}{c}
 \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots \} \\
-\triangle \vdash \ol{T} \ \text{ok} \quad \quad \triangle \vdash \ol{T} <: [\ol{T}/\ol{X}]\ol{N}
+\Delta \vdash \ol{T} \ \text{ok} \quad \quad \Delta \vdash \ol{T} <: [\ol{T}/\ol{X}]\ol{N}
 \end{array}
 }{
-\triangle \vdash \exptype{C}{\ol{T}} \ \text{ok}
+\Delta \vdash \exptype{C}{\ol{T}} \ \text{ok}
 }
 $ & WF-CLASS
 \end{tabular}
@@ -88,33 +98,41 @@ $ & WF-CLASS
 \fbox{
 \begin{minipage}{\textwidth}
 \textbf{Expression Typing:}\\
-\begin{tabular}{l l}
+\begin{tabular}{l@{\quad}l}
 $
-\triangle ; \Gamma \vdash x : \Gamma(x)
+\Delta ; \Gamma \vdash x : \Gamma(x)
 $ & GT-VAR \\
 & \\
 
-$\ddfrac{\Gamma \vdash e_0:T_0 \quad \quad \mathit{fields}(\mathit{bound}_\triangle(T_0)) = \overline{T} \ \overline{f}}
+$\ddfrac{\Gamma \vdash e_0:T_0 \quad \quad \mathit{fields}(\mathit{bound}_\Delta(T_0)) = \overline{T} \ \overline{f}}
 {\Gamma \vdash e_0.\mathtt{f}_i : T_i}
 $ & GT-FIELD \\
 & \\
-$ \ddfrac{\triangle \vdash N \ \texttt{ok} \quad \quad \textit{fields}(N) = \ol{T}\ \ol{f} \quad \quad
-  \triangle; \Gamma \vdash \ol{e} : \ol{S} \quad \quad \triangle \vdash \ol{S} <: \ol{T}
+$ \ddfrac{\Delta \vdash N \ \texttt{ok} \quad \quad \textit{fields}(N) = \ol{T}\ \ol{f} \quad \quad
+  \Delta; \Gamma \vdash \ol{e} : \ol{S} \quad \quad \Delta \vdash \ol{S} <: \ol{T}
 }{
-  \triangle; \Gamma \vdash \texttt{new N}(\ol{e}): N
+  \Delta; \Gamma \vdash \texttt{new N}(\ol{e}): N
 }$ & GT-NEW \\
+& \\
+  $ \ddfrac{\Delta \vdash {\mv N} \ \texttt{ok} \quad 
+  \mv N = \mv C (\ol U) \quad
+  \textit{fields}(\mv N) = \ol{T}\ \ol{f} \quad 
+  \Delta; \Gamma \vdash \ol{e} : \ol{S} \quad \Delta \vdash \ol{S} <: \ol{T}
+}{
+  \Delta; \Gamma \vdash \texttt{new C}(\ol{e}): \mv N
+}$ & GT-NEW' \\
 
 & \\
 
 $\ddfrac{\begin{array}{c}
-\mathit{mtype}(m, \mathit{bound}_\triangle (T_0)) = (\exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{U} \to U)\\
-\triangle; \Gamma \vdash e_0 : T_0 \quad \quad
-\triangle \vdash \ol{V} \ \texttt{OK} \quad \quad
-\triangle \vdash \ol{V} <: [\ol{V}/\ol{Y}]\ol{P} \\ %\quad \quad
-\triangle; \Gamma \vdash \ol{e} : \ol{S} \quad \quad
-\triangle \vdash \ol{S} <: [\ol{V}/\ol{Y}]\ol{U}
+\mathit{mtype}(m, \mathit{bound}_\Delta (T_0)) = (\exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{U} \to U)\\
+\Delta; \Gamma \vdash e_0 : T_0 \quad \quad
+\Delta \vdash \ol{V} \ \texttt{OK} \quad \quad
+\Delta \vdash \ol{V} <: [\ol{V}/\ol{Y}]\ol{P} \\ %\quad \quad
+\Delta; \Gamma \vdash \ol{e} : \ol{S} \quad \quad
+\Delta \vdash \ol{S} <: [\ol{V}/\ol{Y}]\ol{U}
 \end{array}}
-{\triangle; \Gamma \vdash \mathtt{e_0.\exptype{m}{\ol{V}}(\overline{e}) : [\ol{V}/\ol{Y}]U }}
+{\Delta; \Gamma \vdash \mathtt{e_0.\exptype{m}{\ol{V}}(\overline{e}) : [\ol{V}/\ol{Y}]U }}
 $ & GT-INVK
 \end{tabular}
 \end{minipage}
@@ -131,10 +149,10 @@ $ & GT-INVK
   $\ddfrac{\begin{array}{c}
   \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots\ \ol{M}\ \ldots\} \\
   \textit{mtype}(m, \exptype{C}{\ol{X}}) = \ol{T_m} \to T_m \textrm{ for } m \in \ol{M}\\
-  \triangle \vdash \ol{X} <: \ol{N}  \quad \quad 
-  \triangle \vdash \ol{T}, T \ \texttt{ok} \\
-  \triangle ; \ol{x}:\ol{T_\mathit{meth}},\ this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
-  \triangle \vdash S <: T_\mathit{meth} \\
+  \Delta \vdash \ol{X} <: \ol{N}  \quad \quad 
+  \Delta \vdash \ol{T}, T \ \texttt{ok} \\
+  \Delta ; \ol{x}:\ol{T_\mathit{meth}},\ this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
+  \Delta \vdash S <: T_\mathit{meth} \\
   \end{array}} {
   %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{
   %\texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft
@@ -186,11 +204,11 @@ $ & GT-INVK
 }
 
 \medskip
-In the typing system of GFJ \textit{mtype} is a global function which gives the type for every method in every class.
-In our type system it is also a global function but it is differed between
+In FGJ, \textit{mtype} is a global function which returns the type for every method in every class.
+In our system, \textit{mtype} is also a global function but it is differed between
 methods declared in the actual class and methods from other classes.
 
-The main difference between the type system of GFJ and our type system is that
+The main difference between the type system of FGJ and our type system is that
 in the \texttt{MT-CLASS} rule the correspondig class has to be proved as \texttt{OK}
 by the \texttt{GT-CLASS} rule which means that for all methods of the class a type has to
 be assumed and proved as correct by the \texttt{GT-METHOD} rule.
@@ -217,10 +235,10 @@ undecidablity of polymorphic recursion (cp. Sec. \ref{sec:polym-recurs}).
 %GT-METHOD:
 %\begin{align*}
 %\ddfrac{\begin{array}{c}
-%\triangle \vdash \ol{X} <: \ol{N}, \ol{Y} <: \ol{P} \quad \quad 
-%\triangle \vdash \ol{T}, T, \ol{P} \ \texttt{ok} \\
-%\triangle ; \ol{x}:\ol{T}, this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
-%\triangle \vdash S <: T \\
+%\Delta \vdash \ol{X} <: \ol{N}, \ol{Y} <: \ol{P} \quad \quad 
+%\Delta \vdash \ol{T}, T, \ol{P} \ \texttt{ok} \\
+%\Delta ; \ol{x}:\ol{T}, this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
+%\Delta \vdash S <: T \\
 %\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots \} \quad \quad
 %\textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{T} \to T)
 %\end{array}}
