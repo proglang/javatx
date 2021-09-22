@@ -1,8 +1,8 @@
 \section{Motivation}
 \label{sec:motivation}
 
-Examples, examples, examples from simple to more advanced showing off
-the (difficult) features of inference.
+% Examples, examples, examples from simple to more advanced showing off
+% the (difficult) features of inference.
 
 In this section, we present a sequence of more and more challenging
 examples for global type inference (GTI). To spice up our examples
@@ -17,38 +17,70 @@ class Int {
   Int add (Int that);
   Int mult (Int that);
 }
+class Double {
+  Double negate ();
+  Double add (Double that);
+  Double multi (Double that);
+}
 \end{lstlisting}
 
 \subsection{Multiplication}
 \label{sec:multiplication}
 
-For full-grown Java, we would consider the dot product or matrix
-multiplication. We would also have to deal with overloading of the
-multiplication operator. The FGJ adaptation is a method which multiplies the
-components of a pair.
+Here is the FGJ-GT code  for multiplying the components of a pair.
 \begin{lstlisting}
 class MultPair {
   mult (p) { return p.fst.mult(p.snd); }
 }
 \end{lstlisting}
-Assume $\mv p:P$
+Assuming the parameter typing $\mv p:P$, result type $\mv R$, and that
+\texttt{mult} in the body refers to \texttt{Int.mult}, we
+obtain the following constraints.
 \begin{itemize}
-\item From \texttt{p.fst}: $P \le \mathtt{Pair}<X,Y>$ and
+\item From \texttt{p.fst}: $\mv P \le \mathtt{Pair}\Angle{X,Y}$ and
   $\texttt{p.fst} : X$
-\item From \texttt{p.snd}: $P \le \mathtt{Pair}<X,Y>$ and
+\item From \texttt{p.snd}: $\mv P \le \mathtt{Pair}\Angle{X,Y}$ and
   $\texttt{p.snd} : Y$
-\item From \texttt{.mult (p.snd)}: $X \le \mathtt{Int}$ and $Y \le \mathtt{Int}$.
+\item From \texttt{.mult (p.snd)}: $X \le \mathtt{Int}$, $Y \le
+  \mathtt{Int}$, and $\mathtt{Int} \le \mv R$.
 \end{itemize}
-Current result
+As the return type only occurs positively in the constraints, we can
+set it to $\mathtt{Int}$.
+% \begin{lstlisting}
+% class MultPair {
+%   Int mult (Pair<Int,Int> p) { return p.fst.mult(p.snd); }
+% }
+% \end{lstlisting}
 \begin{lstlisting}
 class MultPair {
-  Int mult (Pair<Int,Int> p) { return p.fst.mult(p.snd); }
-}
-class MultPair {
   <X extends Int, Y extends Int>
-   Int mult (Pair<X,Y> p) { return p.fst.mult(p.snd); }
+  Int mult (Pair<X,Y> p) { return p.fst.mult(p.snd); }
 }
 \end{lstlisting}
+We obtain a second version if we assume that \texttt{mult} refers to
+\texttt{Double.mult}.
+\begin{lstlisting}
+class MultPair {
+  <X extends Double, Y extends Double>
+  Double mult (Pair<X,Y> p) { return p.fst.mult(p.snd); }
+}
+\end{lstlisting}
+
+Finally, \texttt{mult} might be recursive, which results different constraints.
+\begin{itemize}
+\item From \texttt{.mult (p.snd)}: $X \le \mathtt{MultPair}$, $Y \le
+  \mathtt{P}$, and $\mathtt{R} \le \mv R$.
+\end{itemize}
+Combining $\mv P \le \mathtt{Pair}\Angle{X,Y}$ and $Y \le \mathtt{P}$
+yields $Y \le \mathtt{Pair}\Angle{X,Y}$, which is not solvable and
+hence rejected. 
+
+The corresponding example in full Java would be the dot product. In
+full Java, we also have to deal with overloading of the multiplication
+operator, which amounts to considering \texttt{Int.mult} and
+\texttt{Double.mult}. Overloading is not allowed in FGJ, but method
+names in different classes may overlap.
+
 
 \subsection{Inheritance}
 \label{sec:inheritance}
