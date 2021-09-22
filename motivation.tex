@@ -391,22 +391,23 @@ class UsePair {
   \caption{Example for polymorphic recursion}
   \label{fig:examples-poly-rec}
 \end{figure}
-
-As a toy example for polymorphic recursion consider a class in FGJ with a
+A program uses \emph{polymorphic recursion} if there is a generic method that is invoked
+recursively at a more specific type than its definition.
+As a toy example for polymorphic recursion consider the class \texttt{UsePair} in FGJ with a
 generic method \texttt{prc} that invokes itself
 recursively on a swapped version of its argument pair
 (Figure~\ref{fig:examples-poly-rec}, left).
 This method makes use of polymorphic recursion because the type of the
-recursive call is different from the type of the original call. More
-precisely, the original argument has type \texttt{Pair<X,Y>} whereas
+recursive call is different from the declared type of the method. More
+precisely, the declared argument type is \texttt{Pair<X,Y>} whereas
 the argument of the recursive call has type
-\texttt{Pair<Y,X>}---an instance of the original type.
+\texttt{Pair<Y,X>}---an instance of the declared type.
 
 For this particular example, global type inference succeeds on the
 corresponding stripped program shown in
 Figure~\ref{fig:examples-poly-rec}, right, but it yields a more restrictive
 typing of \texttt{<X> Object prc (Pair<X,X> p)} for the method. 
-A variation of the program with a non-variable instantiation makes type inference fail entirely:
+A minor variation of the program with a non-variable instantiation makes type inference fail entirely:
 \begin{lstlisting}
 class UsePair2 {
   <X,Y> Object prc(Pair<X,Y> p) {
@@ -420,9 +421,13 @@ class UsePair2 {
 Polymorphic recursion is known to make type inference intractable
 \cite{DBLP:journals/toplas/Henglein93,DBLP:journals/toplas/KfouryTU93}
 because it can be reduced to an undecidable semi-unification problem
-\cite{DBLP:journals/iandc/KfouryTU93}. However, type checking with
-polymorphic is tractable and routinely used in languages like Haskell
+\cite{DBLP:journals/iandc/KfouryTU93}. However, \emph{type checking} with
+polymorphic recursion is tractable and routinely used in languages like Haskell
 and Java.
+
+GTI does not infer method types with polymorphic recursion. Inference either fails or
+returns a more restrictive type. Methods making use of this features need to supply
+explicit typings. 
 
 
 % Features:
