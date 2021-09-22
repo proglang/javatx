@@ -85,47 +85,76 @@ names in different classes may overlap.
 \subsection{Inheritance}
 \label{sec:inheritance}
 
-\begin{lstlisting}[float,caption={Method overriding},label={lst:method-overriding}]
-class A {
+\begin{figure}[to]
+  \begin{subfigure}[t]{0.49\linewidth}
+\begin{lstlisting}
+class A1 {
   m(x) { return x.add(x); }
 }
-class B extends A {
+class B1 extends A1 {
   m(x) { return x; }
 }
 \end{lstlisting}
-Let's start with an artificial example in Listing~\ref{lst:method-overriding}. Class \texttt{A} has
-a method \texttt{m} of inferred type \texttt{Int -> Int}. Class \texttt{B} is a
-subclass of \texttt{A} which ought to override \texttt{m}, but its inferred
-type is \texttt{<T> T -> T}.
-However, a generic type for \texttt{B.m()} is is not a correct
-method override for \texttt{A.m()}. In Java proper, we would either
-have two different overloaded methods in \texttt{B} or we would have
-to impose
-the typing \texttt{Int B.m(Int)} to enforce overriding of
-\texttt{A.m()}. As FGJ does not support overloading, the type of
-\texttt{B.m()} has to be restricted accordingly.
-\todo[inline]{This example shows that GTI must first infer the type
-  for \texttt{A.m{}} in the superclass. Later, when it infers the types for a subclass
-  like \texttt{B}, GTI must constrain the type of \texttt{B.m()} by
-  the type of \texttt{A.m()} transported to the subclass.}
+  \end{subfigure}
+\begin{subfigure}[t]{0.49\linewidth}
+\begin{lstlisting}
+class A2 {
+  m(x) { return x; }
+}
+class B2 extends A2 {
+  m(x) { return x.add(x); }
+}
+\end{lstlisting}
+  \end{subfigure}
+  \caption{Method overriding}
+  \label{fig:method-overriding}
+\end{figure}
 
-Otherwise, we would get strange results. Consider extending the
-program with \texttt{A} and \texttt{B} by the following class.
-\begin{lstlisting}
-class C {
-  mbool(x) { return x.m(new Bool()); }
-}
-\end{lstlisting}
-Inferring the type of \texttt{C.mbool()} using \texttt{A.m()} would
-fail because \texttt{Int} and \texttt{Bool} are not
-unifiable. However, inferring the type of \texttt{C.mbool()} using
-\texttt{B.m()} (with the generic type) would succeed and yield the
-typing
-\begin{lstlisting}
-class C {
-  Bool mbool(B x) { return x.m(new Bool()); }
-}
-\end{lstlisting}
+Let's start with the artificial example in the left
+listing of Figure~\ref{fig:method-overriding} and ignore the \texttt{Double} class. Type
+inference proceeds according 
+to the inheritance hierarchy starting from the superclasses. Class \texttt{A1} has
+a method \texttt{m} of inferred type \texttt{Int -> Int}. Class \texttt{B1} is a
+subclass of \texttt{A1} which must override \texttt{m} as there is no
+overloading in FGJ. However, the inferred
+type of \texttt{B1.m()} is \texttt{<T> T -> T}, which is not a correct
+method override for \texttt{A1.m()}.
+Hence, we have to instantiate the type of \texttt{B1.m()} to
+\texttt{Int -> Int}.
+
+Conversely, for the right listing of Figure~\ref{fig:method-overriding}, GTI finds that
+\texttt{A2.m} has the generic type \texttt{<T> T -> T} while \texttt{B2.m} has type
+\texttt{Int -> Int}. Again, these types do not give rise to a correct method override and
+GTI is forced to instantiate the type of \texttt{A2.m} to \texttt{Int -> Int}.
+
+\todo[inline]{This example shows that GTI must first collect the constraints 
+  for all methods \texttt{m{}} in a class hierarchy. Generalization can only happen after
+  all constraints on \texttt{m}'s type have been considered.}
+
+% Otherwise, we would get strange results. Consider extending the
+% program with classes \texttt{A} and \texttt{B} by the following class.
+% \begin{lstlisting}
+% class C {
+%   mbool(x) { return x.m(new Bool()); }
+% }
+% \end{lstlisting}
+% Inferring the type of \texttt{C.mbool()} using \texttt{A.m()} would
+% fail because \texttt{Int} and \texttt{Bool} are not
+% unifiable. However, inferring the type of \texttt{C.mbool()} using
+% \texttt{B.m()} (with the generic type) would succeed and yield the
+% typing
+% \begin{lstlisting}
+% class C {
+%   Bool mbool(B x) { return x.m(new Bool()); }
+% }
+% \end{lstlisting}
+
+
+In full Java, type inference would have to offer two alternative
+results: either two different
+overloaded methods (one inherited and one local) in \texttt{B1}/\texttt{B2} or
+impose the typing \texttt{Int B1.m(Int)} or \texttt{Int A2.m(Int)} to enforce correct overriding. 
+
 
 \subsection{Inheritance and Generics}
 \label{sec:inheritance-generics}
