@@ -22,12 +22,13 @@
   \caption{Syntax of TFGJ}
   \label{fig:syntax-tfgj}
 \end{figure}
-The input of GTI is a
-program in Typeless Featherweight Generic Java (TFGJ). Its syntax
+The input of GTI is a program in Typeless Featherweight Generic Java (TFGJ). Its syntax
 (shown in Figure~\ref{fig:syntax-tfgj}) differs
-from Featherweight Generic Java (FGJ) in that it is possible to omit
-the type annotations for method parameters and return types.%, except the ones for casts and \texttt{new} calls.
-Also we leave out the generic type variables of the \texttt{new}-statement.
+from Featherweight Generic Java (FGJ) in that 
+the type annotations for method parameters, method return types, and in the \texttt{new}-statement are
+omitted.%, except the ones for casts and \texttt{new} calls. 
+\todo[inline]{``Typeless'' does not sound right. How about ``Untyped''?
+or call the language FGJ-GT (FGJ with global type inference)?}
 
 %All type annotations in our TGFJ language can be omitted ($T = \epsilon$).
 %The only exception are fields which must be given a concrete type.
@@ -36,6 +37,8 @@ Another difference to the syntax of FGJ is that we added the special variable \t
 FJ treats \texttt{this} as a normal variable
 but our algorithm treats it as a special variable which always has a predetermined type;
 the type of the class it is used in.
+\todo[inline]{PT: why can't we treat ``this'' in the same way as FGJ,
+  which just puts the correct type assumption in the environment?}
 
 \subsection{Featherweight Java Typing Rules}\label{chapter:type-rules}
 \input{fjtyperules}
