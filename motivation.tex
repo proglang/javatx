@@ -24,6 +24,12 @@ class Double {
 }
 \end{lstlisting}
 
+We generally use upper case single-letter identifiers like $\TVX,
+\TVY, \dots$ for type variables.
+Given a TFGJ class \CL 0, 
+we call any FGJ class \CL i that can be transformed to \CL 0 by
+erasing type annotations a \emph{completion of  \CL 0}.
+
 \subsection{Multiplication}
 \label{sec:multiplication}
 
@@ -37,15 +43,20 @@ Assuming the parameter typing $\mv p:\mv P$, result type $\mv R$, and that
 \texttt{mult} in the body refers to \texttt{Int.mult}, we
 obtain the following constraints.
 \begin{itemize}
-\item From \texttt{p.fst}: $\mv P \le \mathtt{Pair}\Angle{X,Y}$ and
-  $\texttt{p.fst} : X$
-\item From \texttt{p.snd}: $\mv P \le \mathtt{Pair}\Angle{X,Y}$ and
-  $\texttt{p.snd} : Y$
-\item From \texttt{.mult (p.snd)}: $X \le \mathtt{Int}$, $Y \le
-  \mathtt{Int}$, and $\mathtt{Int} \le \mv R$.
+\item From \texttt{p.fst}: $\mv P \subeq \mathtt{Pair}\Angle{\TVX,\TVY}$ and
+  $\texttt{p.fst} : \TVX$.
+\item From \texttt{p.snd}: $\mv P \subeq \mathtt{Pair}\Angle{\TVZ,\TVW}$ and
+  $\texttt{p.snd} : \TVW$.
+\item The two constraints on $\mv P$ imply that $\TVX = \TVZ$ and
+  $\TVY = \TVW$.
+\item From \texttt{.mult (p.snd)}: $\TVX \subeq \mathtt{Int}$, $\TVY \subeq
+  \mathtt{Int}$, and $\mathtt{Int} \subeq \mv R$.
 \end{itemize}
-As the return type only occurs positively in the constraints, we can
-set it to $\mathtt{Int}$.
+The return type $\mv R$ only occurs positively in the constraints, so we can
+set $\mv R = \mathtt{Int}$.
+The argument type $\mv P$ only occurs negatively in the constraints,
+so $\mv P = \mathtt{Pair} \Angle{\TVX,\TVY}$.
+This reasoning gives rise to the following completion.
 % \begin{lstlisting}
 % class MultPair {
 %   Int mult (Pair<Int,Int> p) { return p.fst.mult(p.snd); }
@@ -57,7 +68,7 @@ class MultPair {
   Int mult (Pair<X,Y> p) { return p.fst.mult(p.snd); }
 }
 \end{lstlisting}
-We obtain a second version if we assume that \texttt{mult} refers to
+We obtain a second completion if we assume that \texttt{mult} refers to
 \texttt{Double.mult}.
 \begin{lstlisting}
 class MultPair {
@@ -66,20 +77,21 @@ class MultPair {
 }
 \end{lstlisting}
 
-Finally, \texttt{mult} might be recursive, which results different constraints.
+Finally, the definition of \texttt{mult} might be recursive, which
+generates different constraints for the method invocation of \texttt{mult}.
 \begin{itemize}
-\item From \texttt{.mult (p.snd)}: $X \le \mathtt{MultPair}$, $Y \le
-  \mathtt{P}$, and $\mathtt{R} \le \mv R$.
+\item From \texttt{.mult (p.snd)}: $\TVX \subeq \mathtt{MultPair}$, $\TVY \subeq
+  \mathtt{P}$, and $\mathtt{R} \subeq \mv R$.
 \end{itemize}
-Combining $\mv P \le \mathtt{Pair}\Angle{X,Y}$ and $Y \le \mathtt{P}$
-yields $Y \le \mathtt{Pair}\Angle{X,Y}$, which is not solvable and
-hence rejected. 
+Transitivity of subtyping applied to $\TVY \subeq \mathtt{P}$ and $\mv P \subeq \mathtt{Pair}\Angle{\TVX,\TVY}$
+yields the constraint $\TVY \subeq \mathtt{Pair}\Angle{\TVX,\TVY}$, which triggers the
+occurs-check in unification and is hence rejected. 
 
-The corresponding example in full Java would be the dot product. In
-full Java, we also have to deal with overloading of the multiplication
-operator, which amounts to considering \texttt{Int.mult} and
-\texttt{Double.mult}. Overloading is not allowed in FGJ, but method
-names in different classes may overlap.
+% The corresponding example in full Java would be the dot product. In
+% full Java, we also have to deal with overloading of the multiplication
+% operator, which amounts to considering \texttt{Int.mult} and
+% \texttt{Double.mult}. Overloading is not allowed in FGJ, but method
+% names in different classes may overlap.
 
 
 \subsection{Inheritance}
@@ -113,19 +125,21 @@ class B2 extends A2 {
 Let's start with the artificial example in the left
 listing of Figure~\ref{fig:method-overriding} and ignore the \texttt{Double} class. Type
 inference proceeds according 
-to the inheritance hierarchy starting from the superclasses. Class \texttt{A1} has
-a method \texttt{m} of inferred type \texttt{Int -> Int}. Class \texttt{B1} is a
+to the inheritance hierarchy starting from the superclasses. In class
+\texttt{A1}, the inferred method type is \texttt{Int A1.m (Int)}. Class \texttt{B1} is a
 subclass of \texttt{A1} which must override \texttt{m} as there is no
-overloading in FGJ. However, the inferred
-type of \texttt{B1.m()} is \texttt{<T> T -> T}, which is not a correct
+overloading in FGJ. However, the inferred method 
+type is \texttt{<T> T B1.m(T)}, which is not a correct
 method override for \texttt{A1.m()}.
-Hence, we have to instantiate the type of \texttt{B1.m()} to
-\texttt{Int -> Int}.
+Hence, GTI must instantiate the method type in the subclass \texttt{B1} to
+\texttt{Int B1.m(Int)}.
 
-Conversely, for the right listing of Figure~\ref{fig:method-overriding}, GTI finds that
-\texttt{A2.m} has the generic type \texttt{<T> T -> T} while \texttt{B2.m} has type
-\texttt{Int -> Int}. Again, these types do not give rise to a correct method override and
-GTI is forced to instantiate the type of \texttt{A2.m} to \texttt{Int -> Int}.
+Conversely, for the right listing of
+Figure~\ref{fig:method-overriding}, GTI infers the types
+\texttt{<T> T A2.m (T)} and \texttt{Int B2.m (Int)}. Again, these
+types do not give rise to a correct method override and 
+GTI is now forced to instantiate the type in the superclass to
+\texttt{Int A2.m (Int)}.
 
 \todo[inline]{This example shows that GTI must first collect the constraints 
   for all methods \texttt{m{}} in a class hierarchy. Generalization can only happen after
@@ -165,7 +179,7 @@ class Function<S,T> {
   T apply(S arg) { return this.apply (arg); }
 }
 \end{lstlisting}
-Suppose we are given the generic FGJ class for modeling functions in Listing~\ref{lst:function-class}.
+Suppose we are given a generic class for modeling functions in  FGJ (Listing~\ref{lst:function-class}).
 This code is constructed to serve as an ``abstract'' super class to derive more
 interesting subclasses.
 The class \texttt{Function<S,T>} must be presented in this explicit
@@ -222,7 +236,8 @@ class Box<S> {
     return new Box<T>(f.apply<S,T>(this.val));
 } }
 \end{lstlisting}
-But what happens if we add useful subclasses of \texttt{Function} as in
+But what happens if we add subclasses of \texttt{Function}?
+For example:
 \begin{lstlisting}
 class Not extends Function<Bool,Bool> {
   apply(b) { return b.not(); }
@@ -240,10 +255,10 @@ If we rerun GTI with these classes, we now have additional
 possibilities to invoke the \texttt{apply} method. With \texttt{Not}, we need to use the
 generic type of \texttt{Function.apply()}, but instantiate it according to
 \texttt{Function<Bool,Bool>}. Thus,
-we obtain the constraints \texttt{Bool <: T} and \texttt{S <: Bool} for \texttt{T = Bool}
+we obtain the constraints \texttt{Bool $\subeq$ T} and \texttt{S $\subeq$ Bool} for \texttt{T = Bool}
 and \texttt{S = Bool}, which are both satisfiable. With
 \texttt{Negate} we run into the same situation with the constraints
-\texttt{Int <: Int} and \texttt{Int <: Int}.
+\texttt{Int $\subeq$ Int} and \texttt{Int $\subeq$ Int}.
 % That means there is no way to
 % \emph{directly} invoke \texttt{Not.apply} or \texttt{Negate.apply}
 % from \texttt{Box.map}, but it may happen indirectly via inheritance.
@@ -259,7 +274,7 @@ Here, we obtain the following type constraints
 \begin{itemize}
 \item \texttt{apply} is defined in class \texttt{Identity<S1>} with
   type \texttt{S1 apply (S1 arg)},
-\item hence \texttt{S1 <: T} and \texttt{S <: S1}.
+\item hence \texttt{S1 $\subeq$ T} and \texttt{S $\subeq$ S1}.
 \end{itemize}
 Resolving the constraints yields \texttt{S = T} thus the typing
 \begin{lstlisting}
@@ -316,7 +331,7 @@ the return type of method \texttt{m} is also \texttt{T}.
 But now we are in a dilemma because FGJ only supports \emph{upper bounds} for
 type variables,\footnote{Java has the same restriction. Lower bounds
   are only allowed for wildcards.} so that 
-\texttt{Global <: T} is not a valid constraint in FGJ.
+\texttt{Global $\subeq$ T} is not a valid constraint in FGJ.
 To stay compatible with this restriction, global type inference
 expands the constraint by instantiating \texttt{T} with the (two) superclasses fulfilling
 the constraint, \texttt{Global} and \texttt{Object}.  They give rise to two incomparable
@@ -326,7 +341,7 @@ types for
 programs that are completions of the \texttt{Global} class.
 
 GTI models these instances using the \emph{intersection type}
-\texttt{List<Global> -> Global} \verb!&! \texttt{List<Object> -> Object}
+\texttt{List<Global> -> Global \& List<Object> -> Object}
 for method \texttt{m} and the different FGJ-completions of class \texttt{Global} are
 instances of the intersection type:
 \begin{center}
@@ -367,6 +382,11 @@ Due to the dependency on \texttt{Global.m()}, type inference considers this clas
 \texttt{List<Object> -> Object}, global type inference narrows the
 type of \texttt{m} to just this alternative.
 
+\todo[inline]{If there are conflicting uses of a method with an
+  intersection type \texttt{T1\&T2}, one might consider splitting the
+  class into one providing the method with type \texttt{T1} and
+  another providing it with \texttt{T2}.}
+
 \subsection{Polymorphic recursion}
 \label{sec:polym-recurs}
 \begin{figure}[tp]
@@ -393,7 +413,7 @@ class UsePair {
 \end{figure}
 A program uses \emph{polymorphic recursion} if there is a generic method that is invoked
 recursively at a more specific type than its definition.
-As a toy example for polymorphic recursion consider the class \texttt{UsePair} in FGJ with a
+As a toy example for polymorphic recursion consider the FGJ class \texttt{UsePair} with a
 generic method \texttt{prc} that invokes itself
 recursively on a swapped version of its argument pair
 (Figure~\ref{fig:examples-poly-rec}, left).
@@ -426,8 +446,8 @@ polymorphic recursion is tractable and routinely used in languages like Haskell
 and Java.
 
 GTI does not infer method types with polymorphic recursion. Inference either fails or
-returns a more restrictive type. Methods making use of this features need to supply
-explicit typings. 
+returns a more restrictive type. Classes making use of polymorphic recursion need to supply
+explicit typings for methods in question. 
 
 
 % Features:
