@@ -20,7 +20,7 @@ class Int {
 class Double {
   Double negate ();
   Double add (Double that);
-  Double multi (Double that);
+  Double mult (Double that);
 }
 \end{lstlisting}
 
@@ -43,14 +43,14 @@ Assuming the parameter typing $\mv p:\mv P$, result type $\mv R$, and that
 \texttt{mult} in the body refers to \texttt{Int.mult}, we
 obtain the following constraints.
 \begin{itemize}
-\item From \texttt{p.fst}: $\mv P \subeq \mathtt{Pair}\Angle{\TVX,\TVY}$ and
+\item From \texttt{p.fst}: $\mv P \subconstr \mathtt{Pair}\Angle{\TVX,\TVY}$ and
   $\texttt{p.fst} : \TVX$.
-\item From \texttt{p.snd}: $\mv P \subeq \mathtt{Pair}\Angle{\TVZ,\TVW}$ and
+\item From \texttt{p.snd}: $\mv P \subconstr \mathtt{Pair}\Angle{\TVZ,\TVW}$ and
   $\texttt{p.snd} : \TVW$.
-\item The two constraints on $\mv P$ imply that $\TVX = \TVZ$ and
-  $\TVY = \TVW$.
-\item From \texttt{.mult (p.snd)}: $\TVX \subeq \mathtt{Int}$, $\TVY \subeq
-  \mathtt{Int}$, and $\mathtt{Int} \subeq \mv R$.
+\item The two constraints on $\mv P$ imply that $\TVX \eqconstr \TVZ$ and
+  $\TVY \eqconstr \TVW$.
+\item From \texttt{.mult (p.snd)}: $\TVX \subconstr \mathtt{Int}$, $\TVY \subconstr
+  \mathtt{Int}$, and $\mathtt{Int} \subconstr \mv R$.
 \end{itemize}
 The return type $\mv R$ only occurs positively in the constraints, so we can
 set $\mv R = \mathtt{Int}$.
@@ -80,11 +80,11 @@ class MultPair {
 Finally, the definition of \texttt{mult} might be recursive, which
 generates different constraints for the method invocation of \texttt{mult}.
 \begin{itemize}
-\item From \texttt{.mult (p.snd)}: $\TVX \subeq \mathtt{MultPair}$, $\TVY \subeq
-  \mathtt{P}$, and $\mathtt{R} \subeq \mv R$.
+\item From \texttt{.mult (p.snd)}: $\TVX \subconstr \mathtt{MultPair}$, $\TVY \subconstr
+  \mathtt{P}$, and $\mathtt{R} \subconstr \mv R$.
 \end{itemize}
-Transitivity of subtyping applied to $\TVY \subeq \mathtt{P}$ and $\mv P \subeq \mathtt{Pair}\Angle{\TVX,\TVY}$
-yields the constraint $\TVY \subeq \mathtt{Pair}\Angle{\TVX,\TVY}$, which triggers the
+Transitivity of subtyping applied to $\TVY \subconstr \mathtt{P}$ and $\mv P \subconstr \mathtt{Pair}\Angle{\TVX,\TVY}$
+yields the constraint $\TVY \subconstr \mathtt{Pair}\Angle{\TVX,\TVY}$, which triggers the
 occurs-check in unification and is hence rejected. 
 
 % The corresponding example in full Java would be the dot product. In
@@ -93,6 +93,17 @@ occurs-check in unification and is hence rejected.
 % \texttt{Double.mult}. Overloading is not allowed in FGJ, but method
 % names in different classes may overlap.
 
+The two solutions can be combined to
+\begin{lstlisting}
+class MultPair {
+  <X extends T1, Y extends T2>
+  T0 mult (Pair<X,Y> p) { return p.fst.mult(p.snd); }
+}
+\end{lstlisting}
+where
+\begin{align*}
+  (T_0, T_1, T_2) & \in \{ (\mv{Int}, \mv{Int}, \mv{Int}), (\mv{Double}, \mv{Double}, \mv{Double}) \}
+\end{align*}
 
 \subsection{Inheritance}
 \label{sec:inheritance}
@@ -255,10 +266,10 @@ If we rerun GTI with these classes, we now have additional
 possibilities to invoke the \texttt{apply} method. With \texttt{Not}, we need to use the
 generic type of \texttt{Function.apply()}, but instantiate it according to
 \texttt{Function<Bool,Bool>}. Thus,
-we obtain the constraints \texttt{Bool $\subeq$ T} and \texttt{S $\subeq$ Bool} for \texttt{T = Bool}
+we obtain the constraints \texttt{Bool $\subconstr$ T} and \texttt{S $\subconstr$ Bool} for \texttt{T = Bool}
 and \texttt{S = Bool}, which are both satisfiable. With
 \texttt{Negate} we run into the same situation with the constraints
-\texttt{Int $\subeq$ Int} and \texttt{Int $\subeq$ Int}.
+\texttt{Int $\subconstr$ Int} and \texttt{Int $\subconstr$ Int}.
 % That means there is no way to
 % \emph{directly} invoke \texttt{Not.apply} or \texttt{Negate.apply}
 % from \texttt{Box.map}, but it may happen indirectly via inheritance.
@@ -274,7 +285,7 @@ Here, we obtain the following type constraints
 \begin{itemize}
 \item \texttt{apply} is defined in class \texttt{Identity<S1>} with
   type \texttt{S1 apply (S1 arg)},
-\item hence \texttt{S1 $\subeq$ T} and \texttt{S $\subeq$ S1}.
+\item hence \texttt{S1 $\subconstr$ T} and \texttt{S $\subconstr$ S1}.
 \end{itemize}
 Resolving the constraints yields \texttt{S = T} thus the typing
 \begin{lstlisting}
@@ -331,7 +342,7 @@ the return type of method \texttt{m} is also \texttt{T}.
 But now we are in a dilemma because FGJ only supports \emph{upper bounds} for
 type variables,\footnote{Java has the same restriction. Lower bounds
   are only allowed for wildcards.} so that 
-\texttt{Global $\subeq$ T} is not a valid constraint in FGJ.
+\texttt{Global $\subconstr$ T} is not a valid constraint in FGJ.
 To stay compatible with this restriction, global type inference
 expands the constraint by instantiating \texttt{T} with the (two) superclasses fulfilling
 the constraint, \texttt{Global} and \texttt{Object}.  They give rise to two incomparable
