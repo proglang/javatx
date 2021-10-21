@@ -146,8 +146,7 @@ An isolated type variable does only occur in constraints together with another i
     \begin{array}[c]{l}
        Eq \cup \, \set{a \lessdot
        \exptype{C}{\ol{X}},
-       b \lessdot
-        a} \\ 
+       b \lessdot^* a, b \lessdot \exptype{D}{\ol{Y}}} \\ 
       \hline
       \vspace*{-0.4cm}\\
       Eq \cup \set{
@@ -205,6 +204,10 @@ An isolated type variable does only occur in constraints together with another i
   \end{center}
 \caption{Reduce and adapt rules}\label{fig:fgjreduce-rules}
 \end{figure}
+
+The $\lessdot^*$ used in the \texttt{adopt} rule means,
+that this can either be a single constraint $b \lessdot a$ or a series of constraints
+$n \lessdot a, \ldots, m \lessdot n, b \lessdot m$.
 
 \begin{figure}
   \begin{center}

@@ -659,6 +659,26 @@ Also we exclude polymorphic recursion.
 %   \lstinline{List<String>} or \lstinline{Map} in the
 %   \lstinline{outerMap} example?}
 
+\section{Limits of the algorithm}
+Java does not allow generic variables with lower bounds.
+The expression \texttt{<A super String>} is not a correct definition in FJ.
+
+Take the following input program as an example:
+\begin{lstlisting}{java}
+class Example{
+    method(list){
+        return list.add(this).get();
+    }
+}
+\end{lstlisting}
+Lets assume this yields the constraints:
+$p \lessdot \exptype{List}{b}, r \lessdot \exptype{List}{b}, \texttt{Example} \lessdot b$
+Now we cannot insert a generic type variable with super bounds like this:
+\texttt{B super Example}
+
+We have to still calculate every possible supertype of \texttt{Example} which will lead to an array of possible solutions.
+
+
 \section{Related Work}
 \input{relatedWork}
 
