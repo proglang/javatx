@@ -1,15 +1,13 @@
 
 \subsection{Unify proof}
 
-%Soundness: We have to prove that each calculated result of the algorithm is a general unifier of the corresponding input
 \begin{theoremAndi}
   \label{theo:unifySoundness}
   \textbf{(Soundness):}
   If the \textbf{Unify} algorithm finds a solution it does not contradict any of the input constraints:
-  $\nexists (a \lessdot b) \in {Cons}_{in}$ where $\sigma(a) \nleq \sigma(b)$  
+  $\nexists (a \lessdot b) \in {Cons}_{in}$ where $\sigma(a) \nleq \sigma(b)$
 \end{theoremAndi}
-%We show this by induction.
-%No step alters the constraint set in a way that would make a wrong solution possible.
+
 \textit{Proof:}
 We show theorem \ref{theo:unifySoundness} by going backwards over every step of the algorithm.
 We assume there exists a unifier $\sigma = \set {a_1 \mapsto \theta_1, \ldots , a_n \mapsto \theta_n}$ for the input constraints,
@@ -23,30 +21,33 @@ which transforms the input set of constraints $Eq$ to a set $Eq'$.
 If we assume the unifier $\sigma$ is correct for the set $Eq'$,
 then we can show that it will also be correct for the constraints $Eq$. 
 
-
-%TODO:
-%Assume we find a unifier. Then do every step backwards.
-%For each step the constraint set before and after the step have the same unifier.
-% -> This means no step adds an incorrect unifier / makes a incorrecto unifier possible
-%At the end we must end at the correct unifier.
-
 \begin{description}
 \item[Step 5 c)]
-The last step of the algorithm transforms a set of constraints $Eq$ of the the form
-
-$Eq = \set{a_1 \doteq \theta_1, \ldots , a_n \doteq \theta_n}$
-
-to the unifier $\sigma$.
-Trivial.
+The last step of the algorithm transforms a set of constraints $Eq$ in solved form
+No changes to the constraint set are applied here.
 
 \item[Step 5 b)]
 A unifier which is correct for $a \doteq b$ is also correct for $a \lessdot b$.
+The transformation $Eq' = [a/b]Eq$ does not change this.
+The type variable $b$ appears only in constraints of the form $a \lessdot b$,
+with both sides being type variables.
+There cannot be two constraints $a \lessdot b, b \lessdot a$ in $Eq$.
+This would have been removed by the \texttt{equals} rule.
+%In the $Eq$ set there can only be one constraint with the type variables $a \lessdot b$.
+So the only two other possible combinations for constraints containing $b$ would be $b \lessdot c$ and $c \lessdot b$.
+\begin{itemize}
+\item If $\set{a \lessdot b, b \lessdot c} \in Eq$ then $\set{a \doteq b, a \lessdot c} \in Eq'$.
+%After using the unifier $a \to b$ on $Eq'$: $\set{a \doteq b, b \lessdot c} \in Eq'$.
+\item If $\set{a \lessdot b, c \lessdot b} \in Eq$ then $\set{a \doteq b, c \lessdot b} \in Eq'$.
+%After using the unifier $a \to b$ on $Eq'$: $\set{a \doteq b, b \lessdot c} \in Eq'$.
+\end{itemize}
+In both cases a correct unifier for $Eq'$ would also be correct for $Eq$.
 
 \item[Step 5 a)]
-Trivial, we do not alter the constraint set which lateron leads to the unifier.
+We do not alter the constraint set which lateron lead to the unifier.
 
 \item[Step 4]
-Trivial, the constraint sets are not altered here.
+The constraint sets are not altered here.
 
 \item[Step 3]
 An unifier $\sigma$ that is correct for a constraint set
@@ -54,64 +55,29 @@ $Eq[a \to \theta] \cup (a \doteq \theta)$ is also correct for
 the set $Eq \cup (a \doteq \theta)$.
 From the constraint $(a \doteq \theta)$ it follows that $\sigma(a) = \theta$.
 This means that $\sigma(Eq) = \sigma(Eq[a \to \theta])$,
-because every occurence of $a$ in $Eq$ will be raplaced by $\theta$ anyways when using the unifier $\sigma$.
+because every occurence of $a$ in $Eq$ will be replaced by $\theta$ anyways when using the unifier $\sigma$.
 
 \item[Step 2]
 This step transforms constraints of the form $(\exptype{C}{\ol{X}} \lessdot a)$ and $(a \lessdot \exptype{C}{\ol{X}})$
 into sets of constraints and builds the cartesian product with the remaining constraints.
 We can show that if there is a resulting set of constraints which has $\sigma$ as its correct unifier
 then $\sigma$ also has to be a correct unifier for the constraints before this transformation.
-Proof:
-%normal version:
-%\begin{description}
-%\item[$(a \lessdot C)$] If $\sigma$ is a correct unifier for a set containing $(a \doteq \theta)$
-%and $\theta \leq C$, then $\sigma$ is also a correct unifier for the set containing $(a \lessdot C)$.
-%\item[$(C \lessdot a)$] Same goes the other way. If $C leq \theta$ and $\sigma$ is correct for $(C \lessdot \theta)$
-%then $\sigma$ is also correct for $(a \doteq \theta)$
-%\end{description}
 
+We look at each transformation done in step 2:
 \begin{description}
-\item[$(a \lessdot \exptype{C}{\ol{X}})$] If $\sigma$ is a correct unifier for a set containing $(a \doteq \exptype{D}{\ol{A}})$
-and $(\ol{X} \doteq \ol{Y'})$
-, then $\sigma$ is also a correct unifier for the set containing $(a \lessdot \exptype{C}{\ol{X}})$.
-The reason is the \texttt{S-CLASS} subtype rule of FGJ. %TODO: Hier etwas ausführlicher?
-%TODO:
-%\item[$(\exptype{C}{\ol{T}} \lessdot a)$] Same goes the other way. If $\exptype{C}{\ol{X} leq \theta$ and $\sigma$ is correct for $(C \lessdot \theta)$
-%then $\sigma$ is also correct for $(a \doteq \theta)$
-
-%If $\sigma$ is a correct unifier for a set \\
-%$Eq = Eq' \cup (a \doteq \exptype{D}{\ol{A}}) \, \cup \, (\ol{X} \doteq \ol{Y'})$ \\
-%then it is also a correct unifier for a set $Eq = Eq' \cup (a \lessdot \exptype{C}{\ol{X}})$: \\
-When substituting $(a \to \exptype{D}{\ol{A}})$ and $(\ol{X} \to \ol{Y'})$
-and finally $ (\ol{Y'} \to [\ol{A}/\ol{Z}]\ol{Y})$ in the constraint $(a \lessdot \exptype{C}{\ol{X}})$
-we get: $(\exptype{D}{\ol{A}} \lessdot [\ol{A}/\ol{Z}]\exptype{C}{\ol{Y}}$
-which is correct under the \texttt{S-CLASS} rule (see chapter \ref{chapter:type-rules}).
-
-\item[$(\exptype{C}{\ol{T}} \lessdot a)$] If $\exptype{C}{\ol{X}} leq \theta$ and $\sigma$ is correct for $(a \doteq [\ol{T}/\ol{X}]N)$
+\item[$\set{\exptype{C}{\ol{T}} \lessdot a} \in Eq \to \set{a \doteq [\ol{T}/\ol{X}]N} \in Eq'$:]
+If $\exptype{C}{\ol{X}} <: N$ and $\sigma$ is correct for $(a \doteq [\ol{T}/\ol{X}]N)$
 then $\sigma$ is also correct for $(\exptype{C}{\ol{T}} \lessdot a))$.
-When substitutin $a$ for $[\ol{T}/\ol{X}]N$ we get 
+When substituting $a$ for $[\ol{T}/\ol{X}]N$ we get 
 $(\exptype{C}{\ol{T}} \lessdot [\ol{T}/\ol{X}]N)$
-, which is correct because $(\exptype{C}{\ol{X}} \leq \exptype{C}{\ol{Y}}$
+, which is correct because $\exptype{C}{\ol{X}} <: \exptype{C}{\ol{Y}}$
 (see \texttt{S-CLASS} rule).
+\item[$\set{a \lessdot \exptype{C}{\overline{T}},\ a \lessdot^* b} \in Eq \to \set{T \lessdot b, a \lessdot \exptype{C}{\overline{T}},\ a \lessdot^* b} \in Eq'$]
+Trivial
+\item[$\set{a \lessdot \exptype{C}{\overline{T}},\ a \lessdot^* b} \in Eq \to \set{a \doteq [\ol{T}/\ol{X}]N, a \lessdot \exptype{C}{\overline{T}},\ a \lessdot^* b} \in Eq'$]
+This is the same as in the first transformation.
+Here we can also show correctness via the \texttt{S-CLASS} rule.
 
-\footnote{
-Discussion:
-Do we need to include the $\triangleleft \ol N$ bounds?
-The S-CLASS rule does not mention them.
-
-When ignoring those rules this could lead to an error
-class T<X extends List> {
-}
-class S<X>{}
-
-Constraint: S<String> <. a
-Unify: T<String> =. a // ERROR!
-
-This is not a problem because no error is gonna result from this.
-TYPEExpr only hast to implement all of the typing rules of FJ
-and unify has to solely respect the subtyping rules.
-
-}
 \end{description}
 
 \item[Step 1]
@@ -126,8 +92,8 @@ $\doteq$ is a symmetric operator and parameters can be swapped freely.
 $a \lessdot \exptype{C}{\ol{X}}, \exptype{C}{\ol{X}} \lessdot \exptype{D}{\ol{Y}}$
 then this solution would also apply for $a \lessdot \exptype{C}{\ol{X}} \lessdot \exptype{D}{\ol{Y}}$
 or $a \lessdot \exptype{D}{\ol{Y}}$.
-\item[adopt] An unifier which is correct for $Eq \cup \set{a \lessdot \exptype{C}{\ol{X}}, a \lessdot b, b \lessdot \exptype{C}{\ol{X}}}$
-is also correct for $Eq \cup \set{a \lessdot \exptype{C}{\ol{X}}, a \lessdot b}$.
+\item[adopt] An unifier which is correct for $Eq \cup \set{a \lessdot \exptype{C}{\ol{X}}, b \lessdot^* a, b \lessdot \exptype{D}{\ol{Y}}, b \lessdot \exptype{C}{\ol{X}}}$
+is also correct for $Eq \cup \set{a \lessdot \exptype{C}{\ol{X}}, b \lessdot^* a, b \lessdot \exptype{D}{\ol{Y}}}$.
 \item[adapt] If there is a $\sigma$ which is a correct unifier for a set
 $Eq \cup \set{ \exptype{C}{[\ol{A}/\ol{X}]\ol{Y}} \doteq \exptype{C}{\ol{B}}}$ then it is also
 a correct unifier for the set $Eq \cup \set{ \exptype{D}{\ol{A}} \lessdot \exptype{C}{\ol{B}}}$,
@@ -149,17 +115,10 @@ No constraint is altered, deleted or modified during this step.
 \hfill $\square$
 
 
-%Completeness: If there is a Unifier (a solution), the algorithm will never alter the constraints in a way that this solution is removed
-%\begin{theoremAndi}\label{theo:unifyCompleteness}
-%  \textbf{(Completeness):} If there is a solution for the input constraints $Cons_{in}$, the \textbf{Unify} algorithm will not fail.
-%  A solution is a non-empty set of unifiers $Uni = \set{\sigma_1, \ldots \sigma_n }$,
-%  where each unifier is a injective function which maps every type variable in the input constraints $Cons_{in}$ to a
-%  type in $S_\leq$.
-%  \end{theoremAndi}
 \begin{theoremAndi}\label{theo:unifyCompleteness}
-  \textbf{(Completeness):} The \textbf{Unify} algorithm calculates all principal type solutions for the input set of constraints ($Cons_{in}$).
-  A unifier $\sigma$ is a principal type solution for $Cons_{in}$ if it unifies $Cons_{in}$
-  and for every other unifier $\omega$ there is a unifier $\lambda$ so that $\omega(x) = \lambda(\sigma(x))$.
+  \textbf{(Completeness):} The \textbf{Unify} algorithm calculates a general unifier for the input set of constraints ($Cons_{in}$).
+  A unifier $\sigma$ is a general unifier for $Cons_{in}$ if it unifies $Cons_{in}$
+  and for every other unifier $\omega$ there is a substitution $\lambda$ so that $\omega(x) = \lambda(\sigma(x))$.
 \end{theoremAndi}
 \textit{Proof:}
 %The \textbf{Unify} calculates multiple solutions.
@@ -174,12 +133,13 @@ We will show that the principal type is among them by proofing for every step of
 
 \begin{description}
 \item[Step 1:]
-The first step applies the three rules from figure \ref{fig:unifyrules}.
-\textbf{erase-rules:} The erase2 rule from figure \ref{fig:unifyrules} removes a
-$\{\theta \leq \theta\}$ constraint from the constraint set.
-The erase1 rule removes a $\{\theta \leq \theta\}$ constraint,
-but only if the two types $\theta$ and $\theta'$ satisfy the constraint.
-Both rules do not change the set of possible solutions for the given constraint set.
+The first step applies the three rules from figure \ref{fig:fgjerase-rules}.
+\textbf{erase-rules:} The erase2 rule from figure \ref{fig:fgjerase-rules} removes a
+$\{C \doteq D\}$ constraint from the constraint set.
+The erase1 rule removes a $\{C \doteq C\}$ constraint,
+but only if the two types $C$ and $D$ satisfy the constraint.
+Both rules do not change the set of possible solutions for the given constraint
+set.
 
 \textbf{swap-rule:} $\doteq$ is a symmetric operator and parameters can be swapped freely.
 This operation does not change the meaning of the constraint set.
@@ -209,22 +169,23 @@ Only $D$ gets removed, which is not a type variable.
 Therefore this step does not remove a possible solution.
 This applies for both reduce rules \textbf{reduce1} and \textbf{reduce2}.
 
+\textbf{equals-rule:}
+This rule removes a circle in the constraints.
+This does not remove a general unifier.
+
 \item[Step 2:]
 %The second step builds multiple constraint sets of all possible type combinations for the $\lessdot$-constraints.
 The second step of the algorithm eliminates $\lessdot$-constraints
 by replacing them with $\doteq$-constraints.
-%The algorithm considers every possible type from $S_\leq$ which does not violate the eliminated $\lessdot$ -constraint itself.
-%This step does not remove a solution from the constraint set.
-For each $(a \lessdot \exptype{C}{\ol{X}})$ constraint the algorithm builds a set with every
-possible subtype of $\exptype{C}{\ol{X}}$ set in for $a$.
+For each $(\exptype{C}{\ol{X}} \lessdot a)$ constraint the algorithm builds a set with every
+possible supertype of $\exptype{C}{\ol{X}}$.
 So if there is a correct unifier $\sigma$ for the constraints before this conversion there will be at least one set of
 constraints for which $\sigma$ is a correct unifier.
-%TODO: what does soundness mean. if there is a possible type solution (with types in S) then unify will find it
 
 \item[Step 3:]
 In the third step the \textbf{substitution}-rule is applied.
-If there is a constraint $a \doteq \theta$ then there is no other way to fulfill the constraint set
-than replacing $a$ with $\theta$.
+If there is a constraint $a \doteq N$ then there is no other way to fulfill the constraint set
+than replacing $a$ with $N$.
 This does not remove a possible solution.
 
 \item[Step 4:]
@@ -242,13 +203,13 @@ $(a \doteq a), (a \doteq C), (C \doteq a), (C \doteq C), (a \lessdot a), (a \les
 
 After step 1 there are no $(C \doteq C)$, $(C \lessdot C)$ and $(C \doteq a)$ constraints anymore,
 as long as the constraint set has a correct unifier.
-Because a constraint set that has a correct unifier cannot contain constraints of the form $\theta_1 \doteq \theta_2$ with $\theta_1 \neq \theta_2$ and
-$(\theta_1 \lessdot \theta_2)$ with $(\theta_1 \leq \theta_2) \notin S_\leq$.
-By removing $(\theta \doteq \theta)$ and $(\theta \lessdot \theta')$ with $(\theta \leq \theta') \notin S_\leq$ constraints
-no constraints of the form $(C \doteq C)$ and $(C \lessdot C)$
+Because a constraint set that has a correct unifier cannot contain constraints of the form $N_1 \doteq N_2$ with $N_1 \neq N_2$ and
+$(N_1 \lessdot N_2)$ with $(N_1 \nleq: N_2)$.
+By removing $(N \doteq N)$ and $(C \lessdot D)$ with $(C <: D)$ constraints
+no constraints of the form $(C \doteq C)$ and $(C \lessdot D)$
 remain in a constraint set that has a correct unifier after step 1.
 
-After step 2 there are no more $(a \lessdot C)$ constraints.
+After step 2 there are no more $(C \lessdot a)$ constraints.
 
 After step 3 there are no $(a \doteq C)$ anymore.
 
@@ -256,24 +217,25 @@ We only reach step 5 if the constraint set is not changed by the substitution (s
 
 %If at this point a set $Eq_i$ is not in solved form it has no correct unifier.
 
-If the constraint set has a correct unifier only $(a \lessdot a)$, $(a \doteq a)$ and $(a \doteq C)$ constraints are left at this point.
+If the constraint set has a correct unifier only $(a \lessdot a)$, $(a \doteq a)$, $a \lessdot C$ and $(a \doteq C)$ constraints are left at this point.
 The type variables in the $(a \lessdot a)$ and $(a \doteq a)$ constraints have to be independent type variables.
 If a type variable $c$ is inside a $(c \doteq C)$ constraint it is not an independent type variable.
 But this variable $c$ cannot be inside a $(a \doteq a)$ or $(a \lessdot a)$ constraint, because otherwise step 3 would have replaced it in there.
 
+So this step only excludes constraint sets which do not have a correct unifier.
 
 \item[Step 5 b):]
 If the algorithm advances to this step we further only work on constraint sets in solved form.
 This means there are only two kinds of constraints left.
-($A \doteq \texttt{Typ}$), ($A \doteq B$) and ($A \lessdot B$) with $A$ and $B$ as type variables.
+($a \doteq \texttt{T}$), ($a \lessdot \texttt{T}$), ($a \doteq b$) and ($a \lessdot b$) with $a$ and $b$ as type variables.
 
 %We can set all TVs equal, because we allow only same TVs when having circles in a method call.
 %This still will lead to the principal type.
 
 The FGJ language does not allow subtype constraints for generic types.
-A constraint like $(A \lessdot B)$ in a solution could be inserted as the typing shown in the example below.
+A constraint like $(a \lessdot b)$ in a solution could be inserted as the typing shown in the example below.
 But this is not allowed by the syntax of FGJ.
-That is why we can treat this constraint as $(A \doteq B)$.
+That is why we can treat this constraint as $(a \doteq b)$.
 
 %TODO: This does not alter the outcome because the solution set is not modified anymore. All other TVs alread have a type like A =. Typ
 
@@ -287,7 +249,7 @@ class Example {
 }
 \end{lstlisting}
 
-By replacing all ($A \lessdot B$) constraints with ($A \doteq B$) we do not remove a principal type solution.
+By replacing all ($a \lessdot b$) constraints with ($a \doteq b$) we do not remove a principal type solution.
 
 \item[Step 6:]
 In the last step all the constraint sets, which are in solved form, are converted to unifiers.
@@ -304,15 +266,121 @@ then the result \textbf{Unify} contains the principal type solution.
 \hfill $\square$
 \end{description}
 
-\textbf{Termination Proof:}
-Every step of the algorithm removes a $\lessdot$ constraint with the following exceptions:
-A few rules of Step 1 do not change the amount of $\lessdot$ constraints.
-Each of those rules can be applied only a finite amount of times on a finite set of constraints $Eq$.
-So thos will stop to be applied automatically.
-The only other exception is the \texttt{adopt} rule.
-This rule can only be applied once for each combination of 
+\begin{theoremAndi}\label{theo:unifyTermination}
+  \textbf{(Termination):} The \textbf{Unify} algorithm terminates on every finite input set.
+\end{theoremAndi}
+The \textbf{Unify} algorithm gets called with a set of input constraints.
+After resolving the \textbf{OrConstraints} we end up with multiple $Eq$ sets.
+Afterwards the algorithm iterates over each of those sets (see Chapter \ref{sec:unify}).
+We will show that \textbf{Unify} terminates on each of those sets by showing,
+that each step of the algorithm removes at least one type variable
+until the finishing state is reached.
+The finishing state for a constraint set is reached when step 3 is not able to substitute a type variable.
+This is checked by step 4 of the algorithm.
+Then the $Eq$ set is either in solved form or determined to be unsolvable.
 
-Does the adopt rule really terminate?
-no -> if there would be a circle, but circles are deleted by equals
-a <. b, b <. C<x1>, a <. C<x2>, b <. c, c <. C<x>, c <. a
-yes -> only finite combination of a <. b and a <. C
+\textit{Proof:}
+The \textbf{Unify} algorithm reduces the amount of type variables with every iteration.
+No step adds a new type variable to the constraint set.
+Additionally we have to show that the first step of the algorithm also terminates on every finite input set.
+
+\begin{description}
+\item[Step 1] 
+Step 1 of the algorithm always terminates. \textit{Proof:}
+Every rule either removes a $\lessdot$ constraint or reduces a $\exptype{C}{\ol{X}}$ to $\ol{X}$ inside a constraint.
+None of the rules add a new $\lessdot$ constraint or a $\exptype{C}{\ol{X}}$ type to the constraint set.
+Step 1 has to come to a stop once there are no more $\lessdot$ constraints or $\exptype{C}{\ol{X}}$ types to reduce.
+
+The rule \textbf{match} seems to generate a new $\exptype{C}{\ol{X}}$ constraint,
+but the $\exptype{C}{\ol{X}} \lessdot \exptype{D}{\ol{Y}}$ constraint added by \texttt{match}
+will be changed immidiatly into a $\doteq$ constraint by the \texttt{adapt} rule.
+Afterwards the \texttt{reduce1} rule will remove this freshly added $\exptype{C}{\ol{X}}$ type.
+So effectively a $\doteq$ constraint is removed by this rule in combination with \texttt{adapt} and \texttt{reduce1}.
+
+The \textbf{adopt} rule seems to generate a new $\lessdot$ constraint.
+But the \texttt{adopt} rule triggers two other rules. The \texttt{match} and the \texttt{adapt} rule.
+\begin{enumerate}
+  \item We start with the \texttt{adopt} rule: \\
+   $
+  \begin{array}[c]{ll}
+      \begin{array}[c]{l}
+          Eq \cup \, \set{a \lessdot
+          \exptype{C}{\ol{X}},
+          b \lessdot^* a, b \lessdot \exptype{D}{\ol{Y}}} \\ 
+          \hline
+          \vspace*{-0.4cm}\\
+          Eq \cup \set{
+          a \lessdot
+          \exptype{C}{\ol{X}},
+          b \lessdot^*
+          a
+          , b \lessdot \exptype{C}{\ol{X}}
+          , b \lessdot \exptype{D}{\ol{Y}}
+          }
+      %Eq \cup \set{\theta_1 \doteq \lambda'_1 \ldo \theta_n \doteq \lambda'_n}
+      \end{array}
+      \end{array}
+      $
+  \item We can now apply the \texttt{match} rule to the two resulting $(b \lessdot \ldots)$-constraints.
+  If this is not possible due to type \texttt{C} not being a subtype of \texttt{D} or vice versa,
+  then the $Eq$ set has no possible solution and \textbf{Unify} would terminate as fail $Uni = \emptyset$: \\
+  $
+  \begin{array}[c]{ll}
+  \begin{array}[c]{l}
+      Eq \cup \, \set{b \lessdot
+      \exptype{C}{\ol{X}},
+      b \lessdot
+      \exptype{D}{\ol{Y}}} \\ 
+      \hline
+      \vspace*{-0.4cm}\\
+      Eq \cup \set{b \lessdot \exptype{C}{\ol{X}}
+      , \exptype{C}{\ol{X}} \lessdot \exptype{D}{\ol{Y}}}
+  %Eq \cup \set{\theta_1 \doteq \lambda'_1 \ldo \theta_n \doteq \lambda'_n}
+  \end{array}
+  & \exptype{C}{\ol{Z}} <: \exptype{D}{\ol{N}} 
+  \end{array}
+      $\\
+  \item The constraint added by the \texttt{match} rule fits the \texttt{adapt} rule, which we apply in the next step: $
+  \begin{array}[c]{ll}
+  \begin{array}[c]{l}
+     Eq \cup \, \set{\exptype{C}{\ol{X}} \lessdot
+      \exptype{D}{\ol{Y}}} \\ 
+    \hline
+    \vspace*{-0.4cm}\\
+    Eq \cup \set{\exptype{D}{[ \ol{X} / \ol{Z} ]\ol{N}}
+    \doteq \exptype{D}{\ol{Y}}}
+  %Eq \cup \set{\theta_1 \doteq \lambda'_1 \ldo \theta_n \doteq \lambda'_n}
+  \end{array}
+  & \exptype{C}{\ol{Z}} <:\ \exptype{D}{\ol{N}}
+  \end{array}
+  $
+  \end{enumerate}
+In the end we have the conversion:\\
+\begin{align*}\ddfrac{
+  Eq \cup \, \set{a \lessdot
+  \exptype{C}{\ol{X}},
+  b \lessdot^* a, b \lessdot \exptype{D}{\ol{Y}}}
+}{
+  Eq \cup \set{a \lessdot
+  \exptype{C}{\ol{X}},
+  b \lessdot^* a, b \lessdot \exptype{D}{\ol{Y}}, \exptype{D}{[ \ol{X} / \ol{Z} ]\ol{N}}
+  \doteq \exptype{D}{\ol{Y}}}
+}\end{align*}
+
+We can see now, that only a $\doteq$ constraint is added.
+The \texttt{adopt} alone adds a $\lessdot$ constraint,
+but due to the fact that it is always used together with \texttt{match} and \texttt{adapt} it effectively just adds a $\doteq$ constraint.
+
+\item[Step 2] This step does not add new type variables to the constraint set.
+\item[Step 3] The third step of the \textbf{Unify} algorithm removes at least one type variable
+from the constraint set or otherwise does not alter $Eq$ at all.
+If $Eq$ is not altered the algorithm terminates in the next step.
+The type variable is not completely removed but stays inside $Eq$ only in one $a \doteq N$ constraint.
+All other occurences are replaced by $N$.
+The \texttt{subst} step can therefore only be executed once per type variable.
+\end{description}
+
+We see that with each iteration over the steps 1-3 at least one type variable is removed from the constraint set.
+Due to the fact that there is never added a fresh type variable during the \textbf{Unify} algorithm,
+the algorithm will terminate for any given finite set of constraints. \hfill $\square$
+

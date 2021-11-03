@@ -9,6 +9,29 @@ or fail $Uni = \emptyset$.
 %The unifiers have the form of $Uni = \{ \sigma_1, \ldots , \sigma_n \}$.
 \end{description}
 
+\textit{Hints:}
+\begin{itemize}
+\item The $\lessdot^*$ used in this chapter means,
+that $a \lessdot^* b$ can either be a single constraint $a \lessdot b$ or a transitive series of constraints
+$a \lessdot c, \ldots, m \lessdot n, n \lessdot b$.
+\item $[a/b]T$ means replacing all type variables $b$ with $a$ in the type $T$.
+\item The function $\textbf{fresh}(i)$ returns an array of $i$ fresh type variables.
+\end{itemize}
+\begin{definition}[Isolated type variable] \label{def:isolated-type-variable}
+    \textrm
+  An isolated type variable does only occur in constraints together with another isolated type variable.
+  \end{definition}
+  
+  \begin{definition}[Solved form]\label{def:solved-form}
+    \textrm
+    A set of constraints $Eq$ has reached solved form if it contains only the following kind of constraints:
+    \begin{enumerate}
+      \item $a \lessdot b$, with $a$ and $b$ both isolated type variables
+      \item $a \lessdot \exptype{C}{\ol{X}}$, with $a \notin \ol{X}$ %, with $a$ not appearing in any other constraints of type 2 or 3.
+      \item $a \doteq \exptype{C}{\ol{X}}$, with $a \notin \ol{X}$
+    \end{enumerate}
+  \end{definition}  
+
 The unify algorithm first has to build the cartesian product of all the \textbf{OrConstraint}s and the remaining normal constraints:
 \begin{align*}
 \Omega &= \text{All }\mathbf{OrConstraints} \text{ in } {Cons}_{in}\\
@@ -26,53 +49,38 @@ Afterwards the following steps are repeatedly executed on $Eq_{set}$ until the a
 \item Repeated application of the rules depicted in figure \ref{fig:fgjreduce-rules} and \ref{fig:fgjerase-rules},
 starting with the \texttt{equals} rule.
 The end configuration of $Eq$ is reached if for each element no rule is applicable.
-
 \item
-(The function $\textbf{fresh}(i)$ returns an array of $i$ fresh type variables.)
-
 \begin{align*}
 Eq_1 =& \text{Subset of pairs where both type terms are type variables}\\
 Eq_2 =& Eq / Eq_1 \\
-Eq_{set}\\ 
+Eq_{set}
     = 
-     %& \begin{array}[t]{l@{\,}ll}
-     % \times \, (\displaystyle{\bigotimes_{(a \lessdot \exptype{C}{\ol{X}}) \in Eq'_2}}
-     % \{\,(a \doteq \exptype{D}{\ol{A}}) \, \cup \, (\ol{X} \doteq \ol{Y'}) \ | \ \sarray{@{}l}{
-     %   \exptype{D}{\ol{Z}} <: \exptype{C}{\ol{Y}}, \\
-     %   \ol{A} = \textbf{fresh}(\#(\ol{Z})), \\
-     %   \ol{Y'} = [\ol{A}/\ol{Z}]\ol{Y}
-     %   \,\})}\\ 
-     % \end{array}\\
-   %& \times\, 
-   %   (\displaystyle{\bigotimes_{(\exptype{C}{\overline{T}} \lessdot a) \in Eq'_2}}\!\!
-   %   \set{(a \doteq [\ol{T}/\ol{X}]N ) \ | \ (\exptype{C}{\overline{X}} \leq N) \in
-   %     S_\leq})\\
-    & %\times\, 
-    (\displaystyle{\bigotimes_{(\exptype{C}{\overline{T}} \lessdot a) \in Eq'_2}}\!\!
-    \set{a \doteq [\ol{T}/\ol{X}]N ) \ | \ (\exptype{C}{\overline{X} \triangleleft \ol{N}} <: N})\\
     & \times\, 
-      (\displaystyle{\bigotimes_{((X \triangleleft M)\lessdot a) \in Eq'_2}}\!\!
-      \set{a \doteq (X \triangleleft M)} \cup
-      \set{a \doteq N ) \ | \ M <: N } \cup \set{a \doteq (X \triangleleft M)})\\
-      & \times\, \set{[a \doteq N \ | \  (a \doteq N) \in Eq'_2]} \\
-      & \times\, \set{[a \lessdot N \ | \  (a \lessdot N) \in Eq'_2]} \times Eq_1 \\
+    (\displaystyle{\bigotimes_{(\exptype{C}{\overline{T}} \lessdot a) \in Eq_2}}\!\!
+    \set{a \doteq [\ol{T}/\ol{X}]N \ | \ \exptype{C}{\overline{X}} <: N })\\
+    & (\displaystyle{\bigotimes_{\set{a \lessdot \exptype{C}{\overline{T}}} \in Eq_2, \set{ a \lessdot^* b} \in Eq_1}}\!\!
+    \set{ b \lessdot \exptype{C}{\ol{T}}} \cup \set{b \doteq [\ol{T}/\ol{X}]N \ | \ \exptype{C}{\overline{X}} <: N })\\
+    & \times\, \set{[a \doteq N \ | \  (a \doteq N) \in Eq_2]} \\
+    & \times\, \set{[a \lessdot N \ | \  (a \lessdot N) \in Eq_2]} \times Eq_1 \\
+    & \times\, \set{[N \doteq a \ | \  (N \doteq a) \in Eq_2]} \times Eq_1 \\
+    & \times\, \set{[N \doteq N \ | \  (N \doteq N \in Eq_2]} \\
+    & \times\, \set{[N \lessdot N \ | \  (N \lessdot N) \in Eq_2]} \times Eq_1 \\
 \end{align*}
-
-\item \label{subst-step}  Application of the following \emph{subst} rule
+\item \label{subst-step}  Application of the following \emph{subst} rule for every $Eq'' \in Eq_{set}$
     %\begin{enumerate}
     %\item Apply the following subst\_eq rule
     
       $$\begin{array}[c]{lll}
         (\mathrm{subst}) &
         \begin{array}[c]{l}
-          Eq'' \cup \set{a \doteq \tt{X}}\\
+          Eq'' \cup \set{a \doteq N}\\
           \hline
-          Eq''[a \mapsto \tt{X}] \cup \set{a \doteq \tt{X}}
+          Eq''[a \mapsto N] \cup \set{a \doteq N}
         \end{array}
-        & a \textrm{ occurs in } Eq'' \textrm{ but not in } \tt{X} 
+        & a \textrm{ occurs in } Eq'' \textrm{ but not in } N
       \end{array}$$
       
-      for each $a \doteq \theta$ in each element of $Eq' \in Eq'_{set}$.
+      for each $a \doteq N$ in each element of $Eq' \in Eq'_{set}$.
 
 \item 
     \begin{enumerate}
@@ -83,40 +91,25 @@ Eq_{set}\\
     \end{enumerate}
 \item
 \begin{enumerate}
-\item Filter all constraint sets which are in solved form:\\
+  \item Filter all constraint sets which are in solved
+  form:\\
 $Eq_{solved} = \set{ Eq \ | \ Eq \in Eq_{set}, Eq \ \text{is in solved form}}$
 \item We apply the following rule to every constraint set in $Eq_{solved}$:
 \begin{align*}
 \ddfrac{
   Eq \cup \set{ a \lessdot b } %There are only Type variables left at this point
 }{
-  Eq \cup \set{ a \doteq b }
+  [a/b]Eq \cup \set{ a \doteq b }
 }
 \end{align*}
-\item $\emph{Uni} = \set{\sigma \ | \ Eq \in Eq_{solved},\ \sigma = \set{a \mapsto \theta \ | \ (a \doteq \texttt{T}) \in Eq} }$
-%\item $\emph{Uni} = \sarray{l@{\ }l}{\set{\sigma \ | & Eq'' \in Eq''_{set},
-%        Eq'' \textrm{ is in solved form,}\\ 
-%        & \sigma = \set{a \mapsto \theta \ | \ (a \doteq \theta) \in Eq''}
-%        \\ & \quad \cup \ \set{a \mapsto \texttt{A}, b \mapsto \texttt{B} \ | \ (a \lessdot b) \in Eq \ \text{and a is an isolated type variable}}
-%        }}$
+\item Finally we generate the unifiers:
+\begin{align*}
+    \emph{Uni} = &
+   \set{\sigma \ | \ Eq \in Eq_{solved},\ \sigma = \set{a \mapsto T \ | \ (a \doteq \texttt{T}) \in Eq} } \ \cup \\
+   & \set{\sigma \ | \ Eq \in Eq_{solved},\ \sigma = \set{a \mapsto (X \triangleleft T) \ | \ (a \lessdot \texttt{T}) \in Eq} }
+\end{align*}
 \end{enumerate}
 \end{enumerate}
-
-\begin{definition}[Isolated type variable] \label{def:isolated-type-variable}
-  \rm
-An isolated type variable does only occur in constraints together with another isolated type variable.
-\end{definition}
-
-\begin{definition}[Solved form]\label{def:solved-form}
-  \rm
-  A set of constraints $Eq$ has reached solved form if it contains only the following kind of constraints:
-  \begin{enumerate}
-    \item $a \lessdot b$, with $a$ and $b$ both isolated type variables
-    \item $a \doteq a$
-    \item $a \lessdot \exptype{C}{\ol{X}}$
-    \item $a \doteq \exptype{C}{\ol{X}}$
-  \end{enumerate}
-\end{definition}
 
 \begin{figure}
 \begin{center}
@@ -153,9 +146,10 @@ An isolated type variable does only occur in constraints together with another i
       Eq \cup \set{
         a \lessdot
        \exptype{C}{\ol{X}},
-       b \lessdot
-        a
-      , b \lessdot \exptype{C}{\ol{X}}}
+       b \lessdot^* a
+      , b \lessdot  \exptype{D}{\ol{Y}}
+      , b \lessdot \exptype{C}{\ol{X}}
+       }
     %Eq \cup \set{\theta_1 \doteq \lambda'_1 \ldo \theta_n \doteq \lambda'_n}
     \end{array}
     \end{array}
@@ -206,88 +200,6 @@ An isolated type variable does only occur in constraints together with another i
 \caption{Reduce and adapt rules}\label{fig:fgjreduce-rules}
 \end{figure}
 
-The $\lessdot^*$ used in the \texttt{adopt} rule means,
-that this can either be a single constraint $b \lessdot a$ or a series of constraints
-$n \lessdot a, \ldots, m \lessdot n, b \lessdot m$.
-
-\begin{figure}
-  \begin{center}
-      \leavevmode
-      \fbox{
-      \begin{tabular}[t]{ll}
-        (matchG)
-        & $
-        \begin{array}[c]{ll}
-        \begin{array}[c]{l}
-           Eq \cup \, \set{a \lessdot
-           \exptype{C}{\ol{X}},
-           a \lessdot
-            (X \triangleleft \exptype{D}{\ol{Y}})} \\ 
-          \hline
-          \vspace*{-0.4cm}\\
-          Eq \cup \set{a \lessdot \exptype{C}{\ol{X}}
-          , \exptype{C}{\ol{X}} \lessdot \exptype{D}{\ol{Y}}}
-        %Eq \cup \set{\theta_1 \doteq \lambda'_1 \ldo \theta_n \doteq \lambda'_n}
-        \end{array}
-        & \exptype{C}{\ol{Z}} <: \exptype{D}{\ol{N}} 
-        \end{array}
-        $
-      \\\\
-      (adoptG)
-      & (the same as adopt)
-    \\\\
-    (adaptG)
-    & $
-    \begin{array}[c]{ll}
-    \begin{array}[c]{l}
-       Eq \cup \, \set{(X \triangleleft \exptype{D}{\ol{A}}) \lessdot
-        \exptype{C}{\ol{B}}} \\ 
-      \hline
-      \vspace*{-0.4cm}\\
-      Eq \cup \set{\exptype{C}{[ \ol{A} / \ol{X} ]\ol{Y}}
-      \doteq \exptype{C}{\ol{B}}}
-    %Eq \cup \set{\theta_1 \doteq \lambda'_1 \ldo \theta_n \doteq \lambda'_n}
-    \end{array}
-    & \exptype{D}{\ol{X}} <:\ \exptype{C}{\ol{Y}}
-    \end{array}
-    $
-  \\\\
-  (adaptG2)
-  & $
-  \begin{array}[c]{ll}
-  \begin{array}[c]{l}
-     Eq \cup \, \set{(X \triangleleft \exptype{C}{\ol{A}}) \lessdot
-      \exptype{D}{\ol{B}}} \\ 
-    \hline
-    \vspace*{-0.4cm}\\
-    Eq \cup \set{\exptype{C}{\ol{A}}
-    \doteq \exptype{C}{[ \ol{B} / \ol{X} ]\ol{Y}}}
-  %Eq \cup \set{\theta_1 \doteq \lambda'_1 \ldo \theta_n \doteq \lambda'_n}
-  \end{array}
-  & \exptype{D}{\ol{X}} <:\ \exptype{C}{\ol{Y}}
-  \end{array}
-  $
-\\\\
-  (reduce1) & $
-  \begin{array}[c]{l}
-    Eq \cup \set{\exptype{D}{\ol{A}} \lessdot
-      \exptype{D}{\ol{B}}}\\
-    \hline
-    Eq \cup \set{\ol{A} \doteq \ol{B}}
-  \end{array}
-        $ \\\\
-  (reduce2) & $
-  \begin{array}[c]{l}
-    Eq \cup \set{\exptype{D}{\ol{A}} \doteq
-      \exptype{D}{\ol{B}}}\\
-    \hline
-    Eq \cup \set{\ol{A} \doteq \ol{B}}
-  \end{array}
-        $ \\\\
-      \end{tabular}}
-    \end{center}
-  \caption{Reduce and adapt rules with generic variables}\label{fig:fgjreduce-rules-generic}
-  \end{figure}
 
 \begin{figure}
 \begin{align*}
@@ -299,7 +211,7 @@ $n \lessdot a, \ldots, m \lessdot n, b \lessdot m$.
           \hline
           Eq
         \end{array}
-        & C \leq^* D \in S_\leq
+        & C <: D
       \end{array}$\\
           \end{tabular}\\
 &\begin{tabular}[t]{ll}
