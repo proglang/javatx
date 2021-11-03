@@ -387,6 +387,15 @@ Fieldnames by default are unique in the FGJ language.
 \input{unifyProof}
 
 \section{Insert principal type}
+The kind of type we insert for each type variable depends on its appearance in the solved constraint set.
+\begin{itemize}
+\item $A$ appears in $A \lessdot N$
+\item $A$ appears in $\ol{A} \lessdot B$ and $B \lessdot N$
+$\implies$ \texttt{A extends N} and we replace every $A$ with $B$
+\item $A$ does not appear in a constraint
+$\implies$ \texttt{A extends Object}
+\end{itemize}
+
 After generating all possible unifiers in the \textbf{Unify} we can insert the principal types.
 
 \begin{align*}

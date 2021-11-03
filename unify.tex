@@ -23,9 +23,9 @@ Afterwards the following steps are repeatedly executed on $Eq_{set}$ until the a
 
 %$\textbf{SubUnify} :: [Constraint] \to [Unifier]$
 \begin{enumerate}
-\item Repeated application of the rules depicted in figure \ref{fig:fgjreduce-rules} and \ref{fig:fgjerase-rules}.
-The end configuration of $Eq$ is reached if for each element
-no rule is applicable.
+\item Repeated application of the rules depicted in figure \ref{fig:fgjreduce-rules} and \ref{fig:fgjerase-rules},
+starting with the \texttt{equals} rule.
+The end configuration of $Eq$ is reached if for each element no rule is applicable.
 
 \item
 (The function $\textbf{fresh}(i)$ returns an array of $i$ fresh type variables.)
@@ -65,11 +65,11 @@ Eq_{set}\\
       $$\begin{array}[c]{lll}
         (\mathrm{subst}) &
         \begin{array}[c]{l}
-          Eq'' \cup \set{a \doteq \theta}\\
+          Eq'' \cup \set{a \doteq \tt{X}}\\
           \hline
-          Eq''[a \mapsto \theta] \cup \set{a \doteq \theta}
+          Eq''[a \mapsto \tt{X}] \cup \set{a \doteq \tt{X}}
         \end{array}
-        & a \textrm{ occurs in } Eq'' \textrm{ but not in } \theta 
+        & a \textrm{ occurs in } Eq'' \textrm{ but not in } \tt{X} 
       \end{array}$$
       
       for each $a \doteq \theta$ in each element of $Eq' \in Eq'_{set}$.
@@ -112,6 +112,7 @@ An isolated type variable does only occur in constraints together with another i
   A set of constraints $Eq$ has reached solved form if it contains only the following kind of constraints:
   \begin{enumerate}
     \item $a \lessdot b$, with $a$ and $b$ both isolated type variables
+    \item $a \doteq a$
     \item $a \lessdot \exptype{C}{\ol{X}}$
     \item $a \doteq \exptype{C}{\ol{X}}$
   \end{enumerate}
@@ -305,7 +306,7 @@ $n \lessdot a, \ldots, m \lessdot n, b \lessdot m$.
       (erase2)  & $ 
       \begin{array}[c]{ll}
         \begin{array}[c]{l}
-          Eq \cup \set{C \doteq C}\\
+          Eq \cup \set{a \doteq a}\\
           \hline
           Eq
         \end{array}
