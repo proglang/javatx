@@ -390,11 +390,19 @@ Fieldnames by default are unique in the FGJ language.
 The kind of type we insert for each type variable depends on its appearance in the solved constraint set.
 \begin{itemize}
 \item $A$ appears in $A \lessdot N$
-\item $A$ appears in $\ol{A} \lessdot B$ and $B \lessdot N$
-$\implies$ \texttt{A extends N} and we replace every $A$ with $B$
+\item $A$ appears in $\ol{B} \lessdot A$ and $A \lessdot N$
+$\implies$ \texttt{A extends N} and we replace every $B$ with $A$
 \item $A$ does not appear in a constraint
 $\implies$ \texttt{A extends Object}
+\item $A$ appears in $A \lessdot B$
+$\implies$ \texttt{A extends Object} and replace every $A$ with $B$
 \end{itemize}
+We generalize the \textbf{Unify} result set by eliminating all relations between type variables.
+Those cannot be translated to generic types.
+Afterwards we only insert the generic types for method declarations,
+not for method calls.
+We know that method calls will work due to the soundness of our type inference algorithm.
+Also for further processing the next class we only need the method headers.
 
 After generating all possible unifiers in the \textbf{Unify} we can insert the principal types.
 
