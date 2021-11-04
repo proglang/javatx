@@ -384,3 +384,17 @@ We see that with each iteration over the steps 1-3 at least one type variable is
 Due to the fact that there is never added a fresh type variable during the \textbf{Unify} algorithm,
 the algorithm will terminate for any given finite set of constraints. \hfill $\square$
 
+\section{Elimination Matrix}
+\begin{table}[]
+  \begin{tabular}{lllll}
+  Constraints    & Step 2 & Reduce rule & Adapt rule & swap rule \\
+  $a \lessdot N$ &        &             &            &           \\
+  $a \doteq N$   &        &             &            &           \\
+  $a \doteq b$   &        &             &            &           \\
+  $a \lessdot b$ &        &             &            &           \\
+  $N \lessdot T$ &        &             & X          &           \\
+  $N \doteq T$   &        & X           &            &           \\
+  $N \lessdot a$ & X      &             &            &           \\
+  $N \doteq a$   &        &             &            & X        
+  \end{tabular}
+  \end{table}
