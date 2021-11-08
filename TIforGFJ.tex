@@ -314,7 +314,7 @@ $\begin{array}{@{}l@{}l@{}l}
 & & Cons = \{ \bigcup_{T_i \in \overline{T}} (pt_i \lessdot T_i) \ | \ \mathtt{class }\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\{ \ldots, \texttt{C}(\overline{T} \overline{x}), \ldots \} \}\\
 & \mathbf{in}% \\
 % &
-& (\exptype{C}{\ol{X'}}, [\textbf{fresh}(\ol{X})/\ol{X}](Cons \cup \bigcup_i Cons_i \cup \ol{X'} \lessdot \ol{N}))\\
+& (\textbf{fresh}(\ol{X})/\ol{X}]\exptype{C}{\ol{X}}, [\textbf{fresh}(\ol{X})/\ol{X}](Cons \cup \bigcup_i Cons_i \cup \ol{X'} \lessdot \ol{N}))\\
 \end{array}
 $
 
@@ -386,7 +386,10 @@ Fieldnames by default are unique in the FGJ language.
 
 \input{unifyProof}
 
-\section{Insert intersection types}
+\section{Insert intersection type}
+
+Given a method \texttt{m} with return type $t$ and parameter types $\ol{t}$.
+We search in the result set $Uni$ for all constraints needed to type the method.
 
 
 \section{Insert principal type}
@@ -394,7 +397,7 @@ In the first step we remove all $a \lessdot b$ constraints by setting them to $a
 
 The kind of type we insert for each type variable depends on its appearance in the solved constraint set.
 \begin{itemize}
-\item $A$ appears in $A \lessdot N$
+\item $A$ appears in $A \lessdot N$ $\implies$ \texttt{A extends N}
 \item $A$ appears in $\ol{B} \lessdot A$ and $A \lessdot N$
 $\implies$ \texttt{A extends N} and we replace every $B$ with $A$
 \item $A$ does not appear in a constraint
