@@ -386,7 +386,12 @@ Fieldnames by default are unique in the FGJ language.
 
 \input{unifyProof}
 
+\section{Insert intersection types}
+
+
 \section{Insert principal type}
+In the first step we remove all $a \lessdot b$ constraints by setting them to $a \doteq b$ and substituting $[a/b]Uni$.
+
 The kind of type we insert for each type variable depends on its appearance in the solved constraint set.
 \begin{itemize}
 \item $A$ appears in $A \lessdot N$
