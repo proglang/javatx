@@ -252,23 +252,23 @@ $
 
 \smallskip
 
+For our \textbf{TYPE} algorithm a field variable can be seen as a method call without parameters.
+Therefore generating constraints for a field access is the same as for a method call,
+with the difference that we search for fields with the same name instead of methods.\\
 $\begin{array}{@{}l@{}l@{}l}
 \textbf{TY}& \textbf{PE} & \textbf{Expr} (Ass, e.f) = \\
 & \textbf{let} % \\
 % &
 & (rty, ConS) = \textbf{TYPEExpr}(Ass, e),\\
-& & \textbf{fresh} = \text{a mapping from each variable in}\ \ol{X} \ \text{to a fresh type variable},\\
-& & Ass_{f} = \textit{ftype}_{Ass}(\textit{bound}_\triangle(f)) = \exptype{C}{\ol{X} \triangleleft \ol{N}} \to T \\
-& & Cons_{f} = \{\ rty \doteq \exptype{C}{\textbf{fresh}(\ol{X})}, a \doteq \textbf{fresh}(T)\},\\
 & & \begin{array}{@{}l@{}l}
-  Cons_{f} = \{\ & rty \doteq \exptype{C}{\ol{X}}, a \doteq T \\
-              & |\, \text{for every field}\ \exptype{}{\ol{Y}} T\ \texttt{m}(\ol{T}\  \ol{p}) \in \ol{M} \} \\%, \textbf{fresh}(\ol{X}) \lessdot \textbf{fresh}(\ol{N})\},\\
-              & ,\, \text{in every class}\ \exptype{C}{\ol{X}} \{ \ldots \ol{M} \ldots \}\ \text{in the input} \} 
-            \end{array}\\
-%& & OrCons = \{ \{ rty \doteq cl, a \doteq t_f \} \ | \ cl.f : t_f \in Ass \},\\
+        Cons_{m} = \{\ & rty \doteq \exptype{C}{\ol{X}}, a \doteq T\\
+                    & |\, \text{for every field}\ T\ \texttt{f} \in \ol{f} \} \\%, \textbf{fresh}(\ol{X}) \lessdot \textbf{fresh}(\ol{N})\},\\
+                    & ,\, \text{in every class}\ \exptype{C}{\ol{X}} \{ \ldots \ol{f} \ldots \}\ \text{in the input} \} 
+                  \end{array}\\
+& & OrCons = \textbf{OrConstraint}(Cons_{m})\\
 & \mathbf{in}% \\
 % &
-& (a, ConS \cup Cons_{f})\\
+& (a, [\textbf{fresh}(\ol{X})/\ol{X}][\textbf{fresh}(\ol{Y})/\ol{Y}]ConS \cup Cons_{f})\\
 & & \mathit{where\ } a \mathit{\ is\ a\ fresh\
   type\ variable}\\ 
 \end{array}
@@ -390,7 +390,20 @@ Fieldnames by default are unique in the FGJ language.
 
 Given a method \texttt{m} with return type $t$ and parameter types $\ol{t}$.
 We search in the result set $Uni$ for all constraints needed to type the method.
-
+\textbf{Example:}
+\begin{lstlisting}
+class List<A extends Object> extends Object{
+  A f;
+  
+  add(a){
+    return a;
+  }
+}
+  
+class Test extends Object{
+  m(a){ return new List(a);}
+}
+\end{lstlisting}
 
 \section{Insert principal type}
 In the first step we remove all $a \lessdot b$ constraints by setting them to $a \doteq b$ and substituting $[a/b]Uni$.

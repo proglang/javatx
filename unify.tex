@@ -26,7 +26,8 @@ $a \lessdot c, \ldots, m \lessdot n, n \lessdot b$.
     \textrm
     A set of constraints $Eq$ has reached solved form if it contains only the following kind of constraints:
     \begin{enumerate}
-      \item $a \lessdot b$, with $a$ and $b$ both isolated type variables
+      \item $a \lessdot b$ %, with $a$ and $b$ both isolated type variables
+      \item $a \doteq b$
       \item $a \lessdot \exptype{C}{\ol{X}}$, with $a \notin \ol{X}$ %, with $a$ not appearing in any other constraints of type 2 or 3.
       \item $a \doteq \exptype{C}{\ol{X}}$, with $a \notin \ol{X}$
     \end{enumerate}
