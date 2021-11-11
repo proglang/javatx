@@ -206,8 +206,8 @@ The algorithm \textbf{FJTYPE} is given as follows:
 $
 \texttt{Class} \rightarrow \texttt{Constraints}\\
  \begin{array}{@{}l@{}l@{}l}
- \textbf{FJT}&\textbf{Y} & \textbf{PE}(\mathtt{class } \ C \ \mathtt{ extends } \ D \{ \overline{T} \ \overline{f}; \, K \, \overline{M} \}) =\\
-& \multicolumn{2}{@{}l@{}}{ \{ \ \textbf{TYPEMethod}(\{ \mathtt{this} : C \}, m_i) \quad | \quad m_i \in \overline{M} \ \} }\\ 
+ \textbf{FJT}&\textbf{Y} & \textbf{PE}(\mathtt{class } \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \ \mathtt{ extends } \ D \{ \overline{T} \ \overline{f}; \, K \, \overline{M} \}) =\\
+& \multicolumn{2}{@{}l@{}}{ \{ \ \textbf{TYPEMethod}(\{ \mathtt{this} : \exptype{C}{\ol{X}} \}, m_i) \quad | \quad m_i \in \overline{M} \ \} }\\ 
 \end{array}$
 
 The \textbf{FJTYPE} function gets called for every class in the input.
