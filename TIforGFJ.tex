@@ -405,6 +405,39 @@ class Test extends Object{
 }
 \end{lstlisting}
 
+Only constraints of the form $a \lessdot \texttt{N}$ can be inserted as generic variables infront of a method.
+After the \textbf{Unify} algorithm the following constraints remain.
+\begin{itemize}
+  \item $a \lessdot b$, this is removed by replacing every $b$ with $a$ in the result set
+  \item $a \lessdot N$, this is used as generic type variables
+  \item $a \doteq N$,
+\end{itemize}
+
+\begin{align*}
+  \ddfrac{
+    Eq \cup \set{ a \lessdot b}
+  }{
+    [b/a]Eq
+  }
+  \text{rule}
+\end{align*}
+
+The following constraints belong to a method:
+\begin{itemize}
+\item All type variables inside return and parameter types, after replacing the type variables with unify results.
+\item If a type variable appears in a $a \lessdot \exptype{C}{\ol{X}}$ constraint,
+then all type variables in $\ol{X}$ also belong to the method.
+\end{itemize}
+
+With $Eq_\lessdot = \set{a \lessdot N \ |\ a \lessdot N \in Eq}$ we modify each method:
+\begin{align*}
+  \ddfrac{
+    A\ \texttt{m}(\ol{A}\ \ol{p}) \{ \ldots \}
+  }{
+    \exptype{}{Eq_\lessdot}\ \sigma(A)\ \texttt{m}(\sigma(\ol{A})\ \ol{p}) \{ \ldots \}
+  }
+  \end{align*}
+
 \section{Insert principal type}
 In the first step we remove all $a \lessdot b$ constraints by setting them to $a \doteq b$ and substituting $[a/b]Uni$.
 
