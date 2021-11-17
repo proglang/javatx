@@ -184,6 +184,15 @@ Additionally we add the types of the already compiled classes to the assumption 
 Therefore it is possible to have intersection types already in the assumptions.
 \end{enumerate}
 
+\subsection{Multiple classes as input}
+We process each class individually.
+
+%Besprechung Peter:
+%Ich betrachte immer Klassen zusammen
+%Wo ich annehme, dass die sich rekursiv aufrufen
+%
+%Es gibt einen Präprozessor, der die aufrufgraphen ausrechnet
+%und die Klassen in Pakete packt
 
 \subsection{FJTYPE}
 The \textbf{FJTYPE} algorithm produces two kinds of constraints.
@@ -413,6 +422,7 @@ After the \textbf{Unify} algorithm the following constraints remain.
   \item $a \doteq N$,
 \end{itemize}
 
+Step 1:
 \begin{align*}
   \ddfrac{
     Eq \cup \set{ a \lessdot b}
@@ -423,6 +433,33 @@ After the \textbf{Unify} algorithm the following constraints remain.
 \end{align*}
 
 The following constraints belong to a method:
+\begin{align*}
+\ddfrac{T\ m(\ol{T})}{
+  \set{a \triangleleft N \ |\ (a \lessdot N) \in Uni',\ a \in T \cup \ol{T}} \cup
+  \set{a \triangleleft \texttt{Object} \ |\ (a \lessdot N) \notin Uni',\ a \in T \cup \ol{T}}
+}
+\end{align*}
+
+\begin{align*}
+  \ddfrac{
+    \exptype{}{A \triangleleft \exptype{C}{\ol{X}}, \ol{A} \triangleleft \ol{N} }\ T\ m(\ol{T}\ \ol{p}) \{ \ldots \}
+  }{
+    \begin{array}{c}
+    \exptype{}{A \triangleleft \exptype{C}{\ol{X}}, \ol{A} \triangleleft \ol{N}, \set{a \triangleleft \texttt{Object} \ |\ a \in \ol{X},\ (a \lessdot N) \notin Uni'} }\ T\ m(\ol{T}\ \ol{p}) \{ \ldots \}
+    \end{array}
+  }
+\end{align*}
+
+\begin{align*}
+  \ddfrac{
+    \exptype{}{A \triangleleft \exptype{C}{\ol{X}}, \ol{A} \triangleleft \ol{N} }\ T\ m(\ol{T}\ \ol{p}) \{ \ldots \}
+  }{
+    \begin{array}{c}
+    \exptype{}{A \triangleleft \exptype{C}{\ol{X}}, \ol{A} \triangleleft \ol{N}, \set{a \triangleleft N \ |\ a \in \ol{X},\ (a \lessdot N) \in Uni'}  }\ T\ m(\ol{T}\ \ol{p}) \{ \ldots \}
+    \end{array}
+  }
+\end{align*}
+
 \begin{itemize}
 \item All type variables inside return and parameter types, after replacing the type variables with unify results.
 \item If a type variable appears in a $a \lessdot \exptype{C}{\ol{X}}$ constraint,
