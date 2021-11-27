@@ -419,10 +419,11 @@ After the \textbf{Unify} algorithm the following constraints remain.
 \begin{itemize}
   \item $a \lessdot b$, this is removed by replacing every $b$ with $a$ in the result set
   \item $a \lessdot N$, this is used as generic type variables
-  \item $a \doteq N$,
+  \item $a \doteq N$
+  \item $a \doteq b$
 \end{itemize}
 
-Step 1:
+At first remove the $a \lessdot b$ constraints with the \texttt{flatten} rule.
 \begin{align*}
   \ddfrac{
     Eq \cup \set{ a \lessdot b}
@@ -431,6 +432,11 @@ Step 1:
   }
   \quad \text{flatten}
 \end{align*}
+
+Afterwards we determine which constraints belong to each method.
+
+%TODO: What is with type variables used in two methods at the same time?
+
 
 The following constraints belong to a method:
 \begin{align*}
