@@ -399,20 +399,6 @@ Fieldnames by default are unique in the FGJ language.
 
 Given a method \texttt{m} with return type $t$ and parameter types $\ol{t}$.
 We search in the result set $Uni$ for all constraints needed to type the method.
-\textbf{Example:}
-\begin{lstlisting}
-class List<A extends Object> extends Object{
-  A f;
-  
-  add(a){
-    return a;
-  }
-}
-  
-class Test extends Object{
-  m(a){ return new List(a);}
-}
-\end{lstlisting}
 
 Only constraints of the form $a \lessdot \texttt{N}$ can be inserted as generic variables infront of a method.
 After the \textbf{Unify} algorithm the following constraints remain.
@@ -434,52 +420,30 @@ At first remove the $a \lessdot b$ constraints with the \texttt{flatten} rule.
 \end{align*}
 
 Afterwards we determine which constraints belong to each method.
+At this point, the method is still untyped and has type variables as return and parameter types.
+After the type-insert step every type variable should either be replaced by a generic type variable or a regular type.
 
-%TODO: What is with type variables used in two methods at the same time?
+\begin{description}
+\item[Input] is a class with methods of the form%$\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ol{M}\}$
+$\mathtt{A\ m(\ol{A}\ \ol{p})\ldots}$, where $\mathtt{A}$ and $\mathtt{\ol{A}}$ are type variables.
+And the set of possible type unifiers $Uni_{set}$.
+\item[Output] is a type FJ class, where each method has the form
+$\mathtt{\exptype{}{\ol{X} \triangleleft \ol{N}}\ T\ m(\ol{T}\ \ol{p})\ldots}$
+\end{description}
 
-
-The following constraints belong to a method:
-\begin{align*}
-\ddfrac{T\ m(\ol{T})}{
-  \set{a \triangleleft N \ |\ (a \lessdot N) \in Uni',\ a \in T \cup \ol{T}} \cup
-  \set{a \triangleleft \texttt{Object} \ |\ (a \lessdot N) \notin Uni',\ a \in T \cup \ol{T}}
-}
-\end{align*}
-
-\begin{align*}
-  \ddfrac{
-    \exptype{}{A \triangleleft \exptype{C}{\ol{X}}, \ol{A} \triangleleft \ol{N} }\ T\ m(\ol{T}\ \ol{p}) \{ \ldots \}
-  }{
-    \begin{array}{c}
-    \exptype{}{A \triangleleft \exptype{C}{\ol{X}}, \ol{A} \triangleleft \ol{N}, \set{a \triangleleft \texttt{Object} \ |\ a \in \ol{X},\ (a \lessdot N) \notin Uni'} }\ T\ m(\ol{T}\ \ol{p}) \{ \ldots \}
-    \end{array}
-  }
-\end{align*}
-
-\begin{align*}
-  \ddfrac{
-    \exptype{}{A \triangleleft \exptype{C}{\ol{X}}, \ol{A} \triangleleft \ol{N} }\ T\ m(\ol{T}\ \ol{p}) \{ \ldots \}
-  }{
-    \begin{array}{c}
-    \exptype{}{A \triangleleft \exptype{C}{\ol{X}}, \ol{A} \triangleleft \ol{N}, \set{a \triangleleft N \ |\ a \in \ol{X},\ (a \lessdot N) \in Uni'}  }\ T\ m(\ol{T}\ \ol{p}) \{ \ldots \}
-    \end{array}
-  }
-\end{align*}
-
+First we look for constraints of the form $a \lessdot N$, where $a \in T$ or $a \in \ol{T}$.
+These constraints will be converted to the generic type variables of the method.
+The whole set of generic type variable declarations $G_{tvs}$ consists out of:
 \begin{itemize}
-\item All type variables inside return and parameter types, after replacing the type variables with unify results.
-\item If a type variable appears in a $a \lessdot \exptype{C}{\ol{X}}$ constraint,
-then all type variables in $\ol{X}$ also belong to the method.
+\item All the type variables, which are used by the method type, but do not have a bound given by the result set $Uni$,
+will be assigned \texttt{Object} as bound:\\
+$\set{A \triangleleft \texttt{Object} \ |\ (a \lessdot N) \notin Uni',\ a \in T \cup \ol{T}}$
+\item Additionally all type variables of the method, which are given a direct bound by a constraint in $Uni$: \\
+$\set{A \triangleleft \exptype{C}{\ol{X}} \ |\ (a \lessdot \exptype{C}{\ol{x}}) \in Uni',\ a \in T \cup \ol{T}}$
+\item At last we have to add a bound of every type variable added in the last two steps:\\
+$\set{A \triangleleft \texttt{Object} \ |\ a \in G_{tvs},\ (a \lessdot N) \notin Uni'}$ and \\
+$\set{A \triangleleft \exptype{C}{\ol{X}}  \ |\ a \in G_{tvs},\ (a \lessdot \exptype{C}{\ol{x}} ) \in Uni'}$
 \end{itemize}
-
-With $Eq_\lessdot = \set{a \lessdot N \ |\ a \lessdot N \in Eq}$ we modify each method:
-\begin{align*}
-  \ddfrac{
-    A\ \texttt{m}(\ol{A}\ \ol{p}) \{ \ldots \}
-  }{
-    \exptype{}{Eq_\lessdot}\ \sigma(A)\ \texttt{m}(\sigma(\ol{A})\ \ol{p}) \{ \ldots \}
-  }
-  \end{align*}
 
 \section{Insert principal type}
 In the first step we remove all $a \lessdot b$ constraints by setting them to $a \doteq b$ and substituting $[a/b]Uni$.
