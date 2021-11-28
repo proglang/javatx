@@ -395,11 +395,62 @@ Fieldnames by default are unique in the FGJ language.
 
 \input{unifyProof}
 
+%\section{Insert principal type}
 \section{Insert intersection type}
+The outcome of the \textbf{Unify} algorithm is a set of type solutions $Uni_{set}$.
+The following function sets in all type solutions by generating overloaded methods:
 
-Given a method \texttt{m} with return type $t$ and parameter types $\ol{t}$.
-We search in the result set $Uni$ for all constraints needed to type the method.
+\begin{description}
+\item[Input] is a class with methods of the form%$\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ol{M}\}$
+$\mathtt{A\ m(\ol{A}\ \ol{p})\ldots}$, where $\mathtt{A}$ and $\mathtt{\ol{A}}$ are type variables.
+And the set of possible type unifiers $Uni_{set}$.
+\item[Output] is a type FJ class, where each method has the form
+$\mathtt{\exptype{}{\ol{X} \triangleleft \ol{N}}\ T\ m(\ol{T}\ \ol{p})\ldots}$
+\end{description}
 
+For every $Uni \in Uni_{set}$ and every method \texttt{m} in the input class we apply the following steps:
+
+\begin{enumerate}
+\item In the first step we apply the \texttt{flatten} rule to remove all $a \lessdot b$ constraints. by setting them to $a \doteq b$ and substituting $[a/b]Uni$.
+\begin{align*}
+  \ddfrac{
+    Uni \cup \set{ a \lessdot b}
+  }{
+    [b/a]Uni \cup \set{ a \doteq b }
+  }
+  \quad \texttt{flatten}
+\end{align*}
+\item 
+Afterwards we determine which constraints belong to each method.
+At this point, the method is still untyped and has type variables as return and parameter types.
+After the type-insert step every type variable should either be replaced by a generic type variable or a regular type.
+
+First we look for constraints of the form $a \lessdot N$, where $a \in T$ or $a \in \ol{T}$.
+These constraints will be converted to the generic type variables of the method.
+The whole set of generic type variable declarations $G_{tvs}$ consists out of:
+\begin{itemize}
+\item All the type variables, which are used by the method type, but do not have a bound given by the result set $Uni$,
+will be assigned \texttt{Object} as bound:\\
+$\set{A \triangleleft \texttt{Object} \ |\ (a \lessdot N) \notin Uni',\ a \in T \cup \ol{T}}$
+\item Additionally all type variables of the method, which are given a direct bound by a constraint in $Uni$: \\
+$\set{A \triangleleft \exptype{C}{\ol{X}} \ |\ (a \lessdot \exptype{C}{\ol{x}}) \in Uni',\ a \in T \cup \ol{T}}$
+\item At last we have to add a bound of every type variable added in the last two steps:\\
+$\set{A \triangleleft \texttt{Object} \ |\ a \in G_{tvs},\ (a \lessdot N) \notin Uni'}$ and \\
+$\set{A \triangleleft \exptype{C}{\ol{X}}  \ |\ a \in G_{tvs},\ (a \lessdot \exptype{C}{\ol{x}} ) \in Uni'}$
+\end{itemize}
+\item With the resulting $G_{tvs}$ we can finally create the typed method:
+
+$\mathtt{\exptype{}{G_{tvs}}\ \sigma(T)\ m(\sigma(\ol{T})\ \ol{p}))\{ \ldots \}}$
+
+%$\sigma$ is a function which replaces TODO
+\end{enumerate}
+
+\subsection{Example}
+%TODO
+
+
+\subsection{Proof}
+%Proof that we insert the principle type:
 Only constraints of the form $a \lessdot \texttt{N}$ can be inserted as generic variables infront of a method.
 After the \textbf{Unify} algorithm the following constraints remain.
 \begin{itemize}
@@ -419,61 +470,6 @@ At first remove the $a \lessdot b$ constraints with the \texttt{flatten} rule.
   \quad \text{flatten}
 \end{align*}
 
-Afterwards we determine which constraints belong to each method.
-At this point, the method is still untyped and has type variables as return and parameter types.
-After the type-insert step every type variable should either be replaced by a generic type variable or a regular type.
-
-\begin{description}
-\item[Input] is a class with methods of the form%$\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ol{M}\}$
-$\mathtt{A\ m(\ol{A}\ \ol{p})\ldots}$, where $\mathtt{A}$ and $\mathtt{\ol{A}}$ are type variables.
-And the set of possible type unifiers $Uni_{set}$.
-\item[Output] is a type FJ class, where each method has the form
-$\mathtt{\exptype{}{\ol{X} \triangleleft \ol{N}}\ T\ m(\ol{T}\ \ol{p})\ldots}$
-\end{description}
-
-First we look for constraints of the form $a \lessdot N$, where $a \in T$ or $a \in \ol{T}$.
-These constraints will be converted to the generic type variables of the method.
-The whole set of generic type variable declarations $G_{tvs}$ consists out of:
-\begin{itemize}
-\item All the type variables, which are used by the method type, but do not have a bound given by the result set $Uni$,
-will be assigned \texttt{Object} as bound:\\
-$\set{A \triangleleft \texttt{Object} \ |\ (a \lessdot N) \notin Uni',\ a \in T \cup \ol{T}}$
-\item Additionally all type variables of the method, which are given a direct bound by a constraint in $Uni$: \\
-$\set{A \triangleleft \exptype{C}{\ol{X}} \ |\ (a \lessdot \exptype{C}{\ol{x}}) \in Uni',\ a \in T \cup \ol{T}}$
-\item At last we have to add a bound of every type variable added in the last two steps:\\
-$\set{A \triangleleft \texttt{Object} \ |\ a \in G_{tvs},\ (a \lessdot N) \notin Uni'}$ and \\
-$\set{A \triangleleft \exptype{C}{\ol{X}}  \ |\ a \in G_{tvs},\ (a \lessdot \exptype{C}{\ol{x}} ) \in Uni'}$
-\end{itemize}
-
-\section{Insert principal type}
-In the first step we remove all $a \lessdot b$ constraints by setting them to $a \doteq b$ and substituting $[a/b]Uni$.
-
-The kind of type we insert for each type variable depends on its appearance in the solved constraint set.
-\begin{itemize}
-\item $A$ appears in $A \lessdot N$ $\implies$ \texttt{A extends N}
-\item $A$ appears in $\ol{B} \lessdot A$ and $A \lessdot N$
-$\implies$ \texttt{A extends N} and we replace every $B$ with $A$
-\item $A$ does not appear in a constraint
-$\implies$ \texttt{A extends Object}
-\item $A$ appears in $A \lessdot B$
-$\implies$ \texttt{A extends Object} and replace every $A$ with $B$
-\end{itemize}
-We generalize the \textbf{Unify} result set by eliminating all relations between type variables.
-Those cannot be translated to generic types.
-Afterwards we only insert the generic types for method declarations,
-not for method calls.
-We know that method calls will work due to the soundness of our type inference algorithm.
-Also for further processing the next class we only need the method headers.
-
-After generating all possible unifiers in the \textbf{Unify} we can insert the principal types.
-
-\begin{align*}
-\ddfrac{
-  A\ \texttt{m}(\ol{A}\ \ol{p}) \{ \ldots \} \in M \quad \quad \texttt{class}\ \exptype{C}{\ol{X}} \{ \ldots\ M,\ \ldots\}
-}{
-  \textit{mtype}(\texttt{m}, \exptype{C}{\ol{X}}) = \set{\sigma(\ol{A}) \to \sigma(A) \,|\, \sigma \in {Uni}}
-}
-\end{align*}
 
 The \textbf{Unify} algorithm returns a set of unifiers ${Uni}$.
 Each element of that set is a correct solution.
