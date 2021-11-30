@@ -408,6 +408,17 @@ And the set of possible type unifiers $Uni_{set}$.
 $\mathtt{\exptype{}{\ol{X} \triangleleft \ol{N}}\ T\ m(\ol{T}\ \ol{p})\ldots}$
 \end{description}
 
+\textbf{Hint:}
+$\sigma$ is given as:
+\begin{align*}
+\sigma(a) = 
+\begin{cases}
+  \texttt{N}       & \quad \text{if } (a \doteq \texttt{N}) \in Uni \\
+  \texttt{B}       & \quad \text{if } (a \doteq b) \in Uni \\
+  \texttt{A}       & \quad \text{else}
+\end{cases}
+\end{align*}
+
 For every $Uni \in Uni_{set}$ and every method \texttt{m} in the input class we apply the following steps:
 
 \begin{enumerate}
@@ -442,7 +453,6 @@ $\set{A \triangleleft \exptype{C}{\ol{X}}  \ |\ a \in G_{tvs},\ (a \lessdot \exp
 
 $\mathtt{\exptype{}{G_{tvs}}\ \sigma(T)\ m(\sigma(\ol{T})\ \ol{p}))\{ \ldots \}}$
 
-%$\sigma$ is a function which replaces TODO
 \end{enumerate}
 
 \subsection{Example}
