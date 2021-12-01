@@ -408,16 +408,6 @@ And the set of possible type unifiers $Uni_{set}$.
 $\mathtt{\exptype{}{\ol{X} \triangleleft \ol{N}}\ T\ m(\ol{T}\ \ol{p})\ldots}$
 \end{description}
 
-\textbf{Hint:}
-$\sigma$ is given as:
-\begin{align*}
-\sigma(a) = 
-\begin{cases}
-  \texttt{N}       & \quad \text{if } (a \doteq \texttt{N}) \in Uni \\
-  \texttt{B}       & \quad \text{if } (a \doteq b) \in Uni \\
-  \texttt{A}       & \quad \text{else}
-\end{cases}
-\end{align*}
 
 For every $Uni \in Uni_{set}$ and every method \texttt{m} in the input class we apply the following steps:
 
@@ -442,7 +432,7 @@ The whole set of generic type variable declarations $G_{tvs}$ consists out of:
 \begin{itemize}
 \item All the type variables, which are used by the method type, but do not have a bound given by the result set $Uni$,
 will be assigned \texttt{Object} as bound:\\
-$\set{A \triangleleft \texttt{Object} \ |\ (a \lessdot N) \notin Uni',\ a \in T \cup \ol{T}}$
+$\set{A \triangleleft \texttt{Object} \ |\ (a \lessdot N) \notin Uni', (a \doteq N) \notin Uni',\ a \in T \cup \ol{T}}$
 \item Additionally all type variables of the method, which are given a direct bound by a constraint in $Uni$: \\
 $\set{A \triangleleft \exptype{C}{\ol{X}} \ |\ (a \lessdot \exptype{C}{\ol{x}}) \in Uni',\ a \in T \cup \ol{T}}$
 \item At last we have to add a bound of every type variable added in the last two steps:\\
@@ -450,11 +440,31 @@ $\set{A \triangleleft \texttt{Object} \ |\ a \in G_{tvs},\ (a \lessdot N) \notin
 $\set{A \triangleleft \exptype{C}{\ol{X}}  \ |\ a \in G_{tvs},\ (a \lessdot \exptype{C}{\ol{x}} ) \in Uni'}$
 \end{itemize}
 \item With the resulting $G_{tvs}$ we can finally create the typed method:
-
-$\mathtt{\exptype{}{G_{tvs}}\ \sigma(T)\ m(\sigma(\ol{T})\ \ol{p}))\{ \ldots \}}$
-
+\begin{align*}
+\mathtt{\exptype{}{G_{tvs}}\ \sigma(T)\ m(\sigma(\ol{T})\ \ol{p}))\{ \ldots \}}
+\end{align*}
+\textbf{Hint:}
+$\sigma$ is given as:
+\begin{align*}
+\sigma(a) &= 
+\begin{cases}
+  \texttt{N}       & \quad \text{if } (a \doteq \texttt{N}) \in Uni \\
+  \texttt{B}       & \quad \text{if } (a \doteq b) \in Uni \\
+  \texttt{A}       & \quad \text{else}
+\end{cases}
+\end{align*}
 \end{enumerate}
 
+\subsection{Filter principal type}
+We want to filter out the most principal type out of all the type solutions for a method.
+If there exist two method typings:
+$\exptype{}{\triangle_1}\ T_1\ m(\ol{T_1}\ p)\{ \ldots \} \in M$\\
+$\exptype{}{\triangle_2}\ T_2\ m(\ol{T_2}\ p)\{ \ldots \} \in M$
+
+with $\triangle \vdash \triangle_1(T_1) <: \triangle_2(T_2)$
+and $\triangle \vdash \triangle_2(\ol{T_2}) <: \triangle_1(\ol{T_1})$
+then remove the typing 
+$\exptype{}{\triangle_2}\ T_2\ m(\ol{T_2}\ p)\{ \ldots \}$
 \subsection{Example}
 %TODO
 
