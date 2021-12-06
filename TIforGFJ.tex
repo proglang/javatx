@@ -433,6 +433,8 @@ The whole set of generic type variable declarations $G_{tvs}$ consists out of:
 \item All the type variables, which are used by the method type, but do not have a bound given by the result set $Uni$,
 will be assigned \texttt{Object} as bound:\\
 $\set{A \triangleleft \texttt{Object} \ |\ (a \lessdot N) \notin Uni', (a \doteq N) \notin Uni',\ a \in T \cup \ol{T}}$
+\item All type variables, which get another type variable assigned have to be declared also:
+$\set{B \triangleleft \texttt{Object} \ |\ (a \doteq b) \in Uni', a \in T \cup \ol{T}}$
 \item Additionally all type variables of the method, which are given a direct bound by a constraint in $Uni$: \\
 $\set{A \triangleleft \exptype{C}{\ol{X}} \ |\ (a \lessdot \exptype{C}{\ol{x}}) \in Uni',\ a \in T \cup \ol{T}}$
 \item At last we have to add a bound of every type variable added in the last two steps:\\
