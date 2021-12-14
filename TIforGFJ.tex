@@ -479,6 +479,8 @@ We introduce a subtyping rule for overloaded methods:
   \triangle \vdash \triangle_1(T_1) <: \triangle_2(T_2) \quad \quad
   \triangle \vdash \triangle_2(\ol{T_2}) <: \triangle_1(\ol{T_1})
   }\\
+  %\mathtt{\ol{\triangle}(T_1) \leq \ol{\triangle}(T_2) \quad \quad \ol{\triangle}(\ol{T_1}) \leq \ol{\triangle}(\ol{T_2})}
+  \mathtt{T_1 \trianglelefteq T_2 \quad \quad \ol{T_1} \trianglelefteq \ol{T_2}}
   \end{array}
   }{
     \mathtt{
@@ -487,8 +489,23 @@ We introduce a subtyping rule for overloaded methods:
   }
 }
 \end{align*}
-A generic instance of a method type is always a subtype of the generic method.
-\emph{A type-scheme for a declaratjavatxion is a \emph{principal type-scheme}, if any
+
+We have to define our own typing rules for generic type variables:
+\begin{align*}
+\ddfrac{\mathtt{
+  T \triangleleft N \in \triangle \quad \quad U \triangleleft M \in \triangle \quad \quad 
+  N <: M
+  }
+}{\mathtt{\triangle \vdash T \trianglelefteq U}}
+\end{align*}
+\begin{align*}
+\ddfrac{\mathtt{
+  \triangle \vdash Z <: U
+  }
+}{\mathtt{\triangle \vdash T \trianglelefteq U}}
+\end{align*}
+
+\emph{A type-scheme for a declaration is a \emph{principal type-scheme}, if any
     other type-scheme for the 
 declaration is a generic instance of it.}\cite{DM82}
 
