@@ -489,6 +489,8 @@ We introduce a subtyping rule for overloaded methods:
   }
 }
 \end{align*}
+%Notes: Parameter type is always the super type. Generic variables don't matter
+
 
 We have to define our own typing rules for generic type variables:
 \begin{align*}
@@ -532,8 +534,82 @@ class Overload extends Object {
 }
 \end{lstlisting}
 
+Type rules for parameter types:
+\begin{align*}
+  \ddfrac{\mathtt{    
+    \texttt{class}\ \exptype{C}{\ol{A}}\ \texttt{extends}\ \exptype{D}{\ol{N}}
+    }
+  }{\mathtt{\triangle \vdash \exptype{C}{\ol{X}} \trianglelefteq \exptype{D}{\ol{Y}}}}
+\end{align*}
+
+%Frage an Martin: Ist das hier in FJ möglich?
+% class C<A extends Object> {
+%   m(C<Object> x){ return this.m(this);} 
+%}
+  
+\subsection{Simplification}
+\emph{As another example, the type of a function which uses its argument as an int but never terminates,
+$\texttt{int} \to \alpha$, can be simplified to $\texttt{int} \to \bot$}
+\cite{10.1145/3409006}
+\textbf{Example:}
+\begin{lstlisting}
+<B extends Object, C extends Object> B a1(C x) {
+  return this.a2(x);
+}
+<C extends Object, B extends Object> B a2(C y) {
+  return this.a1(y);
+}
+\end{lstlisting}
+
 \subsection{Example}
-%TODO
+
+\begin{lstlisting}
+class OverloadedMethods extends Object {
+  <A extends Object> A m1(Object b)... 
+  <B extends Object> Object m1(B b)...
+
+  <A extends String> Object m(A a)... //<- obsolete
+                     Object m(Object a)... //<- principal type
+
+
+  <B extends List<Object>> Object m3(B b)...
+  <A, B extends List<A>>   Object m3(B b)...
+
+  //List<A> !<: List<Object>
+  <A extends String> List<A> m4()
+                List<Object> m4() 
+
+  //List<A> !<: List<Object>
+  <A extends Object> List<A> m4()
+                List<Object> m4() // this should be deleted 
+  // if the return type is a subtype or a generic instantiation -> it is obsolete
+
+  <A extends String> _ m5(List<A> a)
+                     _ m5(List<Object> b)
+
+  // ArrayList<A> <: List<A>
+  <A extends String> _ m5(List<A> a)
+  <A extends String> _ m5(ArrayList<A> b) // this is obsolete
+
+  <A, B extends List<A>> _ m5(B a)
+  <A extends String> _ m5(ArrayList<A> b) // this is obsolete
+
+  <A, B extends List<A>> _ m5(Map<A,B> a) // this is obsolete
+  <A extends Object> _ m5(Map<A,A> b) 
+                                      
+  // here it doesn't matter which method to keep
+  <A extends Object> _ m5(A a)
+                     _ m5(Object b)
+
+  //List<A> <: ArrayList<A>
+  <A extends Object> List<A> m2(ArrayList<A> b)...
+  <A extends Object> ArrayList<A> m2(List<Object> b)...
+
+  <A extends Object> A mImpossible() ...
+}
+\end{lstlisting}
+
+
 
 
 \subsection{Proof}
