@@ -16,6 +16,7 @@ that $a \lessdot^* b$ can either be a single constraint $a \lessdot b$ or a tran
 $a \lessdot c, \ldots, m \lessdot n, n \lessdot b$.
 \item $[a/b]T$ means replacing all type variables $b$ with $a$ in the type $T$.
 \item The function $\textbf{fresh}(i)$ returns an array of $i$ fresh type variables.
+\item Unify internally uses an intersection type $\intersection{\ol{T}}$
 \end{itemize}
 \begin{definition}[Isolated type variable] \label{def:isolated-type-variable}
     \textrm
@@ -112,29 +113,82 @@ $Eq_{solved} = \set{ Eq \ | \ Eq \in Eq_{set}, Eq \ \text{is in solved form}}$
 \end{enumerate}
 \end{enumerate}
 
+%Do not copy Intersection Types. Otherwise they have to be interlinked
+% without them being interlinked they can be altered
+
 \begin{figure}
 \begin{center}
     \leavevmode
     \fbox{
     \begin{tabular}[t]{ll}
-      (match)
+      (unfold)
       & $
       \begin{array}[c]{ll}
       \begin{array}[c]{l}
-         Eq \cup \, \set{a \lessdot
-         \exptype{C}{\ol{X}},
-         a \lessdot
-          \exptype{D}{\ol{Y}}} \\ 
+         Eq \cup \, \set{\exptype{C}{\overline{T}} \lessdot a} \\ 
         \hline
         \vspace*{-0.4cm}\\
-        Eq \cup \set{a \lessdot \exptype{C}{\ol{X}}
-        , \exptype{C}{\ol{X}} \lessdot \exptype{D}{\ol{Y}}}
+        Eq \cup \set{a \doteq \intersection{\exptype{C}{\overline{T}} }}
       %Eq \cup \set{\theta_1 \doteq \lambda'_1 \ldo \theta_n \doteq \lambda'_n}
       \end{array}
-      & \exptype{C}{\ol{Z}} <: \exptype{D}{\ol{N}} 
+      & 
       \end{array}
       $
     \\\\
+    (intersect)
+    & $
+    \begin{array}[c]{ll}
+    \begin{array}[c]{l}
+       Eq \cup \, \set{a \lessdot
+       \intersection{T},
+       a \lessdot
+       \intersection{U}
+       } \\ 
+      \hline
+      \vspace*{-0.4cm}\\
+      Eq \cup \set{a \lessdot N}
+    %Eq \cup \set{\theta_1 \doteq \lambda'_1 \ldo \theta_n \doteq \lambda'_n}
+    \end{array}
+    & T <: N, U <: N
+    \end{array}
+    $
+  \\\\
+  (intersect)
+  & $
+  \begin{array}[c]{ll}
+  \begin{array}[c]{l}
+     Eq \cup \, \set{a \lessdot
+     \texttt{X},
+     a \lessdot
+     \texttt{Y}
+     } \\ 
+    \hline
+    \vspace*{-0.4cm}\\
+    Eq \cup \set{a \lessdot \mathtt{X \& Y}}
+  %Eq \cup \set{\theta_1 \doteq \lambda'_1 \ldo \theta_n \doteq \lambda'_n}
+  \end{array}
+  & 
+  \end{array}
+  $
+\\\\
+  (match)
+  & $
+  \begin{array}[c]{ll}
+  \begin{array}[c]{l}
+     Eq \cup \, \set{a \lessdot
+     \exptype{C}{\ol{X}},
+     a \lessdot
+      \exptype{D}{\ol{Y}}} \\ 
+    \hline
+    \vspace*{-0.4cm}\\
+    Eq \cup \set{a \lessdot \exptype{C}{\ol{X}}
+    , \exptype{C}{\ol{X}} \lessdot \exptype{D}{\ol{Y}}}
+  %Eq \cup \set{\theta_1 \doteq \lambda'_1 \ldo \theta_n \doteq \lambda'_n}
+  \end{array}
+  & \exptype{C}{\ol{Z}} <: \exptype{D}{\ol{N}} 
+  \end{array}
+  $
+\\\\
     (adopt)
     & $
     \begin{array}[c]{ll}
