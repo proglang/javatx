@@ -121,56 +121,27 @@ $Eq_{solved} = \set{ Eq \ | \ Eq \in Eq_{set}, Eq \ \text{is in solved form}}$
     \leavevmode
     \fbox{
     \begin{tabular}[t]{ll}
-      (unfold)
-      & $
-      \begin{array}[c]{ll}
-      \begin{array}[c]{l}
-         Eq \cup \, \set{\exptype{C}{\overline{T}} \lessdot a} \\ 
-        \hline
-        \vspace*{-0.4cm}\\
-        Eq \cup \set{a \doteq \intersection{\exptype{C}{\overline{T}} }}
-      %Eq \cup \set{\theta_1 \doteq \lambda'_1 \ldo \theta_n \doteq \lambda'_n}
-      \end{array}
-      & 
-      \end{array}
-      $
-    \\\\
     (intersect)
     & $
     \begin{array}[c]{ll}
     \begin{array}[c]{l}
-       Eq \cup \, \set{a \lessdot
-       \intersection{T},
-       a \lessdot
-       \intersection{U}
+       Eq \cup \, \set{\exptype{D}{\ol{X}} \lessdot
+       a, a \lessdot^* b, 
+       b \lessdot
+       \exptype{C}{\ol{Y}}
        } \\ 
       \hline
       \vspace*{-0.4cm}\\
-      Eq \cup \set{a \lessdot N}
+      Eq \cup \, \set{\exptype{D}{\ol{X}} \lessdot
+      a, a \lessdot^* b, 
+      b \lessdot
+      \exptype{C}{\ol{Y}}, 
+      \exptype{D}{\ol{X}} \lessdot \exptype{C}{\ol{Y}}}
     %Eq \cup \set{\theta_1 \doteq \lambda'_1 \ldo \theta_n \doteq \lambda'_n}
     \end{array}
-    & T <: N, U <: N
     \end{array}
     $
   \\\\
-  (intersect)
-  & $
-  \begin{array}[c]{ll}
-  \begin{array}[c]{l}
-     Eq \cup \, \set{a \lessdot
-     \texttt{X},
-     a \lessdot
-     \texttt{Y}
-     } \\ 
-    \hline
-    \vspace*{-0.4cm}\\
-    Eq \cup \set{a \lessdot \mathtt{X \& Y}}
-  %Eq \cup \set{\theta_1 \doteq \lambda'_1 \ldo \theta_n \doteq \lambda'_n}
-  \end{array}
-  & 
-  \end{array}
-  $
-\\\\
   (match)
   & $
   \begin{array}[c]{ll}
@@ -189,7 +160,7 @@ $Eq_{solved} = \set{ Eq \ | \ Eq \in Eq_{set}, Eq \ \text{is in solved form}}$
   \end{array}
   $
 \\\\
-    (adopt)
+    (merge)
     & $
     \begin{array}[c]{ll}
     \begin{array}[c]{l}
