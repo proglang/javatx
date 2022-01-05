@@ -142,7 +142,7 @@ $Eq_{solved} = \set{ Eq \ | \ Eq \in Eq_{set}, Eq \ \text{is in solved form}}$
     \end{array}
     $
   \\\\
-  (match)
+  (match1)
   & $
   \begin{array}[c]{ll}
   \begin{array}[c]{l}
@@ -159,6 +159,23 @@ $Eq_{solved} = \set{ Eq \ | \ Eq \in Eq_{set}, Eq \ \text{is in solved form}}$
   & \exptype{C}{\ol{Z}} <: \exptype{D}{\ol{N}} 
   \end{array}
   $
+\\\\
+(match2)
+& $
+\begin{array}[c]{ll}
+\begin{array}[c]{l}
+   Eq \cup \, \set{
+   \exptype{C}{\ol{X}} \lessdot a,
+    \exptype{D}{\ol{Y}} \lessdot b} \\ 
+  \hline
+  \vspace*{-0.4cm}\\
+  Eq \cup \set{\exptype{D}{\ol{Y}} \lessdot b
+  , \exptype{C}{\ol{X}} \lessdot \exptype{D}{\ol{Y}}}
+%Eq \cup \set{\theta_1 \doteq \lambda'_1 \ldo \theta_n \doteq \lambda'_n}
+\end{array}
+& \exptype{C}{\ol{Z}} <: \exptype{D}{\ol{N}} 
+\end{array}
+$
 \\\\
     (merge)
     & $
