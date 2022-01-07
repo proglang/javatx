@@ -13,32 +13,20 @@
   \mv K &::= \mv C(\ol{T} \ \ol{f})\{\mathtt{super}(\ol{f}); \ \mathtt{this}.\ol{f}=\ol{f};\} \\
   %M &::= \exptype{}{\ol{X} \triangleleft \ol{X}}\ T \ \mathtt{m}(\overline{T} \, \overline{x})\{ \mathtt{ return }\ e; \} \\
   \mv M &::= \mathtt{m}(\ol{x})\{ \mathtt{ return}\ \mv e; \} \\
-  \mv e &::= \mathtt{this} \, | \, \mv x \, | \, \mv e.\mv f \, | \,
+  \mv e &::= \mv x \, | \, \mv e.\mv f \, | \,
              \mv e.\mathtt{m}(\ol{e}) \, | \, \mathtt{new}\ \mathtt{C}(\ol{e})
              \ |\ (N)\ e
   %M ::=& T \ \mathtt{m}(\overline{T} \, \overline{x})\{ \mathtt{ return }\ e; \} \\
   %e ::=& \mathtt{this} \, | \, x \, | \, e.f \, | \, e.\exptype{\mathtt{m}}{\ol{T}}(\overline{e}) \, | \, \mathtt{new }\ C(\overline{e}) \, | \, (C) e \\
 \end{align*}
-  \caption{Syntax of TFGJ}
+  \caption{Syntax of FGJ-GT}
   \label{fig:syntax-tfgj}
 \end{figure}
-The input of GTI is a program in Typeless Featherweight Generic Java (TFGJ). Its syntax
-(shown in Figure~\ref{fig:syntax-tfgj}) differs
-from Featherweight Generic Java (FGJ) in that 
-the type annotations for method parameters, method return types, and in the \texttt{new}-statement are
-omitted.%, except the ones for casts and \texttt{new} calls. 
-\todo[inline]{``Typeless'' does not sound right. How about ``Untyped''?
-or call the language FGJ-GT (FGJ with global type inference)?}
-
-%All type annotations in our TGFJ language can be omitted ($T = \epsilon$).
-%The only exception are fields which must be given a concrete type.
-
-Another difference to the syntax of FGJ is that we added the special variable \texttt{this} to the syntax.
-FJ treats \texttt{this} as a normal variable
-but our algorithm treats it as a special variable which always has a predetermined type;
-the type of the class it is used in.
-\todo[inline]{PT: why can't we treat ``this'' in the same way as FGJ,
-  which just puts the correct type assumption in the environment?}
+The input for our global type inference algorithm is a modified version of the Featherweight Generic Java language.
+We call our language Featherweight Generic Java with global type inference (FGJ-GT).
+Its syntax, shown in Figure~\ref{fig:syntax-tfgj}, is a modified version of the Featherweight Generic Java (FGJ) syntax. 
+Type annotations for method parameters and method return types are omitted%, except the ones for casts and \texttt{new} calls. 
+and the instantiation of a class via the \texttt{new} statement, as well as the method call, do now function without generic parameters.
 
 \subsection{Featherweight Java Typing Rules}\label{chapter:type-rules}
 \input{fjtyperules}
