@@ -546,7 +546,14 @@ Type rules for parameter types:
 % class C<A extends Object> {
 %   m(C<Object> x){ return this.m(this);} 
 %}
-  
+
+%TODO:
+% Man muss noch dinge wie
+% <A extends Object> A m(A o)
+% Object m(Object o)
+% filtern. Hier kann man sagen, wenn es eine generische Instanz ist, dann kann es weg
+
+
 \subsection{Simplification}
 \emph{As another example, the type of a function which uses its argument as an int but never terminates,
 $\texttt{int} \to \alpha$, can be simplified to $\texttt{int} \to \bot$}

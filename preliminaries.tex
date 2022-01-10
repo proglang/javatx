@@ -19,13 +19,13 @@
   %M ::=& T \ \mathtt{m}(\overline{T} \, \overline{x})\{ \mathtt{ return }\ e; \} \\
   %e ::=& \mathtt{this} \, | \, x \, | \, e.f \, | \, e.\exptype{\mathtt{m}}{\ol{T}}(\overline{e}) \, | \, \mathtt{new }\ C(\overline{e}) \, | \, (C) e \\
 \end{align*}
-  \caption{Syntax of FGJ-GT}
+  \caption{Syntax of \TFGJ}
   \label{fig:syntax-tfgj}
 \end{figure}
 The input for our global type inference algorithm is a modified version of the Featherweight Generic Java language.
 We call our language Featherweight Generic Java with global type inference (FGJ-GT).
 Its syntax, shown in Figure~\ref{fig:syntax-tfgj}, is a modified version of the Featherweight Generic Java (FGJ) syntax. 
-Type annotations for method parameters and method return types are omitted%, except the ones for casts and \texttt{new} calls. 
+Type annotations for method parameters and method return types are omitted %, except the ones for casts and \texttt{new} calls. 
 and the instantiation of a class via the \texttt{new} statement, as well as the method call, do now function without generic parameters.
 
 \subsection{Featherweight Java Typing Rules}\label{chapter:type-rules}
