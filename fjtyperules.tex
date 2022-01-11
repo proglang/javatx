@@ -108,19 +108,13 @@ $\ddfrac{\Gamma \vdash e_0:T_0 \quad \quad \mathit{fields}(\mathit{bound}_\Delta
 {\Gamma \vdash e_0.\mathtt{f}_i : T_i}
 $ & GT-FIELD \\
 & \\
-$ \ddfrac{\Delta \vdash N \ \texttt{ok} \quad \quad \textit{fields}(N) = \ol{T}\ \ol{f} \quad \quad
-  \Delta; \Gamma \vdash \ol{e} : \ol{S} \quad \quad \Delta \vdash \ol{S} <: \ol{T}
-}{
-  \Delta; \Gamma \vdash \texttt{new N}(\ol{e}): N
-}$ & GT-NEW \\
-& \\
   $ \ddfrac{\Delta \vdash {\mv N} \ \texttt{ok} \quad 
-  \mv N = \mv C (\ol U) \quad
+  \mv N = \exptype{C}{\ol{X}} \quad
   \textit{fields}(\mv N) = \ol{T}\ \ol{f} \quad 
   \Delta; \Gamma \vdash \ol{e} : \ol{S} \quad \Delta \vdash \ol{S} <: \ol{T}
 }{
   \Delta; \Gamma \vdash \texttt{new C}(\ol{e}): \mv N
-}$ & GT-NEW' \\
+}$ & GT-NEW \\
 
 & \\
 
@@ -132,7 +126,7 @@ $\ddfrac{\begin{array}{c}
 \Delta; \Gamma \vdash \ol{e} : \ol{S} \quad \quad
 \Delta \vdash \ol{S} <: [\ol{V}/\ol{Y}]\ol{U}
 \end{array}}
-{\Delta; \Gamma \vdash \mathtt{e_0.\exptype{m}{\ol{V}}(\overline{e}) : [\ol{V}/\ol{Y}]U }}
+{\Delta; \Gamma \vdash \mathtt{e_0.\mv{m}(\overline{e}) : [\ol{V}/\ol{Y}]U }}
 $ & GT-INVK
 \end{tabular}
 \end{minipage}
