@@ -28,6 +28,17 @@ Its syntax, shown in Figure~\ref{fig:syntax-tfgj}, is a modified version of the 
 Type annotations for method parameters and method return types are omitted %, except the ones for casts and \texttt{new} calls. 
 and the instantiation of a class via the \texttt{new} statement, as well as the method call, do now function without generic parameters.
 
+\textbf{Prechecks:}
+We make the following additional assumptions for the input program:
+\begin{itemize}
+\item Every type $N$ given in the input is well formed.
+This can be checked easily, because no types annotations are omitted in the class header.
+The generic variables of each class as well as their bounds are given in the input.
+We assume that the each written type in the input in bounds of classes, super class types, field types and casts is already checked for well-formedness.
+\item The classes in the input are sorted to comply with the \texttt{GT-METHOD} and \texttt{GT-CLASS} rules (see chapter \ref{chapter:type-rules}) of \TFGJ.
+%TODO
+\end{itemize}
+
 \subsection{Featherweight Java Typing Rules}\label{chapter:type-rules}
 \input{fjtyperules}
 

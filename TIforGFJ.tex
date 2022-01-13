@@ -7,6 +7,7 @@
 \usepackage{amssymb}
 \usepackage{subcaption}
 \usepackage{prftree}
+\usepackage{tabularx}
 \input{prolog}
 
 \parindent=0mm
@@ -328,6 +329,21 @@ $\begin{array}{@{}l@{}l@{}l}
 $
 
 We do not generate constraints for casts.
+%\smallskip
+
+%Each cast could either be a upcast or a downcast.
+%We generate a \textbf{OrConstraint} to cover both.
+
+%$\begin{array}{@{}l@{}l@{}l}
+%\textbf{TY}& \textbf{PE} & \textbf{Expr} (Ass, (N)e ) = \\
+%& \textbf{let} % \\
+%& (t, ConsE) = \textbf{TYPEExpr}(Ass, e),\\
+%& & Cons = \textbf{OrConstraint}(\set{t \lessdot N}, \set{N \lessdot t}) \\
+%& \mathbf{in}% \\
+%% &
+%& (N, (ConsE \cup Cons))\\
+%\end{array}
+%$
 
 \subsubsection{Completeness of the type inference algorithm}
 %Theorem: The Unify algorithm is complete
@@ -342,9 +358,9 @@ All types that are possible under the FGJ typing rules, plus our additional assu
 also comply with the generated constraints.
 
 We match every generated constraint with the respective type rule to show completeness of our \textbf{FJTYPE} algorithm.
-This shows that none of the generated constraints remove a type which otherwise would be possible under the FGJ typing rules.
+This shows that none of the generated constraints remove a type which otherwise would be possible under the \TFGJ typing rules.
 The constraints are generated on expression statements.
-We now compare the constraints for each expression with the appropriate type rule from FGJ:
+We now compare the constraints for each expression with the appropriate type rule from \TFGJ:
 \begin{description}
   \item [this]
   has always the type of the surrounding class and generates no constraints.
@@ -387,7 +403,16 @@ Fieldnames by default are unique in the FGJ language.
   $\triangle; \Gamma \vdash \ol{e} : \ol{S}$ & $\forall e_i \in \overline{e} : (pt_i, ConS_i) = \textbf{TYPEExpr}(Ass, e_i)$\\
   $\triangle \vdash \ol{S} <: \ol{T}$ & $\bigcup_{T_i \in \overline{T}} (pt_i \lessdot T_i)$
 \end{tabular}
-  
+
+\item[Cast]
+A cast can either be an upcast or a downcast or a so called stupid cast.
+See respective type rules \texttt{GT-UCAST}, \texttt{GT-DCAST}, \texttt{GT-SCAST} in chapter \ref{chapter:type-rules}.
+%Every type of cast is allowed in \TFGJ, therefore no restrictions in form of constraints are needed.
+%The check if the cast type $\mathtt{N}$ is well formed ($\mathtt{N}\ \text{ok}$) is done in advance to the \textbf{FJTYPE} algorithm.
+We assume that each given type in our input set is well-formed.
+Therefore the cast type $\mathtt{N}$ is well formed ($\mathtt{N}\ \text{ok}$) too.
+So every possible type of cast is allowed in \TFGJ, therefore no restrictions in form of constraints are needed.
+
 \end{description}
 
 \section{Unify}
