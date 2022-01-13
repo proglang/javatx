@@ -461,6 +461,60 @@ returns a more restrictive type. Classes making use of polymorphic recursion nee
 explicit typings for methods in question. 
 
 
+\subsection{Polymorphic Recursion, Formally}
+\label{sec:polym-recurs-form}
+
+Consider a class $\mv{C}$ with $n$ mutually recursive methods $\mv{m}_i :
+\forall\ol{X}_i. \ol{A}_i \to \ol{A}_i$, for $1\le i\le n$. Define the \emph{instantiation
+  graph $IG(\mv{C})$} as a directed graph with vertices $\{1, \dots, n\}$ and labeled edges
+\begin{gather*}
+  i \stackrel{\ol{U}/\ol{X}_j}{\longrightarrow} j
+\end{gather*}
+if $\mv{m}_i$ invokes $\mv{m}_j$ where the generic type variables in
+the type of $\mv{m}_j$ are instantiated with substitution
+$\ol{U}/\ol{X}_j$ (cf.\ rule GT-INVK).
+
+Define the \emph{closure of the instantiation graph $IG^*(\mv{C})$} as the graph
+obtained from $IG(\mv{C})$ by applying the following rule
+exhaustively:
+\begin{gather*}
+  i \stackrel{\ol{U}/\ol{X}_j}{\longrightarrow} j
+  \quad\wedge\quad
+  j \stackrel{\ol{V}/\ol{X}_k}{\longrightarrow} k
+  \qquad\Rightarrow\qquad
+  i \stackrel{[\ol{U}/\ol{X}_j]\ol{V}/\ol{X}_k}{\longrightarrow} k
+\end{gather*}
+
+We say that method $\mv{m}_i$ is involved in polymorphic recursion if
+there is an edge
+\begin{gather*}
+  i \stackrel{\ol{W}/\ol{X}_i}{\longrightarrow} i
+  \quad \in IG^* (\mv{C})
+  \qquad \text{such that}
+  \qquad \ol{W} \ne \ol{X}_i
+\end{gather*}
+
+For the toy example in Figure~\ref{fig:examples-poly-rec}, we obtain
+the graph $IG^* (\mv{UsePair})$ which indicates that \mv{prc} is
+involved in polymorphic recursion:
+\begin{gather*}
+  \mv{prc} \stackrel{\mv{Y,X}/\mv{X,Y}}{\longrightarrow} \mv{prc}
+  \qquad
+  \mv{prc} \stackrel{\mv{X,Y}/\mv{X,Y}}{\longrightarrow} \mv{prc}
+\end{gather*}
+
+For \mv{UsePair2}, we obtain a graph $IG^* (\mv{UsePair2})$ with
+infinitely many edges which is also clear indication for polymorphic recursion:
+\begin{gather*}
+  \mv{prc} \stackrel{\mv{Y,Pair<X,Y>}/\mv{XY}}{\longrightarrow} \mv{prc}
+  \\
+  \mv{prc}
+  \stackrel{\mv{Pair<X,Y>,Pair<Y,Pair<X,Y>>}/\mv{XY}}{\longrightarrow}
+  \mv{prc}
+  \\
+  \dots
+\end{gather*}
+
 % Features:
 % \begin{itemize}
 % \item overloaded methods
