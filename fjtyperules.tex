@@ -141,6 +141,19 @@ $\mathtt{\ddfrac{\begin{array}{c}
 
 & \\
 
+$\mathtt{\ddfrac{\begin{array}{c}
+  \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{U} \to U \in \Pi} \\
+  \mathtt{\triangle; \Gamma \vdash e_0 : T_0 } \quad \quad
+  \mathtt{\triangle \vdash \ol{V} \ \texttt{OK} } \quad \quad
+  \mathtt{\triangle \vdash \ol{V} <: [\ol{V}/\ol{Y}]\ol{P} } \\ %\quad \quad
+  \mathtt{\triangle; \Gamma \vdash \ol{e} : \ol{S} } \quad \quad
+  \mathtt{\triangle \vdash \ol{S} <: [\ol{V}/\ol{Y}]\ol{U}}
+\end{array}}
+{\triangle; \Gamma \vdash \mathtt{e_0.\mv{m}(\overline{e}) : [\ol{V}/\ol{Y}]U }}
+}$ & & GT-L-INVK\\
+
+& \\
+
 $\ddfrac{\mathtt{\triangle; \Gamma \vdash e_0 : T_0 \quad \quad \triangle \vdash \textit{bound}_\triangle(T_0) <: N}}
 {\mathtt{\triangle; \Gamma \vdash (N) e_0 : N}}
 $ & & GT-UCAST \\
@@ -173,21 +186,32 @@ $ & & GT-SCAST
 \begin{small}
 \textbf{Method Typing:}\\[1em]
 \begin{tabularx}{\textwidth}{c X r}
+  $\ddfrac{
+\begin{array}{c}
+  \mathtt{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\ \texttt{extends N}\{ \overline{C} \ \overline{f}; \ K \ \overline{M} \} \ \texttt{OK}} \quad \quad \mathtt{m \in \ol{M}} \\
+  \mathtt{
+  \exptype{}{\ol{Y} \triangleleft \ol{P}}\ T\ \texttt{m}(\ol{T}\ \ol{\mathtt{x}}) \{\texttt{return}\ \mathtt{e}_0;\}
+  \texttt{ OK in }\exptype{C}{\ol{X} \triangleleft \ol{N}}
+  }
+\end{array}
+   } {\mathtt{
+     \textit{mtype}(m, \exptype{C}{\ol{T}}) = [\ol{T}/\ol{X}]\exptype{}{\ol{Y} \triangleleft \ol{P}}\ol{U} \to U
+    }}$ & & MT-CLASS\\
+  & & \\
   $\mathtt{\ddfrac{\begin{array}{c}
     \mathtt{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots\ \ol{M}\ \ldots\} }\\
-    \mathtt{\textit{mtype}(m, \exptype{C}{\ol{X}}) = \ol{T_m} \to T_m \textrm{ for } m \in \ol{M}}\\
+    \mathtt{\Pi = \set{\exptype{C}{\ol{X}}.m : \ol{T_m} \to T_m \, |\, m \in \ol{M}} } \\
   \mathtt{\triangle \vdash \ol{X} <: \ol{N}  \quad \quad 
   \triangle \vdash \ol{T}, T \ \texttt{ok} } \\
-  \mathtt{\triangle ; \ol{x}:\ol{T_\mathit{meth}},\ this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
-  \triangle \vdash S <: T_\mathit{meth} } \\
+  \mathtt{\Pi; \triangle ; \ol{x}:\ol{T'},\ this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
+  \triangle \vdash S <: T' } \\
   \end{array}} {
   %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{
   %\texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft
   %\ol{N}}}
-   \exptype{}{\ol{Y}} T_\mathit{meth}\ \texttt{meth}(\ol{T_\mathit{meth}}\ \ol{\mathtt{x}}) \{\texttt{return}\ \mathtt{e}_0;\}
+   \exptype{}{\ol{Y}} T'\ \texttt{meth}(\ol{T'}\ \ol{\mathtt{x}}) \{\texttt{return}\ \mathtt{e}_0;\}
   \texttt{ OK in }\exptype{C}{\ol{X} \triangleleft \ol{N}} 
   }}$ & & GT-METHOD\\
-
 \end{tabularx}\\[1em]
 \textbf{Class Typing:}\\[1em]
   \begin{tabularx}{\textwidth}{c X r}
@@ -312,8 +336,9 @@ undecidablity of polymorphic recursion (cp. Sec. \ref{sec:polym-recurs}).
 %we only have to show this for the changed rules (for preservation), because they use induction on the derivations
 % what is the consequence on method overloading 
 % the Proof of Theorem 3.4.1 works also with the mtype overload rule
-\begin{theoremAndi}
-Subject reduction: if $\triangle; \Gamma \vdash e : T$ and $e \to e'$,
-then $\triangle; \Gamma \vdash e':T'$ for some $T'$ such that $\triangle \vdash T' <: T$.
-\end{theoremAndi}
+
+%\begin{theoremAndi}
+%Subject reduction: if $\triangle; \Gamma \vdash e : T$ and $e \to e'$,
+%then $\triangle; \Gamma \vdash e':T'$ for some $T'$ such that $\triangle \vdash T' <: T$.
+%\end{theoremAndi}
 
