@@ -22,6 +22,7 @@ Most rules stay the same as in FGJ, but we note the following changes:
 \item We remove the \texttt{MT-CLASS} rule.
 \item The \texttt{GT-METHOD} rule is changed.
 \item Overriding of methods is removed for our typeless FGJ version. Therefore also the rule \texttt{MT-SUPER} is removed.
+%TODO: Undo that. Add MT-SUPER
 \item The \texttt{GT-INVK} rule is changed to support overloading.
 \end{itemize}
 
@@ -142,14 +143,12 @@ $\mathtt{\ddfrac{\begin{array}{c}
 & \\
 
 $\mathtt{\ddfrac{\begin{array}{c}
-  \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{U} \to U \in \Pi} \\
-  \mathtt{\triangle; \Gamma \vdash e_0 : T_0 } \quad \quad
-  \mathtt{\triangle \vdash \ol{V} \ \texttt{OK} } \quad \quad
-  \mathtt{\triangle \vdash \ol{V} <: [\ol{V}/\ol{Y}]\ol{P} } \\ %\quad \quad
+  \mathtt{\Pi(m) = \ol{U} \to U } \quad \quad 
+  \mathtt{\triangle; \Gamma \vdash e_0 : T_0 } \quad \quad  %\quad \quad
   \mathtt{\triangle; \Gamma \vdash \ol{e} : \ol{S} } \quad \quad
-  \mathtt{\triangle \vdash \ol{S} <: [\ol{V}/\ol{Y}]\ol{U}}
+  \mathtt{\triangle \vdash \ol{S} <: \ol{U}}
 \end{array}}
-{\triangle; \Gamma \vdash \mathtt{e_0.\mv{m}(\overline{e}) : [\ol{V}/\ol{Y}]U }}
+{\triangle; \Gamma \vdash \mathtt{e_0.\mv{m}(\overline{e}) : U }}
 }$ & & GT-L-INVK\\
 
 & \\
@@ -180,13 +179,16 @@ $ & & GT-SCAST
 }
 
 
+Here we add the local method type environment $\mathtt{\Pi}$ to the \texttt{GT-METHOD} rule.
+This ensures that all method calls, which invoke a method inside the same class, get a non polymorphic method type.
+Type inference for polymorphic recursion is undecidable and therefore ruled out by us.
 
 \fbox{
 \begin{minipage}{\textwidth}
 \begin{small}
 \textbf{Method Typing:}\\[1em]
-\begin{tabularx}{\textwidth}{c X r}
-  $\ddfrac{
+\begin{tabularx}{\textwidth}{X c X r}
+  & $\ddfrac{
 \begin{array}{c}
   \mathtt{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\ \texttt{extends N}\{ \overline{C} \ \overline{f}; \ K \ \overline{M} \} \ \texttt{OK}} \quad \quad \mathtt{m \in \ol{M}} \\
   \mathtt{
@@ -197,37 +199,36 @@ $ & & GT-SCAST
    } {\mathtt{
      \textit{mtype}(m, \exptype{C}{\ol{T}}) = [\ol{T}/\ol{X}]\exptype{}{\ol{Y} \triangleleft \ol{P}}\ol{U} \to U
     }}$ & & MT-CLASS\\
-  & & \\
-  $\mathtt{\ddfrac{\begin{array}{c}
+  & & & \\
+  & $\mathtt{\ddfrac{\begin{array}{c}
     \mathtt{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots\ \ol{M}\ \ldots\} }\\
-    \mathtt{\Pi = \set{\exptype{C}{\ol{X}}.m : \ol{T_m} \to T_m \, |\, m \in \ol{M}} } \\
+    %\mathtt{\Pi = \set{\exptype{C}{\ol{X}}.m : \ol{T_m} \to T_m \, |\, m \in \ol{M}} } \\
   \mathtt{\triangle \vdash \ol{X} <: \ol{N}  \quad \quad 
   \triangle \vdash \ol{T}, T \ \texttt{ok} } \\
-  \mathtt{\Pi; \triangle ; \ol{x}:\ol{T'},\ this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
-  \triangle \vdash S <: T' } \\
+  \mathtt{\Pi; \triangle ; \ol{x}:\ol{T},\ this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
+  \triangle \vdash S <: T } \\
   \end{array}} {
   %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{
   %\texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft
   %\ol{N}}}
-   \exptype{}{\ol{Y}} T'\ \texttt{meth}(\ol{T'}\ \ol{\mathtt{x}}) \{\texttt{return}\ \mathtt{e}_0;\}
-  \texttt{ OK in }\exptype{C}{\ol{X} \triangleleft \ol{N}} 
+   \mathtt{\Pi \vdash \exptype{}{\ol{Y} \triangleleft \ol{P}}\ T\ \texttt{meth}(\ol{T}\ \ol{\mathtt{x}}) \{\texttt{return}\ \mathtt{e}_0;\}
+  \texttt{ OK in }\exptype{C}{\ol{X} \triangleleft \ol{N}} }
   }}$ & & GT-METHOD\\
 \end{tabularx}\\[1em]
 \textbf{Class Typing:}\\[1em]
-  \begin{tabularx}{\textwidth}{c X r}
+  \begin{tabularx}{\textwidth}{X c X r}
   %GT-CLASS: - This rule is modified by us
-  $\ddfrac{
+  & $\ddfrac{
     \begin{array}{c}
+      \mathtt{\Pi = \set{\exptype{C}{\ol{X}}.m : \ol{T_m} \to T_m \, |\, m \in \ol{M}} } \\
       \mathtt{\ol{X} <: \ol{N} \vdash \ol{N}, N, \ol{T}\ \texttt{ok}
-      \quad\quad fields(\mathtt{N}) = \ol{\mathtt{U}} \ \ol{\mathtt{g}}}\\
-      \mathtt{\exptype{}{\ol{Y}} T_\mathit{m}\ \texttt{m}(\ol{T_\mathit{m}}\ \ol{\mathtt{x}}) \{\texttt{return}\ \mathtt{e}_0;\}
-  \texttt{ OK in }\exptype{C}{\ol{X} \triangleleft \ol{N}}  \textrm{ for all } m
-      \in \ol{\mathtt{M}}}\\
-      \mathtt{K = C(\overline{D} \ \overline{g}, \overline{C} \ \overline{f}) \{ \texttt{super}(\overline{g}); \ \texttt{this}.\overline{f}=\overline{f}; \} }\\
+      \quad\quad fields(\mathtt{N}) = \ol{\mathtt{U}} \ \ol{\mathtt{g}}} \quad \quad
+      \mathtt{\Pi \vdash \ol{M} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}\\
+      \mathtt{K = C(\overline{U} \ \overline{g}, \overline{T} \ \overline{f}) \{ \texttt{super}(\overline{g}); \ \texttt{this}.\overline{f}=\overline{f}; \} }\\
     %\quad \quad \overline{M} \ \texttt{OK IN C} \\
   \end{array}
     }
-  {\mathtt{\texttt{class C extends D}\{ \overline{C} \ \overline{f}; \ K \ \overline{M} \} \ \texttt{OK}}}
+  {\mathtt{ \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N\ \{ \overline{T} \ \overline{f}; \ K \ \overline{M} \} \ \texttt{OK}}}
   $ & & GT-CLASS
 \end{tabularx}
 \end{small}
