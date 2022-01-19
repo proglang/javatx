@@ -28,6 +28,22 @@ methods declared in the local class and methods from other classes.
 We add a new type rule \texttt{GT-L-INVK}, which handles method calls inside the same class.
 Additionally we allow a method to have an intersection type.
 \item We omit the rules for valid downcasts.
+\todo[inline]{Andi: Is this correct? We need another constraint to be correct:
+$N \lessdot_{downcast} a$ for a cast of the form: \texttt{(N)a}.
+This is a different constraint then the normal subtype relationship (see FJ paper)
+}
+%The downcast problem:
+
+%This is wrong:
+%m(List<SortedList> p, Object o){
+%  p.add((SortedList) o);
+%}
+
+%This is correct:
+%m(List<SortedList> p, List<Object> o){
+%  p.add((SortedList) o);
+%}
+%Currently we do not generate constraints for casts
 \end{itemize}
 
 In FGJ, \textit{mtype} is a global function which returns the type for every method in every class.
@@ -184,7 +200,7 @@ $ & & GT-SCAST
 }
 
 Here we add the local method type environment $\mathtt{\Pi}$ to the \texttt{GT-METHOD} rule.
-This ensures that all method calls, which invoke a method inside the same class, get a non polymorphic method type.
+This ensures that all recursive method calls inside the same class use a non polymorphic method type.
 %Type inference for polymorphic recursion is undecidable and therefore ruled out by this reformed type system for our \TFGJ language.
 This change is needed to render our type inference algorithm decidable.
 
@@ -339,4 +355,3 @@ This change is needed to render our type inference algorithm decidable.
 %Subject reduction: if $\environmentvdash e : T$ and $e \to e'$,
 %then $\environmentvdash e':T'$ for some $T'$ such that $\triangle \vdash T' <: T$.
 %\end{theoremAndi}
-
