@@ -19,26 +19,36 @@ Most rules stay the same as in FGJ, but we note the following changes:
   $\triangle$ should be $\triangle$ (changed)
 }
 \begin{itemize}
-\item We remove the \texttt{MT-CLASS} rule.
-\item The \texttt{GT-METHOD} rule is changed.
-\item Overriding of methods is removed for our typeless FGJ version. Therefore also the rule \texttt{MT-SUPER} is removed.
-%TODO: Undo that. Add MT-SUPER
-\item The \texttt{GT-INVK} rule is changed to support overloading.
+\item The \texttt{GT-METHOD} rule is changed:
+In FGJ, \textit{mtype} is a global function which returns the type for every method in every class.
+In our system, \textit{mtype} is also a global function but it is differed between
+methods declared in the local class and methods from other classes.
+%\item Overriding of methods is removed for our typeless FGJ version. Therefore also the rule \texttt{MT-SUPER} is removed.
+\item The \texttt{GT-INVK} rule is changed:
+We add a new type rule \texttt{GT-L-INVK}, which handles method calls inside the same class.
+Additionally we allow a method to have an intersection type.
+\item We omit the rules for valid downcasts.
 \end{itemize}
+
+In FGJ, \textit{mtype} is a global function which returns the type for every method in every class.
+In our system, \textit{mtype} is also a global function but it is differed between
+methods declared in the local class and methods from other classes.
+
+The main difference between the type system of FGJ and our type system is that
+in the \texttt{MT-CLASS} rule the correspondig class has to be proved as \texttt{OK}
+by the \texttt{GT-CLASS} rule.
+For all methods in the local class a type is assumed by the declaration of the \texttt{mtype} function.
+These assumptions have to be proved as correct. Then the assumed type is
+\texttt{OK} in the correspondig class. Additionally, the containing type
+variables are generalized (marked by $\exptype{}{\ol{Y}}$). The type variables
+$\ol{\mathtt{Y}}$ are not generalized during the prove. The reason is the
+undecidablity of polymorphic recursion (cp. Sec. \ref{sec:polym-recurs}).
 
 \fbox{
 \begin{minipage}{\textwidth}
   \begin{small}
   \textbf{Subtyping:}\\[1em]
   \begin{tabularx}{\textwidth}{X c X r}
-%  $
-%  \ddfrac{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ol{S}\ \ol{f};\ K \ \ol{M} \}
-%  \quad \quad m \in \ol{M}}
-%  {\mathit{mtype}(m, \exptype{C}{\ol{Z}}) = \mathit{mtype}(m, [\ol{T}/\ol{X}]N)}
-%  $
-%  & MT-SUPER \\
-%& \\
-
 & $\mathtt{
 \triangle \vdash T <: T
 }
@@ -63,21 +73,14 @@ $
   \triangleleft \mv N \set{ \ldots }
 }{
   \triangle \vdash \exptype{C}{\ol{T}} <: [\ol{T}/\ol{X}]\mv N
-}}$ & & S-CLASS 
-\end{tabularx}
-\end{small}
-\end{minipage}
-}
-
-\fbox{
-\begin{minipage}{\textwidth}
-  \begin{small}
-  \textbf{Well-formed types:}\\[1em]
-\begin{tabularx}{\textwidth}{X c X r}
-  & $\mathtt{
-    \triangle \vdash \texttt{Object}\ \text{ok}
-    }$ & & WF-OBJECT\\
-
+}}$ & & S-CLASS \\
+& & & \\
+\hline
+\multicolumn{1}{l}{\textbf{Well-formed types:}}\\
+& & & \\
+& $\mathtt{
+\triangle \vdash \texttt{Object}\ \text{ok}
+}$ & & WF-OBJECT\\
 & \\
 & $\mathtt{\ddfrac{
     X \in \textit{dom}(\triangle)
@@ -101,6 +104,7 @@ $ & & WF-CLASS
 \end{minipage}
 }
 
+\newcommand{\environmentvdash}{\Pi;\triangle;\Gamma \vdash}
 
 \fbox{
 \begin{minipage}{\textwidth}
@@ -109,7 +113,7 @@ $ & & WF-CLASS
 \begin{tabularx}{\textwidth}{c X r}
 %\begin{tabular}{l@{\quad}l}
   $\mathtt{
-\triangle ; \Gamma \vdash x : \Gamma(x)
+\environmentvdash x : \Gamma(x)
 }$ & & GT-VAR \\
 & \\
 
@@ -121,9 +125,9 @@ $ & & GT-FIELD \\
 $\mathtt{ \ddfrac{\triangle \vdash {\mv N} \ \texttt{ok} \quad 
   \mv N = \exptype{C}{\ol{X}} \quad
   \textit{fields}(\mv N) = \ol{T}\ \ol{f} \quad 
-  \triangle; \Gamma \vdash \ol{e} : \ol{S} \quad \triangle \vdash \ol{S} <: \ol{T}
+  \environmentvdash \ol{e} : \ol{S} \quad \triangle \vdash \ol{S} <: \ol{T}
 }{
-  \triangle; \Gamma \vdash \texttt{new C}(\ol{e}): \mv N
+  \environmentvdash \texttt{new C}(\ol{e}): \mv N
 }
 }$ & & GT-NEW \\
 
@@ -131,57 +135,58 @@ $\mathtt{ \ddfrac{\triangle \vdash {\mv N} \ \texttt{ok} \quad
 
 $\mathtt{\ddfrac{\begin{array}{c}
   \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{U} \to U \in \mathit{mtype}(m, \mathit{bound}_\triangle (T_0))} \\
-  \mathtt{\triangle; \Gamma \vdash e_0 : T_0 } \quad \quad
+  \mathtt{\environmentvdash e_0 : T_0 } \quad \quad
   \mathtt{\triangle \vdash \ol{V} \ \texttt{OK} } \quad \quad
   \mathtt{\triangle \vdash \ol{V} <: [\ol{V}/\ol{Y}]\ol{P} } \\ %\quad \quad
-  \mathtt{\triangle; \Gamma \vdash \ol{e} : \ol{S} } \quad \quad
+  \mathtt{\environmentvdash \ol{e} : \ol{S} } \quad \quad
   \mathtt{\triangle \vdash \ol{S} <: [\ol{V}/\ol{Y}]\ol{U}}
 \end{array}}
-{\triangle; \Gamma \vdash \mathtt{e_0.\mv{m}(\overline{e}) : [\ol{V}/\ol{Y}]U }}
+{\environmentvdash \mathtt{e_0.\mv{m}(\overline{e}) : [\ol{V}/\ol{Y}]U }}
 }$ & & GT-INVK\\
 
 & \\
 
 $\mathtt{\ddfrac{\begin{array}{c}
-  \mathtt{\Pi(m) = \ol{U} \to U } \quad \quad 
-  \mathtt{\triangle; \Gamma \vdash e_0 : T_0 } \quad \quad  %\quad \quad
-  \mathtt{\triangle; \Gamma \vdash \ol{e} : \ol{S} } \quad \quad
-  \mathtt{\triangle \vdash \ol{S} <: \ol{U}}
+  \mathtt{\Pi(\exptype{C}{\ol{X}}.m) = \ol{U} \to U } \quad \quad 
+  \mathtt{\environmentvdash e_0 : T_0 } \quad \quad 
+  \mathtt{\textit{bound}(T_0) = \exptype{C}{\ol{Y}}} \\
+  \mathtt{\environmentvdash \ol{e} : \ol{S} } \quad \quad
+  \mathtt{\triangle \vdash \ol{S} <: [\ol{Y}/\ol{X}]\ol{U}}
 \end{array}}
-{\triangle; \Gamma \vdash \mathtt{e_0.\mv{m}(\overline{e}) : U }}
+{\environmentvdash \mathtt{e_0.\mv{m}(\overline{e}) : [\ol{Y}/\ol{X}]U }}
 }$ & & GT-L-INVK\\
 
 & \\
 
-$\ddfrac{\mathtt{\triangle; \Gamma \vdash e_0 : T_0 \quad \quad \triangle \vdash \textit{bound}_\triangle(T_0) <: N}}
-{\mathtt{\triangle; \Gamma \vdash (N) e_0 : N}}
+$\ddfrac{\mathtt{\environmentvdash e_0 : T_0 \quad \quad \triangle \vdash \textit{bound}_\triangle(T_0) <: N}}
+{\mathtt{\environmentvdash (N) e_0 : N}}
 $ & & GT-UCAST \\
 
 & \\
 
 $ \ddfrac{\begin{array}{c}
-  \mathtt{\triangle; \Gamma \vdash e_0 : T_0 \quad \quad \triangle \vdash N\ \texttt{ok} \quad \quad \triangle \vdash N <: \textit{bound}_\triangle(T_0) } \\
+  \mathtt{\environmentvdash e_0 : T_0 \quad \quad \triangle \vdash N\ \texttt{ok} \quad \quad \triangle \vdash N <: \textit{bound}_\triangle(T_0) } \\
   \mathtt{N = \exptype{C}{\ol{T}} \quad \quad \textit{bound}_\triangle(T_0) = \exptype{D}{\ol{U}}  \quad \quad \textit{dcast}(C,D)}
 \end{array}
-}{\mathtt{\triangle; \Gamma \vdash (N) e_0 : N}}$ & & GT-DCAST \\
+}{\mathtt{\environmentvdash (N) e_0 : N}}$ & & GT-DCAST \\
 
 & \\
 
 $\ddfrac{\begin{array}{c}
-  \mathtt{\triangle; \Gamma \vdash e_0 : T_0 \quad \quad \triangle \vdash N\ \texttt{ok} \quad \quad N = \exptype{C}{\ol{T}}  } \\
+  \mathtt{\environmentvdash e_0 : T_0 \quad \quad \triangle \vdash N\ \texttt{ok} \quad \quad N = \exptype{C}{\ol{T}}  } \\
   \mathtt{\textit{bound}_\triangle(T_0) = \exptype{D}{\ol{U}} \quad \quad C \ntrianglelefteq D \quad \quad D \ntrianglelefteq C \quad \quad \textit{stupid warning}}
 \end{array}}
-{\mathtt{\triangle; \Gamma \vdash (N) e_0 : N}}
+{\mathtt{\environmentvdash (N) e_0 : N}}
 $ & & GT-SCAST 
 \end{tabularx}
 \end{small}
 \end{minipage}
 }
 
-
 Here we add the local method type environment $\mathtt{\Pi}$ to the \texttt{GT-METHOD} rule.
 This ensures that all method calls, which invoke a method inside the same class, get a non polymorphic method type.
-Type inference for polymorphic recursion is undecidable and therefore ruled out by us.
+%Type inference for polymorphic recursion is undecidable and therefore ruled out by this reformed type system for our \TFGJ language.
+This change is needed to render our type inference algorithm decidable.
 
 \fbox{
 \begin{minipage}{\textwidth}
@@ -201,10 +206,11 @@ Type inference for polymorphic recursion is undecidable and therefore ruled out 
     }}$ & & MT-CLASS\\
   & & & \\
   & $\mathtt{\ddfrac{\begin{array}{c}
-    \mathtt{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots\ \ol{M}\ \ldots\} }\\
+    \mathtt{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots\ \ol{M}\ \ldots\}
+    \quad \quad \triangle = \ol{X} <: \ol{N}, \ol{Y} <: \ol{P} }\\
     %\mathtt{\Pi = \set{\exptype{C}{\ol{X}}.m : \ol{T_m} \to T_m \, |\, m \in \ol{M}} } \\
-  \mathtt{\triangle \vdash \ol{X} <: \ol{N}  \quad \quad 
-  \triangle \vdash \ol{T}, T \ \texttt{ok} } \\
+  \mathtt{\triangle \vdash \ol{T}, T, \ol{P} \ \texttt{ok} \quad \quad
+  \textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft \ol{P}}\ol{T} \to T) } \\
   \mathtt{\Pi; \triangle ; \ol{x}:\ol{T},\ this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
   \triangle \vdash S <: T } \\
   \end{array}} {
@@ -235,21 +241,27 @@ Type inference for polymorphic recursion is undecidable and therefore ruled out 
 \end{minipage}
 }
 
-
 \fbox{
 \begin{minipage}{\textwidth}
   \begin{small}
   \textbf{Method type lookup:} \\[1em]
 \begin{tabularx}{\textwidth}{cXr}
   $\ddfrac{\begin{array}{c}
-  \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\triangleleft
-             N\{ \overline{C} \ \overline{f}; \ K \ \overline{M} \} \ \mathtt{OK}\\
-  \exptype{}{\ol{Y}} T_\mathit{m}\ \texttt{m}(\ol{T_\mathit{m}}\ \ol{\mathtt{x}}) \{\texttt{return}\ \mathtt{e}_0;\}
+  \mathtt{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\triangleleft
+             N\{ \overline{C} \ \overline{f}; \ K \ \overline{M} \} \ \mathtt{OK}}\\
+  \exptype{}{\ol{Y} \triangleleft \ol{P}} U\ \texttt{m}(\ol{U}\ \ol{\mathtt{x}}) \{\texttt{return}\ \mathtt{e}_0;\}
   \texttt{ OK in }\exptype{C}{\ol{X} \triangleleft \ol{N}}
   \end{array}} {
   %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
-  \textit{mtype}(m, \exptype{C}{\ol{Z}}) = [\ol{Z} / \ol{X}](\exptype{}{\ol{Y}} \ol{T} \to T)
+  \textit{mtype}(m, \exptype{C}{\ol{T}}) = [\ol{T} / \ol{X}](\exptype{}{\ol{Y}} \ol{U} \to U)
   }$ & & MT-CLASS \\
+  & & \\
+  $\ddfrac{\mathtt{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\triangleleft
+  N\{ \overline{C} \ \overline{f}; \ K \ \overline{M} \} \ \mathtt{OK}
+  \quad \quad m \notin \ol{M}} }{
+    %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
+    \textit{mtype}(m, \exptype{C}{\ol{T}}) = \textit{mtype}(m, [\ol{T}/\ol{X}]N)
+    }$ & & MT-SUPER \\
 \end{tabularx}\\[1em]
 \textbf{Valid method overriding:}\\[1em]
 \begin{tabularx}{\textwidth}{c}
@@ -287,22 +299,7 @@ Type inference for polymorphic recursion is undecidable and therefore ruled out 
 }
 
 \medskip
-In FGJ, \textit{mtype} is a global function which returns the type for every method in every class.
-In our system, \textit{mtype} is also a global function but it is differed between
-methods declared in the actual class and methods from other classes.
 
-The main difference between the type system of FGJ and our type system is that
-in the \texttt{MT-CLASS} rule the correspondig class has to be proved as \texttt{OK}
-by the \texttt{GT-CLASS} rule which means that for all methods of the class a type has to
-be assumed and proved as correct by the \texttt{GT-METHOD} rule.
-In this rule
-for all methods in the actual class a type is assumed by the
-declaration of the \texttt{mtype} function.
-These assumptions have to be proved as correct. Then the assumed type is
-\texttt{OK} in the correspondig class. Additionally, the containing type
-variables are generalized (marked by $\exptype{}{\ol{Y}}$). The type variables
-$\ol{\mathtt{Y}}$ are not generalized during the prove. The reason is the
-undecidablity of polymorphic recursion (cp. Sec. \ref{sec:polym-recurs}).
 
 
 
@@ -339,7 +336,7 @@ undecidablity of polymorphic recursion (cp. Sec. \ref{sec:polym-recurs}).
 % the Proof of Theorem 3.4.1 works also with the mtype overload rule
 
 %\begin{theoremAndi}
-%Subject reduction: if $\triangle; \Gamma \vdash e : T$ and $e \to e'$,
-%then $\triangle; \Gamma \vdash e':T'$ for some $T'$ such that $\triangle \vdash T' <: T$.
+%Subject reduction: if $\environmentvdash e : T$ and $e \to e'$,
+%then $\environmentvdash e':T'$ for some $T'$ such that $\triangle \vdash T' <: T$.
 %\end{theoremAndi}
 
