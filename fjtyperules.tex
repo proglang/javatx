@@ -218,7 +218,7 @@ This change is needed to render our type inference algorithm decidable.
     \quad \quad \triangle = \ol{X} <: \ol{N}, \ol{Y} <: \ol{P} }\\
   \mathtt{\triangle \vdash \ol{T}, T, \ol{P} \ \texttt{ok} \quad \quad
   \textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft \ol{P}}\ol{T} \to T) } \\
-  \mathtt{\Pi(\exptype{C}{\ol{X}}.m) = \ol{T} \to T }\\
+  \mathtt{\Pi(\exptype{C}{\ol{X}}.m) = \exptype{}{\ol{Y} \triangleleft \ol{P}}\ \ol{T} \to T }\\
   \mathtt{\Pi; \triangle ; \ol{x}:\ol{T},\ this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
   \triangle \vdash S <: T } \\
   \end{array}} {
@@ -265,8 +265,7 @@ After the whole class is deemed \texttt{ok} the generalized method can furthermo
 \begin{array}{c}
   \mathtt{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\ \texttt{extends N}\{ \overline{C} \ \overline{f}; \ K \ \overline{M} \} \ \texttt{OK}} \quad \quad \mathtt{m \in \ol{M}} \\
   \mathtt{
-  \Pi \vdash \exptype{}{\ol{Y} \triangleleft \ol{P}}\ T\ \texttt{m}(\ol{T}\ \ol{\mathtt{x}}) \{\texttt{return}\ \mathtt{e}_0;\}
-  \texttt{ OK in }\exptype{C}{\ol{X} \triangleleft \ol{N}}
+  \exptype{}{\ol{Y} \triangleleft \ol{P}}\ T\ \texttt{m}(\ol{T}\ \ol{\mathtt{x}}) \{\texttt{return}\ \mathtt{e}_0;\}
   }
 \end{array}
    } {\mathtt{
