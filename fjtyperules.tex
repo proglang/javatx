@@ -199,34 +199,26 @@ $ & & GT-SCAST
 \end{minipage}
 }
 
+\smallskip
+
 Here we add the local method type environment $\mathtt{\Pi}$ to the \texttt{GT-METHOD} rule.
 This ensures that all recursive method calls inside the same class use a non polymorphic method type.
 %Type inference for polymorphic recursion is undecidable and therefore ruled out by this reformed type system for our \TFGJ language.
 This change is needed to render our type inference algorithm decidable.
+
+\smallskip
 
 \fbox{
 \begin{minipage}{\textwidth}
 \begin{small}
 \textbf{Method Typing:}\\[1em]
 \begin{tabularx}{\textwidth}{X c X r}
-  & $\ddfrac{
-\begin{array}{c}
-  \mathtt{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\ \texttt{extends N}\{ \overline{C} \ \overline{f}; \ K \ \overline{M} \} \ \texttt{OK}} \quad \quad \mathtt{m \in \ol{M}} \\
-  \mathtt{
-  \exptype{}{\ol{Y} \triangleleft \ol{P}}\ T\ \texttt{m}(\ol{T}\ \ol{\mathtt{x}}) \{\texttt{return}\ \mathtt{e}_0;\}
-  \texttt{ OK in }\exptype{C}{\ol{X} \triangleleft \ol{N}}
-  }
-\end{array}
-   } {\mathtt{
-     \textit{mtype}(m, \exptype{C}{\ol{T}}) = [\ol{T}/\ol{X}]\exptype{}{\ol{Y} \triangleleft \ol{P}}\ol{U} \to U
-    }}$ & & MT-CLASS\\
-  & & & \\
   & $\mathtt{\ddfrac{\begin{array}{c}
     \mathtt{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots\ \ol{M}\ \ldots\}
     \quad \quad \triangle = \ol{X} <: \ol{N}, \ol{Y} <: \ol{P} }\\
-    %\mathtt{\Pi = \set{\exptype{C}{\ol{X}}.m : \ol{T_m} \to T_m \, |\, m \in \ol{M}} } \\
   \mathtt{\triangle \vdash \ol{T}, T, \ol{P} \ \texttt{ok} \quad \quad
   \textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft \ol{P}}\ol{T} \to T) } \\
+  \mathtt{\Pi(\exptype{C}{\ol{X}}.m) = \ol{T} \to T }\\
   \mathtt{\Pi; \triangle ; \ol{x}:\ol{T},\ this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
   \triangle \vdash S <: T } \\
   \end{array}} {
@@ -257,21 +249,30 @@ This change is needed to render our type inference algorithm decidable.
 \end{minipage}
 }
 
+\smallskip
+
+The \texttt{GT-METHOD} rule adds generic type variables to a method thus generalizing it.
+After the whole class is deemed \texttt{ok} the generalized method can furthermore be used by other classes.
+
+\smallskip
+
 \fbox{
 \begin{minipage}{\textwidth}
   \begin{small}
   \textbf{Method type lookup:} \\[1em]
 \begin{tabularx}{\textwidth}{cXr}
-  $\ddfrac{\begin{array}{c}
-  \mathtt{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\triangleleft
-             N\{ \overline{C} \ \overline{f}; \ K \ \overline{M} \} \ \mathtt{OK}}\\
-  \exptype{}{\ol{Y} \triangleleft \ol{P}} U\ \texttt{m}(\ol{U}\ \ol{\mathtt{x}}) \{\texttt{return}\ \mathtt{e}_0;\}
+  $\ddfrac{
+\begin{array}{c}
+  \mathtt{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\ \texttt{extends N}\{ \overline{C} \ \overline{f}; \ K \ \overline{M} \} \ \texttt{OK}} \quad \quad \mathtt{m \in \ol{M}} \\
+  \mathtt{
+  \Pi \vdash \exptype{}{\ol{Y} \triangleleft \ol{P}}\ T\ \texttt{m}(\ol{T}\ \ol{\mathtt{x}}) \{\texttt{return}\ \mathtt{e}_0;\}
   \texttt{ OK in }\exptype{C}{\ol{X} \triangleleft \ol{N}}
-  \end{array}} {
-  %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
-  \textit{mtype}(m, \exptype{C}{\ol{T}}) = [\ol{T} / \ol{X}](\exptype{}{\ol{Y}} \ol{U} \to U)
-  }$ & & MT-CLASS \\
-  & & \\
+  }
+\end{array}
+   } {\mathtt{
+     \textit{mtype}(m, \exptype{C}{\ol{T}}) = [\ol{T}/\ol{X}]\exptype{}{\ol{Y} \triangleleft \ol{P}}\ol{U} \to U
+    }}$ & & MT-CLASS\\
+ & & \\
   $\ddfrac{\mathtt{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\triangleleft
   N\{ \overline{C} \ \overline{f}; \ K \ \overline{M} \} \ \mathtt{OK}
   \quad \quad m \notin \ol{M}} }{
