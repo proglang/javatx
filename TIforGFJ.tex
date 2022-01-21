@@ -367,24 +367,36 @@ We now compare the constraints for each expression with the appropriate type rul
   has always the type of the surrounding class and generates no constraints.
   \item [Local var]
   No constraints are generated.
-  \item[Method invocation]
-By direct comparison we show that each of the generated constraints do not apply more restrictions than the \texttt{GT-INVK} rule.
+  \item[Method invocation (\texttt{GT-INVK})]
+The \texttt{GT-INVK} rule is for method calls, which already have a type assignment.
+By direct comparison we show that each of the generated constraints applies the same restrictions than the \texttt{GT-INVK} rule.
 The \texttt{GT-INVK} rule states the condition $\textit{mtype}(m, \textit{bound}_\triangle(T_0)) = \exptype{}{\ol{Y}}\ \ol{U} \to U$.
 %In our version of typeless FGJ every method name is unique
 %and there is only one class with that particular method.
 The constraint $rty \lessdot \exptype{C}{\textbf{fresh}(\ol{X})}$ assures that the type of the expression $e_0$ contains the method \texttt{m}.
 
-\begin{tabular}{l|l}
-  \textbf{FGJ Type rule} & \textbf{Constraints} \\
-  $\triangle; \Gamma \vdash e_o : T_0$ & $(rty, ConS) = \textbf{TYPEExpr}(Ass, e_r)$\\ 
-  $\quad \textit{mtype}(m, \textit{bound}_\triangle(T_0)) = \exptype{}{\ol{Y}}\ \ol{U} \to U$ & $rty \lessdot \exptype{C}{\textbf{fresh}(\ol{X})}$ \\
+\begin{small}
+\begin{tabularx}{\linewidth}{lX|Xl}
+  \textbf{FGJ Type rule} &&& \textbf{Constraints} \\
+  $\triangle; \Gamma \vdash e_o : T_0$ &&& $(rty, ConS) = \textbf{TYPEExpr}(Ass, e_r)$\\ 
+  $\mathtt{\textit{mtype}(\ldots) = \exptype{}{\ol{Y} \triangleleft}\ \ol{U} \to U}$ &&& $rty \lessdot \exptype{C}{\textbf{fresh}(\ol{X})}$ \\
  %$\textit{mtype}(m, \textit{bound}_\triangle(T_0)) = \ol{U} \to U$ & $rty \doteq cl$\\
- $\triangle; \Gamma \vdash \ol{e} : \ol{S}$ & $\forall e_i \in \overline{e} : (pt_i, ConS_i) = \textbf{TYPEExpr}(Ass, e_i)$\\
- $\triangle \vdash \ol{S} <: \ol{U}$ & $ \bigcup_{T_i \in \overline{T}} (pt_i \lessdot \textbf{fresh}(T_i))$\\
- $\triangle; \Gamma \vdash \mathtt{e_0.m(\overline{e}) : U }$ & $a \doteq \textbf{fresh}(T)$ \\
-\end{tabular}
+ $\triangle; \Gamma \vdash \ol{e} : \ol{S}$ &&& $\forall e_i \in \overline{e} : (pt_i, ConS_i) = \textbf{TYPEExpr}(Ass, e_i)$\\
+ $\triangle \vdash \ol{S} <: \ol{U}$ &&& $ \bigcup_{T_i \in \overline{T}} (pt_i \lessdot \textbf{fresh}(T_i))$\\
+ $\triangle; \Gamma \vdash \mathtt{e_0.m(\overline{e}) : U }$ &&& $a \doteq \textbf{fresh}(T)$ \\
+\end{tabularx}
+\end{small}
 
 \textit{Note}: The \textbf{TYPEExpr} function only generates constraints which apply to our assumption.
+\item[Method invocation (\texttt{GT-L-INVK})]
+The \texttt{GT-INVK} rule is for local method calls.
+The called method does not have a type yet and comes with type variables for the return and parameter types.
+The difference for a normal method call is that we do not generate fresh type variables.
+This results in the local method call not being polymorphic.
+%TODO: Rewrite GT-INVK proof
+%      Rewrite the FGJType algorithm for local method calls
+
+
  \item[Field access]
 Mostly the same as method invocation.
 Fieldnames by default are unique in the FGJ language.

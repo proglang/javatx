@@ -163,9 +163,9 @@ $\mathtt{\ddfrac{\begin{array}{c}
 & \\
 
 $\mathtt{\ddfrac{\begin{array}{c}
-  \mathtt{\Pi(\exptype{C}{\ol{X}}.m) = \ol{U} \to U } \quad \quad 
-  \mathtt{\environmentvdash e_0 : T_0 } \quad \quad 
-  \mathtt{\textit{bound}(T_0) = \exptype{C}{\ol{Y}}} \\
+  \mathtt{\Pi(\exptype{C}{\ol{X}}.m) = \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{U} \to U } \quad \quad 
+  \mathtt{\environmentvdash e_0 : T_0 } \\
+  \mathtt{\textit{bound}(T_0) = \exptype{C}{\ol{Y}}} \quad \quad
   \mathtt{\environmentvdash \ol{e} : \ol{S} } \quad \quad
   \mathtt{\triangle \vdash \ol{S} <: [\ol{Y}/\ol{X}]\ol{U}}
 \end{array}}
@@ -202,9 +202,12 @@ $ & & GT-SCAST
 \smallskip
 
 Here we add the local method type environment $\mathtt{\Pi}$ to the \texttt{GT-METHOD} rule.
-This ensures that all recursive method calls inside the same class use a non polymorphic method type.
+This new environment is used by the \texttt{GT-L-INVK} rule.
+When calling a local method we do not instantiate the generic type variables $\mathtt{\ol{Y}}$.
+This rules out polymorphic recursion and renders our type inference algorithm decidable.
+%This ensures that all recursive method calls inside the same class use a non polymorphic method type.
 %Type inference for polymorphic recursion is undecidable and therefore ruled out by this reformed type system for our \TFGJ language.
-This change is needed to render our type inference algorithm decidable.
+%This change is needed to render our type inference algorithm decidable.
 
 \smallskip
 
