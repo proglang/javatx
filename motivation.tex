@@ -466,36 +466,40 @@ explicit typings for methods in question.
 
 Consider a class $\mv{C}$ with $n$ mutually recursive methods $\mv{m}_i :
 \forall\ol{X}_i. \ol{A}_i \to \ol{A}_i$, for $1\le i\le n$. Define the \emph{instantiation
-  graph $IG(\mv{C})$} as a directed graph with vertices $\{1, \dots, n\}$ and labeled edges
-\begin{gather*}
-  i \stackrel{\ol{U}/\ol{X}_j}{\longrightarrow} j
-\end{gather*}
-if $\mv{m}_i$ invokes $\mv{m}_j$ where the generic type variables in
+  multigraph $IG(\mv{C})$} as a directed multigraph with vertices $\{1,
+\dots, n\}$.
+Edges between $i$ and $j$ in this graph are labeled with a
+substitution from $\ol{X}_j$ to types in $\mv{m}_i$, which may contain
+type variables from $\ol{X}_i$.
+In particular, if $\mv{m}_i$ invokes $\mv{m}_j$ where the generic type variables in
 the type of $\mv{m}_j$ are instantiated with substitution
-$\ol{U}/\ol{X}_j$ (cf.\ rule GT-INVK).
+$\ol{U}/\ol{X}_j$ (see rule GT-INVK), then 
+$
+i \stackrel{\ol{U}/\ol{X}_j}{\longrightarrow} j
+$
+is an edge of $IG (\mv{C})$.
 
-Define the \emph{closure of the instantiation graph $IG^*(\mv{C})$} as the graph
-obtained from $IG(\mv{C})$ by applying the following rule
-exhaustively:
-\begin{gather*}
+Define the \emph{closure of the instantiation multigraph $IG^*(\mv{C})$} as the multigraph
+obtained from $IG(\mv{C})$ by applying the following rule, which
+composes the instantiating substitutions, exhaustively:
+\begin{gather}\label{eq:1}
   i \stackrel{\ol{U}/\ol{X}_j}{\longrightarrow} j
   \quad\wedge\quad
   j \stackrel{\ol{V}/\ol{X}_k}{\longrightarrow} k
   \qquad\Rightarrow\qquad
   i \stackrel{[\ol{U}/\ol{X}_j]\ol{V}/\ol{X}_k}{\longrightarrow} k
-\end{gather*}
+\end{gather}
 
-We say that method $\mv{m}_i$ is involved in polymorphic recursion if
-there is an edge
-\begin{gather*}
-  i \stackrel{\ol{W}/\ol{X}_i}{\longrightarrow} i
-  \quad \in IG^* (\mv{C})
-  \qquad \text{such that}
-  \qquad \ol{W} \ne \ol{X}_i
-\end{gather*}
-
+\begin{definition}
+  We say that method $\mv{m}_i$ is involved in polymorphic recursion
+  if there is an edge
+  \begin{gather}\label{eq:2}
+    i \stackrel{\ol{W}/\ol{X}_i}{\longrightarrow} i \quad \in IG^*
+    (\mv{C}) \qquad \text{such that} \qquad \ol{W} \ne \ol{X}_i
+  \end{gather}
+\end{definition}
 For the toy example in Figure~\ref{fig:examples-poly-rec}, we obtain
-the graph $IG^* (\mv{UsePair})$ which indicates that \mv{prc} is
+the multigraph $IG^* (\mv{UsePair})$ which indicates that \mv{prc} is
 involved in polymorphic recursion:
 \begin{gather*}
   \mv{prc} \stackrel{\mv{Y,X}/\mv{X,Y}}{\longrightarrow} \mv{prc}
@@ -503,7 +507,7 @@ involved in polymorphic recursion:
   \mv{prc} \stackrel{\mv{X,Y}/\mv{X,Y}}{\longrightarrow} \mv{prc}
 \end{gather*}
 
-For \mv{UsePair2}, we obtain a graph $IG^* (\mv{UsePair2})$ with
+For \mv{UsePair2}, we obtain a multigraph $IG^* (\mv{UsePair2})$ with
 infinitely many edges which is also clear indication for polymorphic recursion:
 \begin{gather*}
   \mv{prc} \stackrel{\mv{Y,Pair<X,Y>}/\mv{XY}}{\longrightarrow} \mv{prc}
@@ -514,6 +518,62 @@ infinitely many edges which is also clear indication for polymorphic recursion:
   \\
   \dots
 \end{gather*}
+
+Clearly, $IG (\mv{C})$ is finite and can be constructed effectively by
+collecting the instantiating substitutions from all method call
+sites.
+Repeated application of the propagation rule~\eqref{eq:1} either
+results in saturation where no edge of the resulting multigraph satisfies~\eqref{eq:2} or it
+detects an instantiating edge as in condition~\eqref{eq:2}. 
+
+The following condition is necessary for the absence of
+polymorphic recursion.
+
+\begin{proposition}
+  If a class \mv{C} with $n$ mutually recursive methods does not exhibit
+  polymorphic recursion, then all methods quantify over the
+  same number of generic variables, say $\ol{X}$, each method call
+  instantiates with a permutation of the $\ol{X}$, and $IG^* (\mv{C})$ is finite.
+\end{proposition}
+\begin{proof}
+  Suppose for a contradiction that there are two distinct methods $\mv{m}_i$ and
+  $\mv{m}_j$ with generic variables $\ol{X}_i$ and $\ol{X}_j$, respectively,
+  where $|\ol{X}_i| < |\ol{X}_j|$. By mutual recursion, $\mv{m}_i$ invokes
+  $\mv{m}_j$ directly or indirectly and vice versa. Hence, $IG^* (\mv{C})$
+  contains edges from $i$ to $j$ and back:
+  \begin{gather*}
+    i \stackrel{\ol{U}/\ol{X}_j}{\longrightarrow} j
+    \qquad
+    j \stackrel{\ol{V}/\ol{X}_i}{\longrightarrow} i
+  \end{gather*}
+  As $IG^*(\mv{C})$ is closed under composition, it must also contain
+  the edge
+  \begin{gather*}
+    j \stackrel{[\ol{V}/\ol{X}_i]\ol{U}/\ol{X}_j}{\longrightarrow} j
+    \text{.}
+  \end{gather*}
+  By assumption $\mv{C}$ does not use polymorphic recursion, so it
+  must be that $[\ol{V}/\ol{X}_i]\ol{U}/\ol{X}_j =
+  \ol{X}_j/\ol{X}_j$. To fulfill this condition, all components of
+  $\ol{U}$ must be variables $\in \ol{X}_i$. As  $|\ol{X}_i| <
+  |\ol{X}_j| = |\ol{U}|$, there must be some variable $\mv{X} \in \ol{X}_i$ that
+  occurs more than once in $\ol{U}$, say, at positions $j_1$ and $j_2$. 
+  But that means the variables at positions $j_1$ and $j_2$ in
+  $\ol{X}_j$ are mapped to the same component of $\ol{V}$. This is a
+  contradiction because this substitution cannot be the identity
+  substitution $\ol{X}_j/\ol{X}_j$.
+
+  Hence, all methods have the same number of generic variables and all
+  instantiations must use variables.
+
+  Suppose now that there is a direct call from $\mv{m}_i$ to
+  $\mv{m}_j$ where the instantiation $\ol{U}/\ol{X}_j$ is not a permutation. Hence,
+  there is a variable that appears more than once in $\ol{U}$, which
+  leads to a contradiction using similar reasoning as before.
+
+  Hence, all instantiations must be permutations over a finite set of
+  variables, so that $IG^*(\mv{C})$ is finite! 
+\end{proof}
 
 % Features:
 % \begin{itemize}

@@ -6,36 +6,48 @@
 % No Or-Constraints
 \begin{figure}[tp]
 \begin{align*}
-  \mv T &::= \mv X \, | \, \mv N \\
+  \mv T &::= \mv X \mid \mv N \\
   \mv N &::= \exptype{C}{\ol{T}}\\
   \mv L &::= \mathtt{class} \ \exptype{C}{\ol{X} \triangleleft \ol{N}}
-             \triangleleft \ \mv N \{ \ol{T} \ \ol{f}; \,\mv K \, \ol{M} \} \\
-  \mv K &::= \mv C(\ol{T} \ \ol{f})\{\mathtt{super}(\ol{f}); \ \mathtt{this}.\ol{f}=\ol{f};\} \\
+             \triangleleft \ \mv N\ \{ \ol{T} \ \ol{f}; \,\mv K \, \ol{M} \} \\
+  \mv K &::= \mv C(\ol{T} \ \ol{f})\ \{\mathtt{super}(\ol{f}); \ \mathtt{this}.\ol{f}=\ol{f};\} \\
   %M &::= \exptype{}{\ol{X} \triangleleft \ol{X}}\ T \ \mathtt{m}(\overline{T} \, \overline{x})\{ \mathtt{ return }\ e; \} \\
-  \mv M &::= \mathtt{m}(\ol{x})\{ \mathtt{ return}\ \mv e; \} \\
-  \mv e &::= \mv x \, | \, \mv e.\mv f \, | \,
-             \mv e.\mathtt{m}(\ol{e}) \, | \, \mathtt{new}\ \mathtt{C}(\ol{e})
-             \ |\ (N)\ e
+  \mv M &::= \mathtt{m}(\ol{x})\ \{ \mathtt{ return}\ \mv e; \} \\
+  \mv e &::= \mv x \mid \mv e.\mv f \mid
+             \mv e.\mathtt{m}(\ol{e}) \mid \mathtt{new}\ \mathtt{C}(\ol{e})
+             \mid (\mv N)\ \mv e
   %M ::=& T \ \mathtt{m}(\overline{T} \, \overline{x})\{ \mathtt{ return }\ e; \} \\
   %e ::=& \mathtt{this} \, | \, x \, | \, e.f \, | \, e.\exptype{\mathtt{m}}{\ol{T}}(\overline{e}) \, | \, \mathtt{new }\ C(\overline{e}) \, | \, (C) e \\
 \end{align*}
   \caption{Syntax of \TFGJ}
   \label{fig:syntax-tfgj}
 \end{figure}
-The input for our global type inference algorithm is a modified version of the Featherweight Generic Java language.
-We call our language Featherweight Generic Java with global type inference (FGJ-GT).
-Its syntax, shown in Figure~\ref{fig:syntax-tfgj}, is a modified version of the Featherweight Generic Java (FGJ) syntax. 
-Type annotations for method parameters and method return types are omitted %, except the ones for casts and \texttt{new} calls. 
-and the instantiation of a class via the \texttt{new} statement, as well as the method call, do now function without generic parameters.
+The input of our global type inference algorithm is a modified version
+of the language Featherweight Generic Java
+(FGJ)~\cite{DBLP:journals/toplas/IgarashiPW01}, which we call \TFGJ
+(with Global Type Inference).
+Its syntax is shown in Figure~\ref{fig:syntax-tfgj}.
+Compared to FGJ,
+type annotations for method parameters and method return types are omitted.
+Object creation via \texttt{new} as well as method calls come do not
+require instantiation of their generic parameters.
+We keep the class constraints ${\ol{X} \triangleleft \ol{N}}$ as well as the types
+for fields $\ol{T} \ \ol{f}$ as we consider them as part of the
+specification of a class.
 
-\textbf{Prechecks:}
-We make the following additional assumptions for the input program:
+% \textbf{Prechecks:}
+We make the following assumptions for the input program:
 \begin{itemize}
-\item Every type $N$ given in the input is well formed.
-This can be checked easily, because no types annotations are omitted in the class header.
-The generic variables of each class as well as their bounds are given in the input.
-We assume that the each written type in the input in bounds of classes, super class types, field types and casts is already checked for well-formedness.
-\item The classes in the input are sorted to comply with the \texttt{GT-METHOD} and \texttt{GT-CLASS} rules (see chapter \ref{chapter:type-rules}) of \TFGJ.
+\item All types $\mv N$ and $\mv T$ are well formed according to the
+  rules of FGJ, which carry over to \TFGJ (see Fig.~\ref{fig:well-formedness-and-subtyping}).
+  % This can be checked easily, because no types annotations are omitted in the class header.
+  % The generic variables of each class as well as their bounds are given in the input.
+  % We assume that the each written type in the input in bounds of
+  % classes, super class types, field types and casts is already
+  % checked for well-formedness. 
+\item The classes in the input are sorted to comply with the  rules
+  \rulename{GT-METHOD} and \rulename{GT-CLASS} (see
+  Section~\ref{chapter:type-rules}) of \TFGJ. 
 %TODO
 \end{itemize}
 

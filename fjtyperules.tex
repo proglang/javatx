@@ -1,4 +1,4 @@
-As \TFGJ omits some type annotations with respect to FGJ, we cannot use
+As \TFGJ omits some type annotations, we cannot use
 FGJ's typing rules directly. Hence, we give new typing rules which are
 close to FGJ's original rules, but adapted to cater for omitted types.
 
@@ -12,19 +12,26 @@ close to FGJ's original rules, but adapted to cater for omitted types.
 %This chapter defines the typing rules for our version of FGJ,
 %which our type inference algorithm is able to process.
 
-Most rules stay the same as in FGJ, but we note the following changes:
+Most rules stay the same as in FGJ with the following exceptions:
+\todo[inline]{PT20220126: where is $\Pi,\Delta, \Gamma$ defined? \\
+  For  GT-FIELD, the function \textit{fields} should be defined (same
+  as FGJ).\\
+  GT-NEW is not correct because the instantiation is ignored.\\
+  GT-INVK: $\Pi$ should be your substitute for \textit{mtype} and
+  class-local methods should be recognized differently. In particular,
+  in GT-CLASS, we need an incoming $\Pi$ and an outgoing $\Pi$. }
+
 \todo[inline]{PT: Why and how is overloading supported? \\
   GT-NEW should use \texttt{C} in place of \texttt{N}: see suggested GT-NEW'. \\
   The font for types and expressions changes between math and typewriter. \\
-  $\triangle$ should be $\triangle$ (changed)
 }
 \begin{itemize}
-\item The \texttt{GT-METHOD} rule is changed:
-In FGJ, \textit{mtype} is a global function which returns the type for every method in every class.
-In our system, \textit{mtype} is also a global function but it is differed between
-methods declared in the local class and methods from other classes.
-%\item Overriding of methods is removed for our typeless FGJ version. Therefore also the rule \texttt{MT-SUPER} is removed.
-\item The \texttt{GT-INVK} rule is changed:
+\item \rulename{GT-METHOD}.
+  In FGJ, \textit{mtype} is a global function which returns the type for every method in every class.
+  In our system, \textit{mtype} is also a global function but it is differed between
+  methods declared in the local class and methods from other classes.
+  % \item Overriding of methods is removed for our typeless FGJ version. Therefore also the rule \texttt{MT-SUPER} is removed.
+\item \rulename{GT-INVK}.
 We add a new type rule \texttt{GT-L-INVK}, which handles method calls inside the same class.
 Additionally we allow a method to have an intersection type.
 \item We omit the rules for valid downcasts.
@@ -60,67 +67,63 @@ variables are generalized (marked by $\exptype{}{\ol{Y}}$). The type variables
 $\ol{\mathtt{Y}}$ are not generalized during the prove. The reason is the
 undecidablity of polymorphic recursion (cp. Sec. \ref{sec:polym-recurs}).
 
-\fbox{
-\begin{minipage}{\textwidth}
-  \begin{small}
-  \textbf{Subtyping:}\\[1em]
-  \begin{tabularx}{\textwidth}{X c X r}
-& $\mathtt{
-\triangle \vdash T <: T
-}
-$
-&   & S-REFL \\
+\begin{figure}[tp]
+  \fbox{
+    \begin{minipage}{\textwidth}
+      \begin{small}
+        \textbf{Subtyping:}\\[1em]
+        \begin{tabularx}{\textwidth}{X c X r}
+          & $\mathtt{ \Delta \vdash T \subeq  T } $
+          &   & S-REFL \\
 
-& \\
-& $\mathtt{\ddfrac{
-    \triangle \vdash S <: T \quad \quad \triangle \vdash T <: U
-}{
-    \triangle \vdash S <: U
-}}$ & & S-TRANS \\
+          & \\
+          &
+          $\mathtt{\ddfrac{ \Delta \vdash S \subeq  T \quad \quad
+              \Delta \vdash T \subeq  U }{ \Delta \vdash S \subeq  U
+            }}$ & & S-TRANS \\
 
-& \\
+          & \\
 
-& $\mathtt{
-\triangle \vdash X <: \triangle(X)
-}$ & & S-VAR \\
-& \\
-& $\mathtt{\ddfrac{
-  \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}
-  \triangleleft \mv N \set{ \ldots }
-}{
-  \triangle \vdash \exptype{C}{\ol{T}} <: [\ol{T}/\ol{X}]\mv N
-}}$ & & S-CLASS \\
-& & & \\
-\hline
-\multicolumn{1}{l}{\textbf{Well-formed types:}}\\
-& & & \\
-& $\mathtt{
-\triangle \vdash \texttt{Object}\ \text{ok}
-}$ & & WF-OBJECT\\
-& \\
-& $\mathtt{\ddfrac{
-    X \in \textit{dom}(\triangle)
-}{
-    \triangle \vdash X \ \text{ok}
-}
-}
-$ & & WF-VAR \\
-& \\
-& $\mathtt{\ddfrac{\begin{array}{c}
-\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots \} \\
-\triangle \vdash \ol{T} \ \text{ok} \quad \quad \triangle \vdash \ol{T} <: [\ol{T}/\ol{X}]\ol{N}
-\end{array}
-}{
-\triangle \vdash \exptype{C}{\ol{T}} \ \text{ok}
-}
-}
-$ & & WF-CLASS
-\end{tabularx}
-\end{small}
-\end{minipage}
-}
+          & $\mathtt{ \Delta \vdash X \subeq  \Delta(X)
+          }$ & & S-VAR \\
+          & \\
+          &
+          $\mathtt{\ddfrac{ \texttt{class}\ \exptype{C}{\ol{X}
+                \triangleleft \ol{N}} \triangleleft \mv N \set{ \ldots
+              } }{ \Delta \vdash \exptype{C}{\ol{T}} \subeq 
+              [\ol{T}/\ol{X}]\mv N
+            }}$ & & S-CLASS \\
+          & & & \\
+          \hline
+          \multicolumn{1}{l}{\textbf{Well-formed types:}}\\
+          & & & \\
+          & $\mathtt{ \Delta \vdash \texttt{Object}\ \text{ok}
+          }$ & & WF-OBJECT\\
+          & \\
+          &
+          $\mathtt{\ddfrac{ X \in \textit{dom}(\Delta) }{ \Delta
+              \vdash X \ \text{ok} } }
+          $ & & WF-VAR \\
+          & \\
+          & $\mathtt{\ddfrac{\begin{array}{c}
+                               \texttt{class}\ \exptype{C}{\ol{X}
+                               \triangleleft \ol{N}} \triangleleft \mv N \{ \ldots \} \\
+                               \mathtt{\Delta} \vdash \ol{T} \ \text{ok}
+                               \quad \quad \mathtt{\Delta} \vdash \ol{T} \subeq 
+                               [\ol{T}/\ol{X}]\ol{N}
+                             \end{array}
+                           }{ \Delta \vdash \exptype{C}{\ol{T}} \
+                             \text{ok} } } $ & & WF-CLASS
+                       \end{tabularx}
+                     \end{small}
+                   \end{minipage}
+                 }
+                 \caption{Well-formedness and subtyping}
+                 \label{fig:well-formedness-and-subtyping}
+               \end{figure}
 
-\newcommand{\environmentvdash}{\Pi;\triangle;\Gamma \vdash}
+
+\newcommand{\environmentvdash}{\Pi;\Delta;\Gamma \vdash}
 
 \fbox{
 \begin{minipage}{\textwidth}
@@ -133,15 +136,15 @@ $ & & WF-CLASS
 }$ & & GT-VAR \\
 & \\
 
-$\mathtt{\ddfrac{\Gamma \vdash e_0:T_0 \quad \quad \mathit{fields}(\mathit{bound}_\triangle(T_0)) = \overline{T} \ \overline{f}}
+$\mathtt{\ddfrac{\Gamma \vdash e_0:T_0 \quad \quad \mathit{fields}(\mathit{bound}_\Delta(T_0)) = \overline{T} \ \overline{f}}
 {\Gamma \vdash e_0.\mathtt{f}_i : T_i}
 }
 $ & & GT-FIELD \\
 & \\
-$\mathtt{ \ddfrac{\triangle \vdash {\mv N} \ \texttt{ok} \quad 
+$\mathtt{ \ddfrac{\Delta \vdash {\mv N} \ \texttt{ok} \quad 
   \mv N = \exptype{C}{\ol{X}} \quad
   \textit{fields}(\mv N) = \ol{T}\ \ol{f} \quad 
-  \environmentvdash \ol{e} : \ol{S} \quad \triangle \vdash \ol{S} <: \ol{T}
+  \environmentvdash \ol{e} : \ol{S} \quad \Delta \vdash \ol{S} \subeq  \ol{T}
 }{
   \environmentvdash \texttt{new C}(\ol{e}): \mv N
 }
@@ -150,12 +153,12 @@ $\mathtt{ \ddfrac{\triangle \vdash {\mv N} \ \texttt{ok} \quad
 & \\
 
 $\mathtt{\ddfrac{\begin{array}{c}
-  \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{U} \to U \in \mathit{mtype}(m, \mathit{bound}_\triangle (T_0))} \\
+  \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{U} \to U \in \mathit{mtype}(m, \mathit{bound}_\Delta (T_0))} \\
   \mathtt{\environmentvdash e_0 : T_0 } \quad \quad
-  \mathtt{\triangle \vdash \ol{V} \ \texttt{OK} } \quad \quad
-  \mathtt{\triangle \vdash \ol{V} <: [\ol{V}/\ol{Y}]\ol{P} } \\ %\quad \quad
+  \mathtt{\Delta \vdash \ol{V} \ \texttt{OK} } \quad \quad
+  \mathtt{\Delta \vdash \ol{V} \subeq  [\ol{V}/\ol{Y}]\ol{P} } \\ %\quad \quad
   \mathtt{\environmentvdash \ol{e} : \ol{S} } \quad \quad
-  \mathtt{\triangle \vdash \ol{S} <: [\ol{V}/\ol{Y}]\ol{U}}
+  \mathtt{\Delta \vdash \ol{S} \subeq  [\ol{V}/\ol{Y}]\ol{U}}
 \end{array}}
 {\environmentvdash \mathtt{e_0.\mv{m}(\overline{e}) : [\ol{V}/\ol{Y}]U }}
 }$ & & GT-INVK\\
@@ -167,30 +170,30 @@ $\mathtt{\ddfrac{\begin{array}{c}
   \mathtt{\environmentvdash e_0 : T_0 } \\
   \mathtt{\textit{bound}(T_0) = \exptype{C}{\ol{Y}}} \quad \quad
   \mathtt{\environmentvdash \ol{e} : \ol{S} } \quad \quad
-  \mathtt{\triangle \vdash \ol{S} <: [\ol{Y}/\ol{X}]\ol{U}}
+  \mathtt{\Delta \vdash \ol{S} \subeq  [\ol{Y}/\ol{X}]\ol{U}}
 \end{array}}
 {\environmentvdash \mathtt{e_0.\mv{m}(\overline{e}) : [\ol{Y}/\ol{X}]U }}
 }$ & & GT-L-INVK\\
 
 & \\
 
-$\ddfrac{\mathtt{\environmentvdash e_0 : T_0 \quad \quad \triangle \vdash \textit{bound}_\triangle(T_0) <: N}}
+$\ddfrac{\mathtt{\environmentvdash e_0 : T_0 \quad \quad \Delta \vdash \textit{bound}_\Delta(T_0) \subeq  N}}
 {\mathtt{\environmentvdash (N) e_0 : N}}
 $ & & GT-UCAST \\
 
 & \\
 
 $ \ddfrac{\begin{array}{c}
-  \mathtt{\environmentvdash e_0 : T_0 \quad \quad \triangle \vdash N\ \texttt{ok} \quad \quad \triangle \vdash N <: \textit{bound}_\triangle(T_0) } \\
-  \mathtt{N = \exptype{C}{\ol{T}} \quad \quad \textit{bound}_\triangle(T_0) = \exptype{D}{\ol{U}}  \quad \quad \textit{dcast}(C,D)}
+  \mathtt{\environmentvdash e_0 : T_0 \quad \quad \Delta \vdash N\ \texttt{ok} \quad \quad \Delta \vdash N \subeq  \textit{bound}_\Delta(T_0) } \\
+  \mathtt{N = \exptype{C}{\ol{T}} \quad \quad \textit{bound}_\Delta(T_0) = \exptype{D}{\ol{U}}  \quad \quad \textit{dcast}(C,D)}
 \end{array}
 }{\mathtt{\environmentvdash (N) e_0 : N}}$ & & GT-DCAST \\
 
 & \\
 
 $\ddfrac{\begin{array}{c}
-  \mathtt{\environmentvdash e_0 : T_0 \quad \quad \triangle \vdash N\ \texttt{ok} \quad \quad N = \exptype{C}{\ol{T}}  } \\
-  \mathtt{\textit{bound}_\triangle(T_0) = \exptype{D}{\ol{U}} \quad \quad C \ntrianglelefteq D \quad \quad D \ntrianglelefteq C \quad \quad \textit{stupid warning}}
+  \mathtt{\environmentvdash e_0 : T_0 \quad \quad \Delta \vdash N\ \texttt{ok} \quad \quad N = \exptype{C}{\ol{T}}  } \\
+  \mathtt{\textit{bound}_\Delta(T_0) = \exptype{D}{\ol{U}} \quad \quad C \ntrianglelefteq D \quad \quad D \ntrianglelefteq C \quad \quad \textit{stupid warning}}
 \end{array}}
 {\mathtt{\environmentvdash (N) e_0 : N}}
 $ & & GT-SCAST 
@@ -218,12 +221,12 @@ This rules out polymorphic recursion and renders our type inference algorithm de
 \begin{tabularx}{\textwidth}{X c X r}
   & $\mathtt{\ddfrac{\begin{array}{c}
     \mathtt{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots\ \ol{M}\ \ldots\}
-    \quad \quad \triangle = \ol{X} <: \ol{N}, \ol{Y} <: \ol{P} }\\
-  \mathtt{\triangle \vdash \ol{T}, T, \ol{P} \ \texttt{ok} \quad \quad
+    \quad \quad \Delta = \ol{X} \subeq  \ol{N}, \ol{Y} \subeq  \ol{P} }\\
+  \mathtt{\Delta \vdash \ol{T}, T, \ol{P} \ \texttt{ok} \quad \quad
   \textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft \ol{P}}\ol{T} \to T) } \\
   \mathtt{\Pi(\exptype{C}{\ol{X}}.m) = \exptype{}{\ol{Y} \triangleleft \ol{P}}\ \ol{T} \to T }\\
-  \mathtt{\Pi; \triangle ; \ol{x}:\ol{T},\ this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
-  \triangle \vdash S <: T } \\
+  \mathtt{\Pi; \Delta ; \ol{x}:\ol{T},\ this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
+  \Delta \vdash S \subeq  T } \\
   \end{array}} {
   %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{
   %\texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft
@@ -238,7 +241,7 @@ This rules out polymorphic recursion and renders our type inference algorithm de
   & $\ddfrac{
     \begin{array}{c}
       \mathtt{\Pi = \set{\exptype{C}{\ol{X}}.m : \ol{T_m} \to T_m \, |\, m \in \ol{M}} } \\
-      \mathtt{\ol{X} <: \ol{N} \vdash \ol{N}, N, \ol{T}\ \texttt{ok}
+      \mathtt{\ol{X} \subeq  \ol{N} \vdash \ol{N}, N, \ol{T}\ \texttt{ok}
       \quad\quad fields(\mathtt{N}) = \ol{\mathtt{U}} \ \ol{\mathtt{g}}} \quad \quad
       \mathtt{\Pi \vdash \ol{M} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}\\
       \mathtt{K = C(\overline{U} \ \overline{g}, \overline{T} \ \overline{f}) \{ \texttt{super}(\overline{g}); \ \texttt{this}.\overline{f}=\overline{f}; \} }\\
@@ -287,32 +290,34 @@ After the whole class is deemed \texttt{ok} the generalized method can furthermo
   $\ddfrac{
     \textit{mtype}(m, N) = \exptype{}{\ol{Y} \triangleleft \ol{Q}} \ol{U} \to U \ 
     \text{implies}\ \ol{P}, \ol{T} = [\ol{Y}/\ol{Z}](\ol{Q},\ol{U}) \ 
-   \text{and}\ \ol{Y} <: \ol{P} \vdash T_0 <: [\ol{Y}/\ol{Z}]U_0 
+   \text{and}\ \ol{Y} \subeq  \ol{P} \vdash T_0 \subeq  [\ol{Y}/\ol{Z}]U_0 
   } {
   %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
   \textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{T} \to T_0)
   }$ 
-\end{tabularx}\\[1em]
-  \textbf{Method body lookup:} \\[1em]
-\begin{tabularx}{\textwidth}{cXr}
-  $\ddfrac{\begin{array}{c}
-  \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\triangleleft
-             N\{ \overline{S} \ \overline{f}; \ K \ \overline{M} \} \\
-  \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T\ \texttt{m}(\ol{T}\ \ol{\mathtt{x}}) \{\texttt{return}\ \mathtt{e}_0;\}}
-  \in \ol{M}
-  \end{array}} {
-  %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
-  \textit{mbody}(m, \exptype{C}{\ol{Z}}) = [\ol{Z} / \ol{X}](\exptype{}{\ol{Y}} \ol{T} \to T)
-  }$ & & MB-CLASS \\
-  & & \\
-  $\ddfrac{
-  \mathtt{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\triangleleft
-             \ol{N}\ \{ \overline{S} \ \overline{f}; \ K \ \overline{M} \} \quad \quad m \notin \ol{M}}
-  } {
-  %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
-  \mathtt{\textit{mbody}(m, \exptype{C}{\ol{T}}) = \textit{mbody}(m, [\ol{T}/\ol{X}]N)}
-  }$ & & MB-SUPER \\
 \end{tabularx}
+% PT: this is not used anywhere!
+% \\[1em]
+%   \textbf{Method body lookup:} \\[1em]
+% \begin{tabularx}{\textwidth}{cXr}
+%   $\ddfrac{\begin{array}{c}
+%   \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\triangleleft
+%              N\{ \overline{S} \ \overline{f}; \ K \ \overline{M} \} \\
+%   \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T\ \texttt{m}(\ol{T}\ \ol{\mathtt{x}}) \{\texttt{return}\ \mathtt{e}_0;\}}
+%   \in \ol{M}
+%   \end{array}} {
+%   %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
+%   \textit{mbody}(m, \exptype{C}{\ol{Z}}) = [\ol{Z} / \ol{X}](\exptype{}{\ol{Y}} \ol{T} \to T)
+%   }$ & & MB-CLASS \\
+%   & & \\
+%   $\ddfrac{
+%   \mathtt{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\triangleleft
+%              \ol{N}\ \{ \overline{S} \ \overline{f}; \ K \ \overline{M} \} \quad \quad m \notin \ol{M}}
+%   } {
+%   %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
+%   \mathtt{\textit{mbody}(m, \exptype{C}{\ol{T}}) = \textit{mbody}(m, [\ol{T}/\ol{X}]N)}
+%   }$ & & MB-SUPER \\
+% \end{tabularx}
 \end{small}
 \end{minipage}
 }
@@ -334,10 +339,10 @@ After the whole class is deemed \texttt{ok} the generalized method can furthermo
 %GT-METHOD:
 %\begin{align*}
 %\ddfrac{\begin{array}{c}
-%\triangle \vdash \ol{X} <: \ol{N}, \ol{Y} <: \ol{P} \quad \quad 
-%\triangle \vdash \ol{T}, T, \ol{P} \ \texttt{ok} \\
-%\triangle ; \ol{x}:\ol{T}, this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
-%\triangle \vdash S <: T \\
+%\Delta \vdash \ol{X} \subeq  \ol{N}, \ol{Y} \subeq  \ol{P} \quad \quad 
+%\Delta \vdash \ol{T}, T, \ol{P} \ \texttt{ok} \\
+%\Delta ; \ol{x}:\ol{T}, this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
+%\Delta \vdash S \subeq  T \\
 %\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots \} \quad \quad
 %\textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{T} \to T)
 %\end{array}}
@@ -356,5 +361,5 @@ After the whole class is deemed \texttt{ok} the generalized method can furthermo
 
 %\begin{theoremAndi}
 %Subject reduction: if $\environmentvdash e : T$ and $e \to e'$,
-%then $\environmentvdash e':T'$ for some $T'$ such that $\triangle \vdash T' <: T$.
+%then $\environmentvdash e':T'$ for some $T'$ such that $\Delta \vdash T' \subeq  T$.
 %\end{theoremAndi}
