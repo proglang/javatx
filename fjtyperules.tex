@@ -15,11 +15,7 @@ close to FGJ's original rules, but adapted to cater for omitted types.
 Most rules stay the same as in FGJ with the following exceptions:
 \todo[inline]{PT20220126: where is $\Pi,\Delta, \Gamma$ defined? \\
   For  GT-FIELD, the function \textit{fields} should be defined (same
-  as FGJ).\\
-  GT-NEW is not correct because the instantiation is ignored.\\
-  GT-INVK: $\Pi$ should be your substitute for \textit{mtype} and
-  class-local methods should be recognized differently. In particular,
-  in GT-CLASS, we need an incoming $\Pi$ and an outgoing $\Pi$. }
+  as FGJ). }
 
 \todo[inline]{PT: Why and how is overloading supported? \\
   The font for types and expressions changes between math and typewriter. \\
@@ -73,46 +69,46 @@ undecidablity of polymorphic recursion (cp. Sec. \ref{sec:polym-recurs}).
         \textbf{Subtyping:}\\[1em]
         \begin{tabularx}{\textwidth}{X c X r}
           & $\mathtt{ \Delta \vdash T \subeq  T } $
-          &   & S-REFL \\
+          &   & \rulename{S-REFL} \\
 
           & \\
           &
           $\mathtt{\ddfrac{ \Delta \vdash S \subeq  T \quad \quad
               \Delta \vdash T \subeq  U }{ \Delta \vdash S \subeq  U
-            }}$ & & S-TRANS \\
+            }}$ & & \rulename{S-TRANS} \\
 
           & \\
 
           & $\mathtt{ \Delta \vdash X \subeq  \Delta(X)
-          }$ & & S-VAR \\
+          }$ & & \rulename{S-VAR} \\
           & \\
           &
           $\mathtt{\ddfrac{ \texttt{class}\ \exptype{C}{\ol{X}
                 \triangleleft \ol{N}} \triangleleft \mv N \set{ \ldots
               } }{ \Delta \vdash \exptype{C}{\ol{T}} \subeq 
               [\ol{T}/\ol{X}]\mv N
-            }}$ & & S-CLASS \\
+            }}$ & & \rulename{S-CLASS} \\
           & & & \\
           \hline
           \multicolumn{1}{l}{\textbf{Well-formed types:}}\\
           & & & \\
-          & $\mathtt{ \Delta \vdash \texttt{Object}\ \text{ok}
-          }$ & & WF-OBJECT\\
+          & $\mathtt{ \Delta \vdash \texttt{Object}\ \texttt{ok}
+          }$ & & \rulename{WF-OBJECT}\\
           & \\
           &
           $\mathtt{\ddfrac{ X \in \textit{dom}(\Delta) }{ \Delta
-              \vdash X \ \text{ok} } }
-          $ & & WF-VAR \\
+              \vdash X \ \texttt{ok} } }
+          $ & & \rulename{WF-VAR} \\
           & \\
           & $\mathtt{\ddfrac{\begin{array}{c}
                                \texttt{class}\ \exptype{C}{\ol{X}
                                \triangleleft \ol{N}} \triangleleft \mv N \{ \ldots \} \\
-                               \mathtt{\Delta} \vdash \ol{T} \ \text{ok}
+                               \mathtt{\Delta} \vdash \ol{T} \ \texttt{ok}
                                \quad \quad \mathtt{\Delta} \vdash \ol{T} \subeq 
                                [\ol{T}/\ol{X}]\ol{N}
                              \end{array}
                            }{ \Delta \vdash \exptype{C}{\ol{T}} \
-                             \text{ok} } } $ & & WF-CLASS
+                             \texttt{ok} } } $ & & \rulename{WF-CLASS}
                        \end{tabularx}
                      \end{small}
                    \end{minipage}
@@ -132,13 +128,13 @@ undecidablity of polymorphic recursion (cp. Sec. \ref{sec:polym-recurs}).
 %\begin{tabular}{l@{\quad}l}
   $\mathtt{
 \environmentvdash x : \Gamma(x)
-}$ & & GT-VAR \\
+}$ & & \rulename{GT-VAR} \\
 & \\
 
 $\mathtt{\ddfrac{\Gamma \vdash e_0:T_0 \quad \quad \mathit{fields}(\mathit{bound}_\Delta(T_0)) = \overline{T} \ \overline{f}}
 {\Gamma \vdash e_0.\mathtt{f}_i : T_i}
 }
-$ & & GT-FIELD \\
+$ & & \rulename{GT-FIELD} \\
 & \\
 $\mathtt{ \ddfrac{\Delta \vdash {\mv N} \ \texttt{ok} \quad 
   \mv N = \exptype{C}{\ol{U}} \quad
@@ -147,7 +143,7 @@ $\mathtt{ \ddfrac{\Delta \vdash {\mv N} \ \texttt{ok} \quad
 }{
   \environmentvdash \texttt{new C}(\ol{e}): \mv N
 }
-}$ & & GT-NEW \\
+}$ & & \rulename{GT-NEW} \\
 
 & \\
 
@@ -161,7 +157,7 @@ $\mathtt{\ddfrac{\begin{array}{c}
   \mathtt{\Delta \vdash \ol{S} \subeq  [\ol{V}/\ol{Y}]\ol{U}}
 \end{array}}
 {\environmentvdash \mathtt{e_0.\mv{m}(\overline{e}) : [\ol{V}/\ol{Y}]U }}
-}$ & & GT-INVK\\
+}$ & & \rulename{GT-INVK} \\
 
 % & \\
 
@@ -173,13 +169,13 @@ $\mathtt{\ddfrac{\begin{array}{c}
 %   \mathtt{\Delta \vdash \ol{S} \subeq  [\ol{Y}/\ol{X}]\ol{U}}
 % \end{array}}
 % {\environmentvdash \mathtt{e_0.\mv{m}(\overline{e}) : [\ol{Y}/\ol{X}]U }}
-% }$ & & GT-L-INVK\\
+% }$ & & \rulename{GT-L-INVK}\\
 
 & \\
 
 $\ddfrac{\mathtt{\environmentvdash e_0 : T_0 \quad \quad \Delta \vdash \textit{bound}_\Delta(T_0) \subeq  N}}
 {\mathtt{\environmentvdash (N) e_0 : N}}
-$ & & GT-UCAST \\
+$ & & \rulename{GT-UCAST} \\
 
 & \\
 
@@ -187,7 +183,7 @@ $ \ddfrac{\begin{array}{c}
   \mathtt{\environmentvdash e_0 : T_0 \quad \quad \Delta \vdash N\ \texttt{ok} \quad \quad \Delta \vdash N \subeq  \textit{bound}_\Delta(T_0) } \\
   \mathtt{N = \exptype{C}{\ol{T}} \quad \quad \textit{bound}_\Delta(T_0) = \exptype{D}{\ol{U}}  \quad \quad \textit{dcast}(C,D)}
 \end{array}
-}{\mathtt{\environmentvdash (N) e_0 : N}}$ & & GT-DCAST \\
+}{\mathtt{\environmentvdash (N) e_0 : N}}$ & & \rulename{GT-DCAST} \\
 
 & \\
 
@@ -196,7 +192,7 @@ $\ddfrac{\begin{array}{c}
   \mathtt{\textit{bound}_\Delta(T_0) = \exptype{D}{\ol{U}} \quad \quad C \ntrianglelefteq D \quad \quad D \ntrianglelefteq C \quad \quad \textit{stupid warning}}
 \end{array}}
 {\mathtt{\environmentvdash (N) e_0 : N}}
-$ & & GT-SCAST 
+$ & & \rulename{GT-SCAST} 
 \end{tabularx}
 \end{small}
 \end{minipage}
@@ -241,15 +237,14 @@ This rules out polymorphic recursion and renders our type inference algorithm de
       \textit{mtype}(m, [\ol{T}/\ol{X}]N, \Pi)}
     }$ & & \rulename{MT-SUPER} \\
 \end{tabularx}\\[1em]
-\textbf{Valid method overriding:}\\[1em]
+\textbf{Valid method overriding (Peter):}\\[1em]
 \begin{tabularx}{\textwidth}{c}
   $\ddfrac{
-    \textit{mtype}(m, N) = \exptype{}{\ol{Y} \triangleleft \ol{Q}} \ol{U} \to \mv U \ 
+    \mathtt{\textit{mtype}(m, N, \Pi) = \exptype{}{\ol{Y} \triangleleft \ol{Q}} \ol{U} \to \mv U \ 
     \text{implies}\ \ol{P}, \ol{T} = [\ol{Y}/\ol{Z}](\ol{Q},\ol{U}) \ 
-   \text{and}\ \ol{Y} \subeq  \ol{P} \vdash T_0 \subeq  [\ol{Y}/\ol{Z}]U_0 
+   \text{and}\ \ol{Y} \subeq  \ol{P} \vdash T_0 \subeq  [\ol{Y}/\ol{Z}]U_0} 
   } {
-  %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
-  \textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{T} \to T_0)
+    \mathtt{\textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{T} \to T_0, \Pi)}
   }$ 
 \end{tabularx}
 \end{small}
@@ -264,7 +259,8 @@ This rules out polymorphic recursion and renders our type inference algorithm de
     \mathtt{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots\ \ol{M}\ \ldots\}}\\
                        \mathtt{
   \mathtt{\forall  \ol{T}, T: \ol{T} \to T \in \Pi(\exptype{C}{\ol{X}}.m) }\quad
-  \textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft \ol{P}}\ol{T} \to T) } \\
+  \textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft
+                       \ol{P}}\ol{T} \to T, \Pi) } \\
   \mathtt{\Pi; \Delta ; \ol{x}:\ol{T},\ this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
   \Delta \vdash S \subeq  T } \\
   \end{array}} {
