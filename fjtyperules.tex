@@ -24,7 +24,7 @@ Most rules stay the same as in FGJ with the following exceptions:
 \todo[inline]{PT: Why and how is overloading supported? \\
   GT-NEW should use \texttt{C} in place of \texttt{N}: see suggested GT-NEW'. \\
   The font for types and expressions changes between math and typewriter. \\
-}
+}                               %
 \begin{itemize}
 \item \rulename{GT-METHOD}.
   In FGJ, \textit{mtype} is a global function which returns the type for every method in every class.
@@ -142,7 +142,7 @@ $\mathtt{\ddfrac{\Gamma \vdash e_0:T_0 \quad \quad \mathit{fields}(\mathit{bound
 $ & & GT-FIELD \\
 & \\
 $\mathtt{ \ddfrac{\Delta \vdash {\mv N} \ \texttt{ok} \quad 
-  \mv N = \exptype{C}{\ol{X}} \quad
+  \mv N = \exptype{C}{\ol{U}} \quad
   \textit{fields}(\mv N) = \ol{T}\ \ol{f} \quad 
   \environmentvdash \ol{e} : \ol{S} \quad \Delta \vdash \ol{S} \subeq  \ol{T}
 }{
@@ -213,6 +213,57 @@ This rules out polymorphic recursion and renders our type inference algorithm de
 %This change is needed to render our type inference algorithm decidable.
 
 \smallskip
+
+\fbox{
+\begin{minipage}{\textwidth}
+\begin{small}
+\textbf{Method Typing:}\\[1em]
+\begin{tabularx}{\textwidth}{X c X r}
+  & $\mathtt{\ddfrac{\begin{array}{c}
+    \mathtt{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots\ \ol{M}\ \ldots\}}\\
+                       \mathtt{
+  \textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft \ol{P}}\ol{T} \to T) } \\
+  \mathtt{\Pi(\exptype{C}{\ol{X}}.m) =  \ol{T} \to T }\\
+  \mathtt{\Pi; \Delta ; \ol{x}:\ol{T},\ this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
+  \Delta \vdash S \subeq  T } \\
+  \end{array}} {
+   \mathtt{\Pi, \Delta \vdash  \texttt{m}(\ol{\mathtt{x}}) \{\texttt{return}\ \mathtt{e}_0;\}
+  \texttt{ OK in }\exptype{C}{\ol{X} \triangleleft \ol{N}} \texttt{
+    with } \exptype{}{\ol{Y} \subeq  \ol{P}} }
+  }}$ & & GT-METHOD\\
+\end{tabularx}\\[1em]
+\textbf{Class Typing:}\\[1em]
+  \begin{tabularx}{\textwidth}{X c X r}
+  %GT-CLASS: - This rule is modified by us
+  & $\ddfrac{
+    \begin{array}{c}
+      \mathtt{\Pi' = \Pi + \set{\exptype{C}{\ol{X}}.m : \ol{T_m} \to T_m \,
+      |\, m \in \ol{M}} } \\
+      \mathtt{\Pi'' = \Pi + \set{\exptype{C}{\ol{X}}.m :
+      \exptype{}{\ol{Y} \subeq  \ol{P}} \ol{T_m} \to T_m \,
+      |\, m \in \ol{M}} } \\
+      \mathtt{\Delta = \ol{X} \subeq  \ol{N}, \ol{Y} \subeq  \ol{P}}
+      \qquad \mathtt{\Delta \vdash\ol{P} \
+      \texttt{ok}}
+      \qquad \forall \mv{m}: \mathtt{\Delta \vdash \ol{T_m}, T_m \ \texttt{ok}}\\
+      \mathtt{\ol{X} \subeq  \ol{N} \vdash \ol{N}, N, \ol{T}\ \texttt{ok}
+      \quad\quad fields(\mathtt{N}) = \ol{\mathtt{U}} \ \ol{\mathtt{g}}} \quad \quad
+      \mathtt{\Pi', \Delta \vdash \ol{M} \ \texttt{OK IN}\
+      \exptype{C}{\ol{X} \triangleleft \ol{N}}  \texttt{
+    with } \exptype{}{\ol{Y} \subeq  \ol{P}}}\\
+      \mathtt{K = C(\overline{U} \ \overline{g}, \overline{T} \ \overline{f}) \{ \texttt{super}(\overline{g}); \ \texttt{this}.\overline{f}=\overline{f}; \} }\\
+    %\quad \quad \overline{M} \ \texttt{OK IN C} \\
+  \end{array}
+    }
+  {\mathtt{ \Pi \vdash \texttt{class}\ \exptype{C}{\ol{X}
+        \triangleleft \ol{N}} \triangleleft N\ \{ \overline{T} \
+      \overline{f}; \ K \ \overline{M} \} \ \texttt{OK} \rhd \Pi''}}
+  $ & & GT-CLASS
+\end{tabularx}
+\end{small}
+\end{minipage}
+}
+
 
 \fbox{
 \begin{minipage}{\textwidth}
