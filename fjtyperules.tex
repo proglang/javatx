@@ -216,41 +216,82 @@ This rules out polymorphic recursion and renders our type inference algorithm de
 
 \fbox{
 \begin{minipage}{\textwidth}
+  \begin{small}
+  \textbf{Method type lookup (Peter):} \\[1em]
+\begin{tabularx}{\textwidth}{cXr}
+  $\ddfrac{
+    \begin{array}{c}
+      \mathtt{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft
+      \ol{N}}\ \triangleleft \mv{N}\ \{ \overline{C} \ \overline{f}; \ K \ \overline{M} \} 
+      \qquad m \in \ol{M}} \\
+  % \mathtt{
+  %     \texttt{m}(\ol{\mathtt{x}}) \{\texttt{return}\ \mathtt{e}_0;\} \in \ol{M}
+  %     } \\
+      \mathtt{
+      \exptype{}{\ol{Y} \triangleleft  \ol{P}} \ol{U} \to U \in \Pi (\exptype{C}{\ol{X}}.m) }
+\end{array}
+   } {\mathtt{
+     \textit{mtype}(m, \exptype{C}{\ol{T}}, \Pi) = [\ol{T}/\ol{X}]\exptype{}{\ol{Y} \triangleleft \ol{P}}\ol{U} \to U
+    }}$ & & \rulename{MT-CLASS}\\
+ & & \\
+  $\ddfrac{\mathtt{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\triangleleft
+  \mv{N}\ \{ \overline{C} \ \overline{f}; \ K \ \overline{M} \} 
+  \qquad m \notin \ol{M}} }{
+    \mathtt{\textit{mtype}(m, \exptype{C}{\ol{T}}, \Pi) =
+      \textit{mtype}(m, [\ol{T}/\ol{X}]N, \Pi)}
+    }$ & & \rulename{MT-SUPER} \\
+\end{tabularx}\\[1em]
+\textbf{Valid method overriding:}\\[1em]
+\begin{tabularx}{\textwidth}{c}
+  $\ddfrac{
+    \textit{mtype}(m, N) = \exptype{}{\ol{Y} \triangleleft \ol{Q}} \ol{U} \to \mv U \ 
+    \text{implies}\ \ol{P}, \ol{T} = [\ol{Y}/\ol{Z}](\ol{Q},\ol{U}) \ 
+   \text{and}\ \ol{Y} \subeq  \ol{P} \vdash T_0 \subeq  [\ol{Y}/\ol{Z}]U_0 
+  } {
+  %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
+  \textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{T} \to T_0)
+  }$ 
+\end{tabularx}
+\end{small}
+\end{minipage}
+}
+\fbox{
+\begin{minipage}{\textwidth}
 \begin{small}
-\textbf{Method Typing:}\\[1em]
+\textbf{Method typing (Peter):}\\[1em]
 \begin{tabularx}{\textwidth}{X c X r}
   & $\mathtt{\ddfrac{\begin{array}{c}
     \mathtt{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots\ \ol{M}\ \ldots\}}\\
                        \mathtt{
+  \mathtt{\forall  \ol{T}, T: \ol{T} \to T \in \Pi(\exptype{C}{\ol{X}}.m) }\quad
   \textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft \ol{P}}\ol{T} \to T) } \\
-  \mathtt{\Pi(\exptype{C}{\ol{X}}.m) =  \ol{T} \to T }\\
   \mathtt{\Pi; \Delta ; \ol{x}:\ol{T},\ this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
   \Delta \vdash S \subeq  T } \\
   \end{array}} {
    \mathtt{\Pi, \Delta \vdash  \texttt{m}(\ol{\mathtt{x}}) \{\texttt{return}\ \mathtt{e}_0;\}
   \texttt{ OK in }\exptype{C}{\ol{X} \triangleleft \ol{N}} \texttt{
-    with } \exptype{}{\ol{Y} \subeq  \ol{P}} }
-  }}$ & & GT-METHOD\\
+    with } \exptype{}{\ol{Y} \triangleleft  \ol{P}} }
+  }}$ & & \rulename{GT-METHOD}\\
 \end{tabularx}\\[1em]
-\textbf{Class Typing:}\\[1em]
+\textbf{Class typing (Peter):}\\[1em]
   \begin{tabularx}{\textwidth}{X c X r}
   %GT-CLASS: - This rule is modified by us
   & $\ddfrac{
     \begin{array}{c}
-      \mathtt{\Pi' = \Pi + \set{\exptype{C}{\ol{X}}.m : \ol{T_m} \to T_m \,
+      \mathtt{\Pi' = \Pi \cup \set{\exptype{C}{\ol{X}}.m \mapsto \ol{T_m} \to T_m \,
       |\, m \in \ol{M}} } \\
-      \mathtt{\Pi'' = \Pi + \set{\exptype{C}{\ol{X}}.m :
-      \exptype{}{\ol{Y} \subeq  \ol{P}} \ol{T_m} \to T_m \,
+      \mathtt{\Pi'' = \Pi \cup \set{\exptype{C}{\ol{X}}.m \mapsto
+      \exptype{}{\ol{Y} \triangleleft  \ol{P}} \ol{T_m} \to T_m \,
       |\, m \in \ol{M}} } \\
       \mathtt{\Delta = \ol{X} \subeq  \ol{N}, \ol{Y} \subeq  \ol{P}}
       \qquad \mathtt{\Delta \vdash\ol{P} \
       \texttt{ok}}
       \qquad \forall \mv{m}: \mathtt{\Delta \vdash \ol{T_m}, T_m \ \texttt{ok}}\\
       \mathtt{\ol{X} \subeq  \ol{N} \vdash \ol{N}, N, \ol{T}\ \texttt{ok}
-      \quad\quad fields(\mathtt{N}) = \ol{\mathtt{U}} \ \ol{\mathtt{g}}} \quad \quad
+      \quad\quad fields(\mathtt{N}) = \ol{\mathtt{U}} \ \ol{\mathtt{g}}} \\\
       \mathtt{\Pi', \Delta \vdash \ol{M} \ \texttt{OK IN}\
       \exptype{C}{\ol{X} \triangleleft \ol{N}}  \texttt{
-    with } \exptype{}{\ol{Y} \subeq  \ol{P}}}\\
+    with } \exptype{}{\ol{Y} \triangleleft  \ol{P}}}\\
       \mathtt{K = C(\overline{U} \ \overline{g}, \overline{T} \ \overline{f}) \{ \texttt{super}(\overline{g}); \ \texttt{this}.\overline{f}=\overline{f}; \} }\\
     %\quad \quad \overline{M} \ \texttt{OK IN C} \\
   \end{array}
@@ -258,7 +299,7 @@ This rules out polymorphic recursion and renders our type inference algorithm de
   {\mathtt{ \Pi \vdash \texttt{class}\ \exptype{C}{\ol{X}
         \triangleleft \ol{N}} \triangleleft N\ \{ \overline{T} \
       \overline{f}; \ K \ \overline{M} \} \ \texttt{OK} \rhd \Pi''}}
-  $ & & GT-CLASS
+  $ & & \rulename{GT-CLASS}
 \end{tabularx}
 \end{small}
 \end{minipage}
