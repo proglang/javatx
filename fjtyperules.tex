@@ -22,7 +22,6 @@ Most rules stay the same as in FGJ with the following exceptions:
   in GT-CLASS, we need an incoming $\Pi$ and an outgoing $\Pi$. }
 
 \todo[inline]{PT: Why and how is overloading supported? \\
-  GT-NEW should use \texttt{C} in place of \texttt{N}: see suggested GT-NEW'. \\
   The font for types and expressions changes between math and typewriter. \\
 }                               %
 \begin{itemize}
@@ -153,7 +152,8 @@ $\mathtt{ \ddfrac{\Delta \vdash {\mv N} \ \texttt{ok} \quad
 & \\
 
 $\mathtt{\ddfrac{\begin{array}{c}
-  \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{U} \to U \in \mathit{mtype}(m, \mathit{bound}_\Delta (T_0))} \\
+  \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{U} \to U \in
+                   \mathit{mtype}(m, \mathit{bound}_\Delta (T_0), \Pi)} \\
   \mathtt{\environmentvdash e_0 : T_0 } \quad \quad
   \mathtt{\Delta \vdash \ol{V} \ \texttt{OK} } \quad \quad
   \mathtt{\Delta \vdash \ol{V} \subeq  [\ol{V}/\ol{Y}]\ol{P} } \\ %\quad \quad
@@ -163,17 +163,17 @@ $\mathtt{\ddfrac{\begin{array}{c}
 {\environmentvdash \mathtt{e_0.\mv{m}(\overline{e}) : [\ol{V}/\ol{Y}]U }}
 }$ & & GT-INVK\\
 
-& \\
+% & \\
 
-$\mathtt{\ddfrac{\begin{array}{c}
-  \mathtt{\Pi(\exptype{C}{\ol{X}}.m) = \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{U} \to U } \quad \quad 
-  \mathtt{\environmentvdash e_0 : T_0 } \\
-  \mathtt{\textit{bound}(T_0) = \exptype{C}{\ol{Y}}} \quad \quad
-  \mathtt{\environmentvdash \ol{e} : \ol{S} } \quad \quad
-  \mathtt{\Delta \vdash \ol{S} \subeq  [\ol{Y}/\ol{X}]\ol{U}}
-\end{array}}
-{\environmentvdash \mathtt{e_0.\mv{m}(\overline{e}) : [\ol{Y}/\ol{X}]U }}
-}$ & & GT-L-INVK\\
+% $\mathtt{\ddfrac{\begin{array}{c}
+%   \mathtt{\Pi(\exptype{C}{\ol{X}}.m) = \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{U} \to U } \quad \quad 
+%   \mathtt{\environmentvdash e_0 : T_0 } \\
+%   \mathtt{\textit{bound}(T_0) = \exptype{C}{\ol{Y}}} \quad \quad
+%   \mathtt{\environmentvdash \ol{e} : \ol{S} } \quad \quad
+%   \mathtt{\Delta \vdash \ol{S} \subeq  [\ol{Y}/\ol{X}]\ol{U}}
+% \end{array}}
+% {\environmentvdash \mathtt{e_0.\mv{m}(\overline{e}) : [\ol{Y}/\ol{X}]U }}
+% }$ & & GT-L-INVK\\
 
 & \\
 
@@ -278,7 +278,7 @@ This rules out polymorphic recursion and renders our type inference algorithm de
   %GT-CLASS: - This rule is modified by us
   & $\ddfrac{
     \begin{array}{c}
-      \mathtt{\Pi' = \Pi \cup \set{\exptype{C}{\ol{X}}.m \mapsto \ol{T_m} \to T_m \,
+      \mathtt{\Pi' = \Pi \cup \set{\exptype{C}{\ol{X}}.m \mapsto \exptype{}{} \ol{T_m} \to T_m \,
       |\, m \in \ol{M}} } \\
       \mathtt{\Pi'' = \Pi \cup \set{\exptype{C}{\ol{X}}.m \mapsto
       \exptype{}{\ol{Y} \triangleleft  \ol{P}} \ol{T_m} \to T_m \,
