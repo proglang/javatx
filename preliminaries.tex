@@ -1,7 +1,7 @@
 \section{Preliminaries}
 \label{sec:preliminaries}
 \subsection{Syntax}
-\commentarymargin{Input assumptions}
+% \commentarymargin{Input assumptions}
 % No overloaded methods
 % No Or-Constraints
 \begin{figure}[tp]
@@ -44,12 +44,42 @@ We make the following assumptions for the input program:
   % The generic variables of each class as well as their bounds are given in the input.
   % We assume that the each written type in the input in bounds of
   % classes, super class types, field types and casts is already
-  % checked for well-formedness. 
-\item The classes in the input are sorted to comply with the  rules
-  \rulename{GT-METHOD} and \rulename{GT-CLASS} (see
-  Section~\ref{chapter:type-rules}) of \TFGJ. 
-%TODO
+  % checked for well-formedness.
+\item The methods of a class call each other mutually recursively.
+\item The classes in the input are topologically sorted so that later
+  classes only call methods in classes that come earlier in the
+  sorting order.
+  % to comply with the  rules
+  % \rulename{GT-METHOD} and \rulename{GT-CLASS} (see
+  % Section~\ref{chapter:type-rules}) of \TFGJ. 
 \end{itemize}
+Our requirements on the method calls do not impose serious
+restrictions as any class, say \mv{C}, can be transformed to meet them as
+follows. A preliminary dependency analysis determines an 
+approximate call graph. We cluster the methods of \mv{C} according to
+the $n$ strongly
+connected components of the call graph. Then we split the class into a
+class hierarchy 
+$\mv{C}_1 \extends \dots \extends \mv{C}_n$ such that each class $\mv{C}_i$ contains
+exactly the methods of one strongly connected component and assign a
+method cluster to $\mv{C}_i$ if all calls to methods of  $\mv{C}$ now
+target methods assigned to $\mv{C}_j$, for some $j\ge i$. The class
+$\mv{C}_1$ replaces $\mv{C}$ everywhere in the program: in subtype
+bounds, in \texttt{new} expressions, and in casts. More precisely, if
+\mv{C} is defined by $\mathtt{class\ \exptype{C}{\ol X \extends \ol N}
+\extends N \dots} $, then the class headers for the $\mv{C}_i$ are
+defined as follows:
+\begin{itemize}
+\item  $\mathtt{class\ \exptype{C_i}{\ol X \extends \ol N}
+\extends \exptype{C_{i+1}}{\ol X} \dots} $, for $1\le i < n$ and
+\item  $\mathtt{class\ \exptype{C_n}{\ol X \extends \ol N}
+\extends N \dots} $.
+\end{itemize}
+It follows from this discussion that the resulting classes have to be
+processed backwards starting with $\mv{C}_n, \mv{C}_{n-1}, \dots, \mv{C}_1$.
+
+\todo[inline]{PJT: may not treat mutual recursion across
+  class boundaries satisfactorily.}
 
 \subsection{Featherweight Java Typing Rules}\label{chapter:type-rules}
 \input{fjtyperules}
