@@ -89,6 +89,13 @@ processed backwards starting with $\mv{C}_n, \mv{C}_{n-1}, \dots, \mv{C}_1$.
 \todo[inline]{PJT: is this subsumed by
   Section~\ref{sec:multiple-results}? Do we have principal types when
   we admit intersection types?}
+
+\todo[inline]{MP: I think so. But have to define an partial ording
+  $\triangleright$ of princpality:
+
+  $ty_1 \& \ldots \& ty_n \triangleright ty'_i$, if $ty'_i$ is a subtype of any
+  $ty_i$ and\\ $ty'_i \triangleright ty'_i[\ol{U}/\ol{X}]$
+}
 Featherweight Generic Java has no unique principal typing.
 We can show this easily with an example.
 We try to find the principal type for the method \texttt{method1}.

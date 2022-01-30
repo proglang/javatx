@@ -441,11 +441,13 @@ typing of \texttt{<X> Object prc (Pair<X,X> p)} for the method.
 A minor variation of the program with a non-variable instantiation makes type inference fail entirely:
 \begin{lstlisting}
 class UsePair2 {
-  <X,Y> Object prc(Pair<X,Y> p) {
+  <X,Y> Object prc((*@\erased{Pair<X,Y>}@*)p) {
     return this.prc<Y,Pair<X,Y>> (new Pair (p.snd, p));
   }
 }
 \end{lstlisting}
+
+
 
 
 
@@ -501,10 +503,11 @@ composes the instantiating substitutions, exhaustively:
 For the toy example in Figure~\ref{fig:examples-poly-rec}, we obtain
 the multigraph $IG^* (\mv{UsePair})$ which indicates that \mv{prc} is
 involved in polymorphic recursion:
+\erased{\mv{prc}}
 \begin{gather*}
   \mv{prc} \stackrel{\mv{Y,X}/\mv{X,Y}}{\longrightarrow} \mv{prc}
   \qquad
-  \mv{prc} \stackrel{\mv{X,Y}/\mv{X,Y}}{\longrightarrow} \mv{prc}
+  \mv{prc} \stackrel{\mv{X,Y}/\mv{X,Y}}{\longrightarrow} \mv{\red{swap}}
 \end{gather*}
 
 For \mv{UsePair2}, we obtain a multigraph $IG^* (\mv{UsePair2})$ with
@@ -518,6 +521,7 @@ infinitely many edges which is also clear indication for polymorphic recursion:
   \\
   \dots
 \end{gather*}
+
 
 Clearly, $IG (\mv{C})$ is finite and can be constructed effectively by
 collecting the instantiating substitutions from all method call
