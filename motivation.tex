@@ -319,12 +319,14 @@ class Global{
   \caption{Example for multiple inferred types}
   \label{fig:example-types-not-unique}
 \end{figure}
-Consider the classes \texttt{List<A>} and \texttt{Global} in Figure~\ref{fig:example-types-not-unique}.
 Global type inference processes classes in order of
-dependency. Class \texttt{Global} may depend on
-class \texttt{List} because \texttt{List} defines methods \texttt{add} and
-\texttt{get} which may be used in \texttt{Global}. The dependency is
-not certain because, in general, there may be additional classes
+dependency.
+To see why, consider the classes \texttt{List<A>} and \texttt{Global}
+in Figure~\ref{fig:example-types-not-unique}. 
+Class \texttt{Global} may depend on
+class \texttt{List} because \texttt{Global} uses methods \texttt{add} and
+\texttt{get} and \texttt{List} defines methods with the same names.
+The dependency is only approximate because, in general, there may be additional classes
 providing methods \texttt{add} and \texttt{get}.
 
 In the example, it is safe to assume that the types for the methods of class \texttt{List}
@@ -336,8 +338,9 @@ The method \texttt{m} in class \texttt{Global} first invokes
 return type of \texttt{a.add(this)} must be
 \texttt{List<T>}, for some \texttt{T}. As \texttt{this} has
 type \texttt{Global}, it must be that \texttt{Global} is a
-subtype of \texttt{T}. By the typing of \texttt{get()} we find that
-the return type of method \texttt{m} is also \texttt{T}.
+subtype of \texttt{T}, which gives rise to the constraint
+\texttt{Global $\subconstr$ T}. By the typing of \texttt{get()} we
+find that the return type of method \texttt{m} is also \texttt{T}.
 
 But now we are in a dilemma because FGJ only supports \emph{upper bounds} for
 type variables,\footnote{Java has the same restriction. Lower bounds
@@ -351,10 +354,17 @@ types for
 \texttt{List<Object> -> Object}. So there are two different FGJ
 programs that are completions of the \texttt{Global} class.
 
-GTI models these instances using the \emph{intersection type}
+GTI models these instances by inferring an \emph{intersection type}
 \texttt{List<Global> -> Global \& List<Object> -> Object}
 for method \texttt{m} and the different FGJ-completions of class \texttt{Global} are
-instances of the intersection type:
+instances of the intersection type:\footnote{The cognoscenti will be
+  reminded of overloading. However, FGJ does not support overloading,
+  so we rely on resolution by subsequent uses of the method. Moreover,
+  this intersection type cannot be realized by overloading in a Java
+  source program because it is resolved according to the raw classes
+  of the arguments, in this case \lstinline{List}. It can be realized
+  in bytecode which supports overloading on the return type, too.% 
+}
 \begin{center}
   \begin{minipage}{0.49\linewidth}
 \begin{lstlisting}
@@ -373,6 +383,8 @@ class Global {
 \end{lstlisting}
   \end{minipage}
 \end{center}
+In this sense, the inferred intersection type represents a principal
+typing for the class.
 % \begin{lstlisting}
 % class Global {
 %   <Global <: T> T m( List<T> a ) {
@@ -438,10 +450,10 @@ For this particular example, global type inference succeeds on the
 corresponding stripped program shown in
 Figure~\ref{fig:examples-poly-rec}, right, but it yields a more restrictive
 typing of \texttt{<X> Object prc (Pair<X,X> p)} for the method. 
-A minor variation of the program with a non-variable instantiation makes type inference fail entirely:
+A minor variation of the FGJ program with a non-variable instantiation makes type inference fail entirely:
 \begin{lstlisting}
 class UsePair2 {
-  <X,Y> Object prc((*@\erased{Pair<X,Y>}@*)p) {
+  <X,Y> Object prc(Pair<X,Y> p) {
     return this.prc<Y,Pair<X,Y>> (new Pair (p.snd, p));
   }
 }
@@ -503,12 +515,13 @@ composes the instantiating substitutions, exhaustively:
 For the toy example in Figure~\ref{fig:examples-poly-rec}, we obtain
 the multigraph $IG^* (\mv{UsePair})$ which indicates that \mv{prc} is
 involved in polymorphic recursion:
-\erased{\mv{prc}}
 \begin{gather*}
   \mv{prc} \stackrel{\mv{Y,X}/\mv{X,Y}}{\longrightarrow} \mv{prc}
   \qquad
-  \mv{prc} \stackrel{\mv{X,Y}/\mv{X,Y}}{\longrightarrow} \mv{\red{swap}}
+  \mv{prc} \stackrel{\mv{X,Y}/\mv{X,Y}}{\longrightarrow} \mv{prc}
 \end{gather*}
+The method call to \mv{swap} does not appear in the graph because
+\mv{swap} is defined in a different class.
 
 For \mv{UsePair2}, we obtain a multigraph $IG^* (\mv{UsePair2})$ with
 infinitely many edges which is also clear indication for polymorphic recursion:
