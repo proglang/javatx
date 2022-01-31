@@ -706,18 +706,10 @@ At first we split every overloaded method into multiple methods with only one ty
 \end{tabularx}
 \end{small}
 
-Afterwards we transform every method call to \texttt{m}:
-\begin{description}
-\item[\texttt{m(new N($\ldots$))}] $\implies$ \texttt{mX(new N($\ldots$))}, with \texttt{mX} being the correct method.
-We know, which method to call, because \texttt{N} is given.
-\item[\texttt{m($\ldots$.f)}] $\implies$ \texttt{mX(new N($\ldots$))}, with \texttt{mX} being the correct method.
-Every field \texttt{f} is unique in FGJ and has a type known to us.
-\item[\texttt{m((N)$\ldots$)}] the same as for \texttt{new} calls and field variables.
-\item[\texttt{m(x)}] with \texttt{x} being the method parameter of the surrounding method
-$\implies$ we know which method to call
-\item[\texttt{m(m())}]
-\end{description}
-
+Every type solution computed by \textbf{Unify} is a correct solution.
+%TODO Link to the Lemma proofing this
+We can generate a new set of methods from every type solution and then merge those together.
+This will result in a correct FGJ program.
 
 FGJ \texttt{GT-METHOD}
 \begin{align*}
