@@ -31,8 +31,8 @@
 \definecolor{red}{rgb}{1,0,0}
 \newcommand{\red}[1]{\textcolor{red}{#1}}
 
-\newcommand{\commentarymargin}[1]{\marginpar[\tiny #1]{\tiny #1}}
-\newcommand{\erased}[1]{\commentarymargin{\sout{erased:\\ #1}}}
+\newcommand{\commentarymargin}[1]{\red{\({}^*\)}\marginpar[\tiny \red{\({}^*\)#1}]{\tiny \red{\({}^*\)#1}}}
+\newcommand{\erased}[1]{\commentarymargin{\sout{#1}}}
 
 \newcommand\Angle[1]{\langle#1\rangle}
 
