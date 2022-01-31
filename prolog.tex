@@ -1,3 +1,4 @@
+\usepackage{xspace}
 \usepackage{color,ulem}
 \usepackage{listings}
 \lstset{language=Java,
@@ -34,9 +35,11 @@
 \newcommand{\commentarymargin}[1]{\red{\({}^*\)}\marginpar[\tiny \red{\({}^*\)#1}]{\tiny \red{\({}^*\)#1}}}
 \newcommand{\erased}[1]{\commentarymargin{\sout{#1}}}
 
+\newcommand\Erase[1]{|#1|}
 \newcommand\Angle[1]{\langle#1\rangle}
 
-\newcommand\TFGJ{FGJ-GT }
+\newcommand\TFGJ{FGJ-GT\xspace}
+\newcommand\FGJType{\textbf{FGJType} }
 
 \newcommand\TVX{\mv X}
 \newcommand\TVY{\mv Y}

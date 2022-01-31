@@ -8,9 +8,8 @@
 \begin{align*}
   \mv T &::= \mv X \mid \mv N \\
   \mv N &::= \exptype{C}{\ol{T}}\\
-  \mv L &::= \mathtt{class} \ \exptype{C}{\ol{X} \triangleleft \ol{N}}
-             \triangleleft \ \mv N\ \{ \ol{T} \ \ol{f}; \,\mv K \, \ol{M} \} \\
-  \mv K &::= \mv C(\ol{T} \ \ol{f})\ \{\mathtt{super}(\ol{f}); \ \mathtt{this}.\ol{f}=\ol{f};\} \\
+  \mv L &::= \mathtt{class} \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft \ \mv N\ \{ \ol{T} \ \ol{f}; \,\mv K \, \ol{M} \} \\
+  \mv K &::= \mv C(\ol{f})\ \{\mathtt{super}(\ol{f}); \ \mathtt{this}.\ol{f}=\ol{f};\} \\
   %M &::= \exptype{}{\ol{X} \triangleleft \ol{X}}\ T \ \mathtt{m}(\overline{T} \, \overline{x})\{ \mathtt{ return }\ e; \} \\
   \mv M &::= \mathtt{m}(\ol{x})\ \{ \mathtt{ return}\ \mv e; \} \\
   \mv e &::= \mv x \mid \mv e.\mv f \mid
@@ -84,6 +83,36 @@ processed backwards starting with $\mv{C}_n, \mv{C}_{n-1}, \dots, \mv{C}_1$.
 \subsection{Typing}
 \label{chapter:type-rules}
 \input{fjtyperules}
+
+\subsection{Soundness of Typing}
+\label{sec:soundness-typing}
+
+We show that every typing derived by our \TFGJ rules gives rise to a
+completion, that is, a well-typed FGJ program.
+\begin{definition}[Erasure]
+  Let $\mv{e}'$, $\mv{M}'$, $\mv{K}'$, $\mv{L}'$ be expression, method definition, constructor definition, class definition for FGJ. Define erasure functions 
+  $\Erase{\mv{e}'}$, $\Erase{\mv{M}'}$, $\Erase{\mv{K}'}$, $\Erase{\mv{L}'}$ that map to the corresponding syntactic categories of \TFGJ by
+  \begin{align*}
+    \Erase{\mv x} &= \mv x \\
+    \Erase{\mv e.\mv f} &= \Erase{\mv e}.\mv f \\
+    \Erase{\exptype{e}{\ol T}.\mathtt{m}(\ol{e})} &= \Erase{\mv e}. \mathtt{m} (\Erase{\ol e}) \\
+    \Erase{\mathtt{new}\ \exptype{C}{\ol T}(\ol{e})} & = \mathtt{new}\ \mv{C}(\Erase{\ol{e}}) \\
+    \Erase{(\mv N)\ \mv e} & = (\mv N)\ \Erase{\mv e} \\
+    \Erase{\exptype{}{\ol{X} \triangleleft \ol{N}}\ \mv{T}\ \mathtt{m}(\ol T\ \ol{x})\ \{ \mathtt{
+    return}\ \mv e; \}} & = \mathtt{m}(\ol{x})\ \{ \mathtt{ return}\ \Erase{\mv e}; \} \\
+    \Erase{\mv C(\ol{U}\ \ol{g}, \ol{T}\ \ol{f})\ \{\mathtt{super}(\ol{g}); \ \mathtt{this}.\ol{f}=\ol{f};\}} & = \mv C(\ol{g}, \ol{f})\ \{\mathtt{super}(\ol{g}); \ \mathtt{this}.\ol{f}=\ol{f};\} \\
+    \Erase{\mathtt{class} \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft \ \mv N\ \{ \ol{T} \ \ol{f}; \,\mv K \, \ol{M} \}} & = 
+    \mathtt{class} \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft \ \mv N\ \{ \ol{T} \ \ol{f}; \,\Erase{\mv K} \, \Erase{\ol{M}} \}
+  \end{align*}
+\end{definition}
+\begin{definition}[Completion]
+  An FGJ expression $\mv{e}'$ is a \emph{completion} of a \TFGJ expression $\mv{e}$ if $\mv{e} = \Erase{\mv{e}'}$. Completions for method definitions, constructor definitions, and class definitions
+  are defined analogously.
+\end{definition}
+\begin{theorem}
+  Suppose that $\mathtt{\vdash \ol L : \Pi}$. Then there is a completion $\ol{L}'$ of $\ol L$ such that $\mv{L}'\ \mathtt{OK}$ is derivable in FGJ.
+\end{theorem}
+
 
 \subsection{Principal Type}
 \todo[inline]{PJT: is this subsumed by
