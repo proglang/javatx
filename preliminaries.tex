@@ -212,12 +212,30 @@ completion, that is, a well-typed FGJ program.
   Section~\ref{sec:multiple-results}? Do we have principal types when
   we admit intersection types?}
 
-\todo[inline]{MP: I think so. But have to define an partial ording
+\todo[inline]{MP: I think so. But we have to define an partial ording
   $\triangleright$ of princpality:
 
-  $ty_1 \& \ldots \& ty_n \triangleright ty'_i$, if $ty'_i$ is a subtype of any
+% \newpage
+%   \begin{definition}[Partial Ordering of Princpality]
+%      For a method $$\mathtt{m}(\ol{x})\ \{ \mathtt{ return}\ \mv e; \}$$ 
+%      and a type $\mathtt{T}$ with $\environmentvdash x :  \mathtt{T}$.
+
+%      $\mathtt{\vdash \ol L : \Pi_n}$
+
+%      $\exptype{C}{\ol{X}}.{\tt m} \mapsto
+%       \exptype{}{\ol{Y} \triangleleft  \ol{P}} \ol{T_m} \to {\tt T_m}$
+%   \end{definition}
+
+  $ty_1 \& \ldots \& ty_n \triangleright ty'_i$, if $ty'_i$ is a supertype of any
   $ty_i$ and\\ $ty'_i \triangleright ty'_i[\ol{U}/\ol{X}]$
+
+  For this we have to define a rule for the derivation of an intersection type.
+  Then there is minimal number of funtions types for any method.
 }
+  
+
+
+
 Featherweight Generic Java has no unique principal typing.
 We can show this easily with an example.
 We try to find the principal type for the method \texttt{method1}.
