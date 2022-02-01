@@ -110,8 +110,101 @@ completion, that is, a well-typed FGJ program.
   are defined analogously.
 \end{definition}
 \begin{theorem}
-  Suppose that $\mathtt{\vdash \ol L : \Pi}$. Then there is a completion $\ol{L}'$ of $\ol L$ such that $\mv{L}'\ \mathtt{OK}$ is derivable in FGJ.
+  Suppose that $\mathtt{\vdash \ol L : \Pi}$ such that $|\mathtt{\Pi (\exptype{C}{\ol{X}}.m)}| = 1$, for all $\mv{C.m}$ defined in $\ol L$. Then there is a completion $\ol{L}'$ of $\ol L$ such that
+  $\mv{L}'\ \mathtt{OK}$ is derivable in FGJ. 
 \end{theorem}
+\begin{proof}
+  The proof is by induction on the length of $\ol L$.
+
+  Consider the class typing $\mathtt{ \Pi \vdash \texttt{class}\ \exptype{C}{\ol{X} 
+        \triangleleft \ol{N}} \triangleleft N\ \{ \ol{T} \
+      \ol{f}; \ K \ \ol{M} \} \ \texttt{OK} : \Pi''}$ for an element of $\ol
+    L$.
+
+    We assume that all classes before $\mv{L}$ are completed according to the incoming $\mathtt{\Pi}$:
+    If $\mathtt{\Pi (\exptype{D}{\ol{X}}.n)} = \mathtt{\exptype{}{\ol{Y} \triangleleft  \ol{P}}
+      \ol{T} \to T}$, then $\mathtt{\exptype{}{\ol{Y} \triangleleft  \ol{P}}\ T\ \mv{n}(\ol{T}\
+      \ol{x}) \dots}$ is in the completion of $\mv{D}$.
+
+    Clearly, we can construct a completion for the class, if we can do so for each method. So we
+    have to construct $\ol{M}'$ such that $\mathtt{\ol{M}'\ \mathtt{OK\ IN}\ \exptype{C}{\ol{X} 
+        \triangleleft \ol{N}}}$. 
+
+    Inversion of \rulename{GT-CLASS} yields
+    \begin{gather}
+      \label{eq:3}
+      \mathtt{\Pi' = \Pi \cup \set{\exptype{C}{\ol{X}}.m \mapsto \exptype{}{} \ol{T_m} \to T_m \mid m \in \ol{M}} } \\
+      \mathtt{\Pi'' = \Pi \cup \set{\exptype{C}{\ol{X}}.m \mapsto
+          \exptype{}{\ol{Y} \triangleleft  \ol{P}} \ol{T_m} \to T_m \mid m \in \ol{M}} } \\
+      \label{eq:5}
+      \mathtt{\Pi', \Delta \vdash \ol{M} \ \texttt{OK IN}\
+        \exptype{C}{\ol{X} \triangleleft \ol{N}} \extends N  \texttt{
+          with } \exptype{}{\ol{Y} \triangleleft  \ol{P}}} \\
+      \label{eq:7}
+      \mathtt{\Delta = \ol{X} \subeq  \ol{N}, \ol{Y} \subeq  \ol{P}}
+    \end{gather}
+    Given some $\mv{M} = \texttt{m}(\ol{\mathtt{x}}) \{\texttt{return}\ \mathtt{e}_0;\} \in \ol{M}$,
+    we show that
+    \begin{gather}
+      \label{eq:4}
+      \exptype{}{\ol{Y} \triangleleft  \ol{P}}\ \mathtt{T_m}\ \texttt{m}(\ol{T_m}\ \ol{{x}})
+      \{\texttt{return}\ \mathtt{e}'_0;\} \texttt{ OK IN }\exptype{C}{\ol{X} \triangleleft \ol{N}}
+    \end{gather}
+    is derivable for such completion $\mathtt{e_0'}$ of $\mathtt{e_0}$.
+
+    By inversion of \eqref{eq:5} for $\mv{M}$, we obtain
+    \begin{gather}
+      \label{eq:6}
+      \mathtt{\textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft \ol{P}}\ol{T_m} \to T_m,
+        \Pi) } \\
+      \label{eq:9}
+      \mathtt{\Pi; \Delta ; \ol{x}:\ol{T_m},\ this : \exptype{C}{\ol{X}} \vdash e_0 : S} \\
+      \label{eq:8}
+      \mathtt{\Delta \vdash S \subeq  T_m }
+    \end{gather}
+    As $\mathtt{\Delta}$ in~\eqref{eq:7} is defined as in \rulename{GT-METHOD'}, the well-formedness
+    judgments are all given, the subtyping judgment \eqref{eq:8} is given as well as the override
+    \eqref{eq:9}, the rule \rulename{GT-METHOD'} applies if we can establish
+    \begin{gather}
+      \label{eq:10}
+      \mathtt{\Delta ; \ol{x}:\ol{T_m},\ this : \exptype{C}{\ol{X}} \vdash e_0' : S}
+    \end{gather}
+    for a completion of $\mathtt{e_0}$.
+
+    To see that, we need to consider the rules \rulename{GT-NEW} and \rulename{GT-INVK}. The
+    \rulename{GT-NEW} rule poses the existence of some $\ol{U}$ such that $\mv{N} =
+    \exptype{C}{\ol{U}}$ for checking $\mv{e} = \mv{new}\ \mv{C} (\ol{e}) : \mv{N}$. In the completion, we
+    define $\mv{e'} = \mv{new}\ \mv{N} (\ol{e}') : \mv{N}$ to apply rule \rulename{GT-NEW'} to the completions
+    of the arguments.
+
+    For the rule \rulename{GT-INVK}, we first consider calls to methods not defined in the current
+    class. By our assumption on previously checked classes $\mv{D}$ and their methods $\mv{n}$,
+    $\mathit{mtype} (\mv{n}, \mv{D}, \mv\Pi) = \{\mathit{mtype}' (\mv{n}, \mv{D}')\}$ where the right
+    side lookup happens in the completion following the definitions for FGJ (i.e., $\mv{D'}$ is the
+    completion for $\mv D$). The \rulename{GT-INVK} rule poses the existence of some $\ol{V}$ that
+    satisfies the same conditions as in \rulename{GT-INVK'}. Hence, we define the completion of
+    $\mathtt{e_0.\mv{n}(\ol{e}) : [\ol{V}/\ol{Y}]U }$ as
+    $\mathtt{e_0'.\exptype{n}{\ol{V}}(\ol{e}') : [\ol{V}/\ol{Y}]U }$.
+
+    Next we consider calls to methods $\mv{n}$ defined in the current class, say, $\mv{C}$. For those methods,
+    $\mathit{mtype} (\mv{n}, \mv{C}, \mv\Pi) = \exptype{}{} \ol{U} \to \mv U$, a non-generic
+    type. By the definition of $\mathtt{\Pi''}$, we know that the type of this method will be
+    published in the completion as $\exptype{}{\ol{Y} \triangleleft  \ol{P}} \ol{U} \to \mv
+    U$. Hence, $\mathit{mtype}' (\mv{n}, \mv{C}') = \exptype{}{\ol{Y} \triangleleft  \ol{P}} \ol{U}
+    \to \mv U$. As methods in $\mv{C}$ are mutually recursive, the rule must pose that $\ol{V} = \ol{Y}$ (cf.\
+    Proposition~\ref{prop:polymorphi-recursion}). This setting fulfills all assumptions:
+    \begin{gather}
+      \label{eq:11}
+      \mathtt{\Delta \vdash \ol{Y} \ \texttt{ok} } \\
+      \mathtt{\Delta \vdash \ol{Y} \subeq  [\ol{Y}/\ol{Y}]\ol{P} }       
+    \end{gather}
+    Hence, we define the completion of
+    $\mathtt{e_0.\mv{n}(\ol{e}) : [\ol{Y}/\ol{Y}]U }$ as
+    $\mathtt{e_0'.\exptype{n}{\ol{Y}}(\ol{e}') : [\ol{Y}/\ol{Y}]U }$, which is derivable in FGJ.
+
+    All the remaining expression typing rules are shared between FGJ and \TFGJ, so they do not
+    affect completions.
+\end{proof}
 
 
 \subsection{Principal Type}

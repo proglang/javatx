@@ -182,8 +182,8 @@ $\mathtt{\ddfrac{\begin{array}{c}
   \mathtt{\environmentvdash e_0 : T_0 } \quad \quad 
   \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{U} \to U \in
                    \mathit{mtype}(m, \mathit{bound}_\Delta (T_0), \Pi)} \\
-  \mathtt{\Delta \vdash \ol{V} \ \texttt{ok} } \quad \quad
-  \mathtt{\Delta \vdash \ol{V} \subeq  [\ol{V}/\ol{Y}]\ol{P} } \qquad
+                   \mathtt{\Delta \vdash \ol{V} \ \texttt{ok} } \quad \quad
+                   \mathtt{\Delta \vdash \ol{V} \subeq  [\ol{V}/\ol{Y}]\ol{P} } \qquad
   \mathtt{\environmentvdash \ol{e} : \ol{S} } \quad \quad
   \mathtt{\Delta \vdash \ol{S} \subeq  [\ol{V}/\ol{Y}]\ol{U}}
 \end{array}}
@@ -243,31 +243,30 @@ $ & & \rulename{GT-SCAST}
 % \begin{small}
 \textbf{Method typing:}\\[1em]
 \begin{tabularx}{\textwidth}{X c X r}
-  & $\mathtt{\ddfrac{\begin{array}{c}
-    % \mathtt{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}
-    %                    \triangleleft N\ \{ \dots \}}\\
-                       \mathtt{
-  \mathtt{\forall  \ol{T}, T: \exptype{}{} \ol{T} \to T \in \Pi(\exptype{C}{\ol{X}}.m) }\quad
-  \textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft
-                       \ol{P}}\ol{T} \to T, \Pi) } \\
-  \mathtt{\Pi; \Delta ; \ol{x}:\ol{T},\ this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
-  \Delta \vdash S \subeq  T } \\
-  \end{array}} {
-   \mathtt{\Pi, \Delta \vdash  \texttt{m}(\ol{\mathtt{x}}) \{\texttt{return}\ \mathtt{e}_0;\}
-  \texttt{ OK in }\exptype{C}{\ol{X} \triangleleft \ol{N}} \extends N \texttt{
-    with } \exptype{}{\ol{Y} \triangleleft  \ol{P}} }
-  }}$ & & \rulename{GT-METHOD}\\
+  & $\ddfrac{
+    \begin{array}{c}
+      \mathtt{\forall  \ol{T}, T: \exptype{}{} \ol{T} \to T \in
+      \Pi(\exptype{C}{\ol{X}}.m) }
+      \quad
+      \mathtt{
+      \textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft
+      \ol{P}}\ol{T} \to T, \Pi) } \\
+      \mathtt{\Pi; \Delta ; \ol{x}:\ol{T},\ this : \exptype{C}{\ol{X}} \vdash e_0 : S} \quad \quad
+      \mathtt{\Delta \vdash S \subeq  T } \\
+    \end{array}} {
+    \mathtt{\Pi, \Delta \vdash  \texttt{m}(\ol{\mathtt{x}}) \{\texttt{return}\ \mathtt{e}_0;\}
+      \texttt{ OK in }\exptype{C}{\ol{X} \triangleleft \ol{N}} \extends N \texttt{
+        with } \exptype{}{\ol{Y} \triangleleft  \ol{P}} }
+  }$ & & \rulename{GT-METHOD}\\
 \end{tabularx}\\[1em]
 \textbf{Class typing:}\\[1em]
   \begin{tabularx}{\textwidth}{X c X r}
   %GT-CLASS: - This rule is modified by us
   & $\ddfrac{
     \begin{array}{c}
-      \mathtt{\Pi' = \Pi \cup \set{\exptype{C}{\ol{X}}.m \mapsto \exptype{}{} \ol{T_m} \to T_m \,
-      |\, m \in \ol{M}} } \\
+      \mathtt{\Pi' = \Pi \cup \set{\exptype{C}{\ol{X}}.m \mapsto \exptype{}{} \ol{T_m} \to T_m \mid m \in \ol{M}} } \\
       \mathtt{\Pi'' = \Pi \cup \set{\exptype{C}{\ol{X}}.m \mapsto
-      \exptype{}{\ol{Y} \triangleleft  \ol{P}} \ol{T_m} \to T_m \,
-      |\, m \in \ol{M}} } \\
+      \exptype{}{\ol{Y} \triangleleft  \ol{P}} \ol{T_m} \to T_m \mid m \in \ol{M}} } \\
       \mathtt{\Delta = \ol{X} \subeq  \ol{N}, \ol{Y} \subeq  \ol{P}}
       \qquad \mathtt{\Delta \vdash\ol{P} \
       \texttt{ok}}
