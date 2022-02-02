@@ -55,22 +55,34 @@ Peter Thiemann}
 
 \section{Type inference algorithm}
 \label{sec:type-infer-algor}
-In this chapter we present our type inference algorithm.
-The algorithm is split into following parts, which are executed on a single class at a time:
+This section presents our type inference algorithm.
+The algorithm is split into several parts, which are executed on a single class at a time:
 
 \begin{enumerate}
 \item Create assumptions and subtype relation
-\item Constraint generation with \textbf{FJTYPE}
-\item Unification of those constraints
-\item Set in principal type solution
+\item Constraint generation % with \textbf{FJTYPE}
+\item Constraint solving % Unification of those constraints
+\item Substitute principal type solution
 \end{enumerate}
 
-The Unify algorithm returns a set of possible type solutions.
-This means that there are possibly multiple type solutions for each method.
-The last step has to choose the principal type out of those possibilities.
+The solver returns a set of possible solutions for each method.
+The last step chooses the principal type out of those possibilities.
+\todo[inline]{PT: I thought the set of solutions constitutes the
+  principal type. What's there to choose?}
 
 \subsection{Process multiple classes}
-The algorithm processes only one class at a time.
+\label{sec:proc-mult-class}
+
+Type inference processes one class at a time.
+To do so, it must be possible to order the classes such that early
+classes never call methods in later classes.
+As an example, Figure~\ref{fig:invalidinput} shows a program that is
+acceptable in FGJ, but rejected by \TFGJ because the methods \mv{m1}
+and \mv{m2} are mutually recursive across class boundaries.
+In contrast, Figure~\ref{fig:correctinput} contains a program
+acceptable to both \TFGJ and FGJ because the mutual recursion of
+methods \mv{m1} and \mv{m2} is taking place inside class \mv{C2}.
+
 Only the first step creating the type assumptions is able to consider other classes as well.
 
 Nevertheless we allow the input to consist out of multiple classes.
@@ -85,37 +97,31 @@ This is also regulated by our typing rules (see chapter \ref{chapter:type-rules}
 We give an example for a incorrect input program for our algorithm, where none of the given classes cannot be compiled on its own.
   \begin{figure}
     \centering
-    \begin{minipage}{.5\textwidth}
-      \centering
-      \begin{lstlisting}
+    \begin{minipage}{.48\textwidth}
+\begin{lstlisting}[style=tfgj]
 class C1 extends Object {
-  C1(){ super(); }
   m1(){ return new C2().m2(); }
 }
 class C2 extends Object{
-  C2(){ super(); }
-  m2(){ return new C2().m1(); }
+  m2(){ return new C1().m1(); }
 }
-          \end{lstlisting}
-            \caption{Invalid typeless GFJ program}
+\end{lstlisting}
+      \caption{Invalid \TFGJ program}
       \label{fig:invalidinput}
     \end{minipage}%
-    \begin{minipage}{.5\textwidth}
-      \centering
-
-    \begin{lstlisting}
+  ~$\left|~
+    \begin{minipage}{.48\textwidth}
+\begin{lstlisting}[style=tfgj]
 class C1 extends Object {
-  C1(){ super(); }
 }
 class C2 extends Object{
-  C2(){ super(); }
   m1(){ return new C2().m2(); }
   m2(){ return new C2().m1(); }
 }
-            \end{lstlisting}
-          \caption{Correct typeless GFJ program}
+\end{lstlisting}
+      \caption{Valid \TFGJ program}
       \label{fig:correctinput}
-    \end{minipage}
+    \end{minipage}\right.$
 \end{figure}
 
 The problem in figure \ref{fig:invalidinput} is a circular method call graph.
