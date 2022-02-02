@@ -78,13 +78,17 @@ method environment and applies class typing to each class in the
 sequence provided. Each processed class adds its method typings to the method
 environment which is threaded through to constitute the program type. 
 
-\todo[inline]{PJT 20220128: is this still an active remark?}
 \begin{itemize}
 \item We omit the rules for valid downcasts.
 \todo[inline]{Andi: Is this correct? We need another constraint to be correct:
 $N \lessdot_{downcast} a$ for a cast of the form: \texttt{(N)a}.
 This is a different constraint then the normal subtype relationship (see FJ paper)
 }
+\todo[inline]{PJT 20220202: we should have a single
+  rule for all casts without any distinction between the three cases. It has to be
+  split in three cases in building the completion, but this
+  distinction is not necessary for type inference.}
+
 %The downcast problem:
 
 %This is wrong:
@@ -200,40 +204,34 @@ $\mathtt{ \ddfrac{\Delta \vdash {\mv N} \ \texttt{ok} \quad
 }$ & & \rulename{GT-NEW} \\
 
 
+& \\
+
+$\ddfrac{\mathtt{\environmentvdash e_0 : T_0}}
+{\mathtt{\environmentvdash (N) e_0 : N}}
+$ & & \rulename{GT-CAST} \\
+%
 % & \\
-
-% $\mathtt{\ddfrac{\begin{array}{c}
-%   \mathtt{\Pi(\exptype{C}{\ol{X}}.m) = \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{U} \to U } \quad \quad 
-%   \mathtt{\environmentvdash e_0 : T_0 } \\
-%   \mathtt{\textit{bound}(T_0) = \exptype{C}{\ol{Y}}} \quad \quad
-%   \mathtt{\environmentvdash \ol{e} : \ol{S} } \quad \quad
-%   \mathtt{\Delta \vdash \ol{S} \subeq  [\ol{Y}/\ol{X}]\ol{U}}
+%
+% $\ddfrac{\mathtt{\environmentvdash e_0 : T_0 \quad \quad \Delta \vdash \textit{bound}_\Delta(T_0) \subeq  N}}
+% {\mathtt{\environmentvdash (N) e_0 : N}}
+% $ & & \rulename{GT-UCAST} \\
+%
+% & \\
+%
+% $ \ddfrac{\begin{array}{c}
+%   \mathtt{\environmentvdash e_0 : T_0 \quad \quad \Delta \vdash N\ \texttt{ok} \quad \quad \Delta \vdash N \subeq  \textit{bound}_\Delta(T_0) } \\
+%   \mathtt{N = \exptype{C}{\ol{T}} \quad \quad \textit{bound}_\Delta(T_0) = \exptype{D}{\ol{U}}  \quad \quad \textit{dcast}(C,D)}
+% \end{array}
+% }{\mathtt{\environmentvdash (N) e_0 : N}}$ & & \rulename{GT-DCAST} \\
+%
+% & \\
+%
+% $\ddfrac{\begin{array}{c}
+%   \mathtt{\environmentvdash e_0 : T_0 \quad \quad \Delta \vdash N\ \texttt{ok} \quad \quad N = \exptype{C}{\ol{T}}  } \\
+%   \mathtt{\textit{bound}_\Delta(T_0) = \exptype{D}{\ol{U}} \quad \quad C \ntrianglelefteq D \quad \quad D \ntrianglelefteq C \quad \quad \textit{stupid warning}}
 % \end{array}}
-% {\environmentvdash \mathtt{e_0.\mv{m}(\overline{e}) : [\ol{Y}/\ol{X}]U }}
-% }$ & & \rulename{GT-L-INVK}\\
-
-& \\
-
-$\ddfrac{\mathtt{\environmentvdash e_0 : T_0 \quad \quad \Delta \vdash \textit{bound}_\Delta(T_0) \subeq  N}}
-{\mathtt{\environmentvdash (N) e_0 : N}}
-$ & & \rulename{GT-UCAST} \\
-
-& \\
-
-$ \ddfrac{\begin{array}{c}
-  \mathtt{\environmentvdash e_0 : T_0 \quad \quad \Delta \vdash N\ \texttt{ok} \quad \quad \Delta \vdash N \subeq  \textit{bound}_\Delta(T_0) } \\
-  \mathtt{N = \exptype{C}{\ol{T}} \quad \quad \textit{bound}_\Delta(T_0) = \exptype{D}{\ol{U}}  \quad \quad \textit{dcast}(C,D)}
-\end{array}
-}{\mathtt{\environmentvdash (N) e_0 : N}}$ & & \rulename{GT-DCAST} \\
-
-& \\
-
-$\ddfrac{\begin{array}{c}
-  \mathtt{\environmentvdash e_0 : T_0 \quad \quad \Delta \vdash N\ \texttt{ok} \quad \quad N = \exptype{C}{\ol{T}}  } \\
-  \mathtt{\textit{bound}_\Delta(T_0) = \exptype{D}{\ol{U}} \quad \quad C \ntrianglelefteq D \quad \quad D \ntrianglelefteq C \quad \quad \textit{stupid warning}}
-\end{array}}
-{\mathtt{\environmentvdash (N) e_0 : N}}
-$ & & \rulename{GT-SCAST} 
+% {\mathtt{\environmentvdash (N) e_0 : N}}
+% $ & & \rulename{GT-SCAST}
 \end{tabularx}\\[1em]
 % \end{small}
 % \end{minipage}
@@ -469,12 +467,6 @@ $ & & \rulename{GT-SCAST}
 % \end{minipage}
 % }
 
-
-\todo[inline]{20220128 PJT: at this point it would be good to show
-  that any list of classes for which our system infers a type (without
-  overloading) can be completed to a valid FGJ program (i.e., that
-  type checks) by adding the inferred type annotations. That should
-  not be hard to do. }
 
 
 %%% Local Variables:
