@@ -8,7 +8,7 @@ In this section, we present a sequence of more and more challenging
 examples for global type inference (GTI). To spice up our examples
 somewhat, we assume some predefined utility classes with the following
 interfaces.
-\begin{lstlisting}
+\begin{lstlisting}[style=fgj]
 class Bool {
   Bool not(); 
 }
@@ -33,8 +33,10 @@ erasing type annotations a \emph{completion of  \CL 0}.
 \subsection{Multiplication}
 \label{sec:multiplication}
 
-Here is the \TFGJ code  for multiplying the components of a pair.
-\begin{lstlisting}
+Here is the \TFGJ code  for multiplying the components of a
+pair.\footnote{We indicate \TFGJ code fragments by using a
+  {gray background}.}
+\begin{lstlisting}[style=tfgj]
 class MultPair {
   mult (p) { return p.fst.mult(p.snd); }
 }
@@ -57,12 +59,12 @@ set $\mv R = \mathtt{Int}$.
 The argument type $\mv P$ only occurs negatively in the constraints,
 so $\mv P = \mathtt{Pair} \Angle{\TVX,\TVY}$.
 This reasoning gives rise to the following completion.
-% \begin{lstlisting}
+% \begin{lstlisting}[style=fgj]
 % class MultPair {
 %   Int mult (Pair<Int,Int> p) { return p.fst.mult(p.snd); }
 % }
 % \end{lstlisting}
-\begin{lstlisting}
+\begin{lstlisting}[style=fgj]
 class MultPair {
   <X extends Int, Y extends Int>
   Int mult (Pair<X,Y> p) { return p.fst.mult(p.snd); }
@@ -70,7 +72,7 @@ class MultPair {
 \end{lstlisting}
 We obtain a second completion if we assume that \texttt{mult} refers to
 \texttt{Double.mult}.
-\begin{lstlisting}
+\begin{lstlisting}[style=fgj]
 class MultPair {
   <X extends Double, Y extends Double>
   Double mult (Pair<X,Y> p) { return p.fst.mult(p.snd); }
@@ -94,7 +96,7 @@ occurs-check in unification and is hence rejected.
 % names in different classes may overlap.
 
 The two solutions can be combined to
-\begin{lstlisting}
+\begin{lstlisting}[style=fgj]
 class MultPair {
   <X extends T1, Y extends T2>
   T0 mult (Pair<X,Y> p) { return p.fst.mult(p.snd); }
@@ -110,7 +112,7 @@ where
 
 \begin{figure}[tp]
   \begin{subfigure}[t]{0.49\linewidth}
-\begin{lstlisting}
+\begin{lstlisting}[style=tfgj]
 class A1 {
   m(x) { return x.add(x); }
 }
@@ -120,7 +122,7 @@ class B1 extends A1 {
 \end{lstlisting}
   \end{subfigure}
 \begin{subfigure}[t]{0.49\linewidth}
-\begin{lstlisting}
+\begin{lstlisting}[style=tfgj]
 class A2 {
   m(x) { return x; }
 }
@@ -158,7 +160,7 @@ GTI is now forced to instantiate the type in the superclass to
 
 % Otherwise, we would get strange results. Consider extending the
 % program with classes \texttt{A} and \texttt{B} by the following class.
-% \begin{lstlisting}
+% \begin{lstlisting}[style=tfgj]
 % class C {
 %   mbool(x) { return x.m(new Bool()); }
 % }
@@ -168,7 +170,7 @@ GTI is now forced to instantiate the type in the superclass to
 % unifiable. However, inferring the type of \texttt{C.mbool()} using
 % \texttt{B.m()} (with the generic type) would succeed and yield the
 % typing
-% \begin{lstlisting}
+% \begin{lstlisting}[style=fgj]
 % class C {
 %   Bool mbool(B x) { return x.m(new Bool()); }
 % }
@@ -185,7 +187,7 @@ impose the typing \texttt{Int B1.m(Int)} or \texttt{Int A2.m(Int)} to enforce co
 \label{sec:inheritance-generics}
 
 
-\begin{lstlisting}[float,caption={Function class}, label={lst:function-class}]
+\begin{lstlisting}[float,caption={Function class}, label={lst:function-class},style=fgj]
 class Function<S,T> {
   T apply(S arg) { return this.apply (arg); }
 }
@@ -200,14 +202,24 @@ implementation.
 
 If we applied GTI to the type-erased version of
 Listing~\ref{lst:function-class}, the \texttt{apply} method would be considered a generic method: 
-\begin{lstlisting}
-  apply (arg) { ... }  --GTI-->    <A,B> B apply (A arg) { ... }
+\begin{center}
+  \begin{minipage}{0.3\linewidth}
+\begin{lstlisting}[style=tfgj]
+apply (arg) { ... }
 \end{lstlisting}
+  \end{minipage}
+  \hfill\texttt{ --GTI--> }\hfill
+  \begin{minipage}{0.45\linewidth}
+\begin{lstlisting}[style=fgj]
+<A,B> B apply (A arg) { ... }
+\end{lstlisting}
+  \end{minipage}
+\end{center}
 The typing of \texttt{apply} in Listing~\ref{lst:function-class} is an
 instance of this result, so that completeness of GTI is preserved!
 
 % While it is possible to  force GTI to infer the intended typing, it requires some awkward coding.
-% \begin{lstlisting}
+% \begin{lstlisting}[style=tfgj]
 % class Function<S,T> {
 %   S in;
 %   T out;
@@ -219,7 +231,7 @@ instance of this result, so that completeness of GTI is preserved!
 Now that we have the abstract class \texttt{Function<S,T>} at our
 disposal, let us apply GTI to a class of boxed values with a
 \texttt{map} function:
-\begin{lstlisting}
+\begin{lstlisting}[style=tfgj]
 class Box<S> {
   S val;
   map(f) {
@@ -240,7 +252,7 @@ GTI finds the following constraints
 and resolves them to the desired outcome where \texttt{T1=T} and
 \texttt{S=S1} using the methods of
 Simonet~\cite{DBLP:conf/aplas/Simonet03}. 
-\begin{lstlisting}
+\begin{lstlisting}[style=fgj]
 class Box<S> {
   S val;
   <T> Box<T> map(Function<S,T> f) {
@@ -249,7 +261,7 @@ class Box<S> {
 \end{lstlisting}
 But what happens if we add subclasses of \texttt{Function}?
 For example:
-\begin{lstlisting}
+\begin{lstlisting}[style=tfgj]
 class Not extends Function<Bool,Bool> {
   apply(b) { return b.not(); }
 }
@@ -276,7 +288,7 @@ and \texttt{S = Bool}, which are both satisfiable. With
 
 Here is another subclass of \texttt{Function<S,T>} that we want
 to consider.
-\begin{lstlisting}
+\begin{lstlisting}[style=fgj]
 class Identity<S> extends Function<S,S> {
   S apply(S arg) { return arg; }
 }
@@ -288,7 +300,7 @@ Here, we obtain the following type constraints
 \item hence \texttt{S1 $\subconstr$ T} and \texttt{S $\subconstr$ S1}.
 \end{itemize}
 Resolving the constraints yields \texttt{S = T} thus the typing
-\begin{lstlisting}
+\begin{lstlisting}[style=fgj]
 Box<S> map(Identity<S> f);
 \end{lstlisting}
 which is an instance of the previous typing.
@@ -300,7 +312,7 @@ which is an instance of the previous typing.
 % paper and assume that field types are specified.
 \begin{figure}[tp]
   \begin{minipage}{0.49\linewidth}
-\begin{lstlisting}
+\begin{lstlisting}[style=fgj]
 class List<A> {
   List<A> add(A item) {...}
   A get() { ... }
@@ -309,7 +321,7 @@ class List<A> {
   \end{minipage}
   ~$\left|
   \begin{minipage}{0.49\linewidth}
-\begin{lstlisting}
+\begin{lstlisting}[style=tfgj]
 class Global{
   m(a){
     return a.add(this).get();
@@ -367,7 +379,7 @@ instances of the intersection type:\footnote{The cognoscenti will be
 }
 \begin{center}
   \begin{minipage}{0.49\linewidth}
-\begin{lstlisting}
+\begin{lstlisting}[style=fgj]
 class Global {
   Global m(List<Global> a) {
     return a.add(this).get();
@@ -375,7 +387,7 @@ class Global {
 \end{lstlisting}
   \end{minipage}
   \begin{minipage}{0.49\linewidth}
-\begin{lstlisting}
+\begin{lstlisting}[style=fgj]
 class Global {
   Object m(List<Object> a) {
     return a.add(this).get();
@@ -385,7 +397,7 @@ class Global {
 \end{center}
 In this sense, the inferred intersection type represents a principal
 typing for the class.
-% \begin{lstlisting}
+% \begin{lstlisting}[style=fgj]
 % class Global {
 %   <Global <: T> T m( List<T> a ) {
 %     return a.add(this).get();
@@ -394,7 +406,7 @@ typing for the class.
 Additional classes in the program may further restrict the number of
 viable types. Suppose we define a class \texttt{UseGlobal} as
 follows:
-\begin{lstlisting}
+\begin{lstlisting}[style=tfgj]
 class UseGlobal {
   main() {
     return new Global().m(new List<Object>());
@@ -405,16 +417,16 @@ Due to the dependency on \texttt{Global.m()}, type inference considers this clas
 \texttt{List<Object> -> Object}, global type inference narrows the
 type of \texttt{m} to just this alternative.
 
-\todo[inline]{If there are conflicting uses of a method with an
-  intersection type \texttt{T1\&T2}, one might consider splitting the
-  class into one providing the method with type \texttt{T1} and
-  another providing it with \texttt{T2}.}
+% \todo[inline]{If there are conflicting uses of a method with an
+%   intersection type \texttt{T1\&T2}, one might consider splitting the
+%   class into one providing the method with type \texttt{T1} and
+%   another providing it with \texttt{T2}.}
 
 \subsection{Polymorphic recursion}
 \label{sec:polym-recurs}
 \begin{figure}[tp]
   \begin{minipage}{0.49\linewidth}
-\begin{lstlisting}
+\begin{lstlisting}[style=fgj]
 class UsePair {
   <X,Y> Object prc(Pair<X,Y> p) {
     return this.prc<Y,X> (p.swap<X,Y>());
@@ -423,7 +435,7 @@ class UsePair {
   \end{minipage}
   ~$\left|
   \begin{minipage}{0.49\linewidth}
-\begin{lstlisting}
+\begin{lstlisting}[style=tfgj]
 class UsePair {
   prc(p) {
     return this.prc (p.swap());
@@ -451,7 +463,7 @@ corresponding stripped program shown in
 Figure~\ref{fig:examples-poly-rec}, right, but it yields a more restrictive
 typing of \texttt{<X> Object prc (Pair<X,X> p)} for the method. 
 A minor variation of the FGJ program with a non-variable instantiation makes type inference fail entirely:
-\begin{lstlisting}
+\begin{lstlisting}[style=fgj]
 class UsePair2 {
   <X,Y> Object prc(Pair<X,Y> p) {
     return this.prc<Y,Pair<X,Y>> (new Pair (p.snd, p));

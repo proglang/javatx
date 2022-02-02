@@ -10,13 +10,10 @@
   \mv N &::= \exptype{C}{\ol{T}}\\
   \mv L &::= \mathtt{class} \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft \ \mv N\ \{ \ol{T} \ \ol{f}; \,\mv K \, \ol{M} \} \\
   \mv K &::= \mv C(\ol{f})\ \{\mathtt{super}(\ol{f}); \ \mathtt{this}.\ol{f}=\ol{f};\} \\
-  %M &::= \exptype{}{\ol{X} \triangleleft \ol{X}}\ T \ \mathtt{m}(\overline{T} \, \overline{x})\{ \mathtt{ return }\ e; \} \\
   \mv M &::= \mathtt{m}(\ol{x})\ \{ \mathtt{ return}\ \mv e; \} \\
   \mv e &::= \mv x \mid \mv e.\mv f \mid
              \mv e.\mathtt{m}(\ol{e}) \mid \mathtt{new}\ \mathtt{C}(\ol{e})
              \mid (\mv N)\ \mv e
-  %M ::=& T \ \mathtt{m}(\overline{T} \, \overline{x})\{ \mathtt{ return }\ e; \} \\
-  %e ::=& \mathtt{this} \, | \, x \, | \, e.f \, | \, e.\exptype{\mathtt{m}}{\ol{T}}(\overline{e}) \, | \, \mathtt{new }\ C(\overline{e}) \, | \, (C) e \\
 \end{align*}
   \caption{Syntax of \TFGJ}
   \label{fig:syntax-tfgj}
