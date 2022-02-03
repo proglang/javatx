@@ -528,9 +528,12 @@ For the toy example in Figure~\ref{fig:examples-poly-rec}, we obtain
 the multigraph $IG^* (\mv{UsePair})$ which indicates that \mv{prc} is
 involved in polymorphic recursion:
 \begin{gather*}
-  \mv{prc} \stackrel{\mv{Y,X}/\mv{X,Y}}{\longrightarrow} \mv{prc}
-  \qquad
-  \mv{prc} \stackrel{\mv{X,Y}/\mv{X,Y}}{\longrightarrow} \mv{prc}
+  \begin{array}{l@{\quad}|@{\quad}l}
+    IG(\mv{UsePair})& IG^* (\mv{UsePair}) \\\hline
+    \mv{prc} \stackrel{\mv{Y,X}/\mv{X,Y}}{\longrightarrow} \mv{prc} &
+    \mv{prc} \stackrel{\mv{Y,X}/\mv{X,Y}}{\longrightarrow} \mv{prc} \qquad
+    \mv{prc} \stackrel{\mv{X,Y}/\mv{X,Y}}{\longrightarrow} \mv{prc}
+  \end{array}
 \end{gather*}
 The method call to \mv{swap} does not appear in the graph because
 \mv{swap} is defined in a different class.
@@ -538,13 +541,19 @@ The method call to \mv{swap} does not appear in the graph because
 For \mv{UsePair2}, we obtain a multigraph $IG^* (\mv{UsePair2})$ with
 infinitely many edges which is also clear indication for polymorphic recursion:
 \begin{gather*}
-  \mv{prc} \stackrel{\mv{Y,Pair<X,Y>}/\mv{XY}}{\longrightarrow} \mv{prc}
-  \\
-  \mv{prc}
-  \stackrel{\mv{Pair<X,Y>,Pair<Y,Pair<X,Y>>}/\mv{XY}}{\longrightarrow}
-  \mv{prc}
-  \\
-  \dots
+  \begin{array}{l@{\quad}|@{\quad}l}
+    IG(\mv{UsePair2})& IG^* (\mv{UsePair2}) \\\hline
+    \mv{prc} \stackrel{\mv{Y,Pair<X,Y>}/\mv{XY}}{\longrightarrow} \mv{prc}
+    &
+    \mv{prc} \stackrel{\mv{Y,Pair<X,Y>}/\mv{XY}}{\longrightarrow}
+      \mv{prc} \\
+    &
+      \mv{prc}
+      \stackrel{\mv{Pair<X,Y>,Pair<Y,Pair<X,Y>>}/\mv{XY}}{\longrightarrow}
+      \mv{prc}
+      \\
+                     & \dots
+  \end{array}
 \end{gather*}
 
 
