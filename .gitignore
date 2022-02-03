@@ -6,6 +6,9 @@ auto
 *.out
 *.pdf
 *.rel
+*.vtc
 *.synctex.gz
 *.vtc
+.DS_Store
+
 

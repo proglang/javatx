@@ -528,9 +528,12 @@ For the toy example in Figure~\ref{fig:examples-poly-rec}, we obtain
 the multigraph $IG^* (\mv{UsePair})$ which indicates that \mv{prc} is
 involved in polymorphic recursion:
 \begin{gather*}
-  \mv{prc} \stackrel{\mv{Y,X}/\mv{X,Y}}{\longrightarrow} \mv{prc}
-  \qquad
-  \mv{prc} \stackrel{\mv{X,Y}/\mv{X,Y}}{\longrightarrow} \mv{prc}
+  \begin{array}{l@{\quad}|@{\quad}l}
+    IG(\mv{UsePair})& IG^* (\mv{UsePair}) \\\hline
+    \mv{prc} \stackrel{\mv{Y,X}/\mv{X,Y}}{\longrightarrow} \mv{prc} &
+    \mv{prc} \stackrel{\mv{Y,X}/\mv{X,Y}}{\longrightarrow} \mv{prc} \qquad
+    \mv{prc} \stackrel{\mv{X,Y}/\mv{X,Y}}{\longrightarrow} \mv{prc}
+  \end{array}
 \end{gather*}
 The method call to \mv{swap} does not appear in the graph because
 \mv{swap} is defined in a different class.
@@ -538,13 +541,19 @@ The method call to \mv{swap} does not appear in the graph because
 For \mv{UsePair2}, we obtain a multigraph $IG^* (\mv{UsePair2})$ with
 infinitely many edges which is also clear indication for polymorphic recursion:
 \begin{gather*}
-  \mv{prc} \stackrel{\mv{Y,Pair<X,Y>}/\mv{XY}}{\longrightarrow} \mv{prc}
-  \\
-  \mv{prc}
-  \stackrel{\mv{Pair<X,Y>,Pair<Y,Pair<X,Y>>}/\mv{XY}}{\longrightarrow}
-  \mv{prc}
-  \\
-  \dots
+  \begin{array}{l@{\quad}|@{\quad}l}
+    IG(\mv{UsePair2})& IG^* (\mv{UsePair2}) \\\hline
+    \mv{prc} \stackrel{\mv{Y,Pair<X,Y>}/\mv{XY}}{\longrightarrow} \mv{prc}
+    &
+    \mv{prc} \stackrel{\mv{Y,Pair<X,Y>}/\mv{XY}}{\longrightarrow}
+      \mv{prc} \\
+    &
+      \mv{prc}
+      \stackrel{\mv{Pair<X,Y>,Pair<Y,Pair<X,Y>>}/\mv{XY}}{\longrightarrow}
+      \mv{prc}
+      \\
+                     & \dots
+  \end{array}
 \end{gather*}
 
 
@@ -559,10 +568,18 @@ The following condition is necessary for the absence of
 polymorphic recursion.
 
 \begin{proposition}\label{prop:polymorphi-recursion}
-  If a class \mv{C} with $n$ mutually recursive methods does not exhibit
-  polymorphic recursion, then all methods quantify over the
-  same number of generic variables, say $\ol{X}$, each method call
-  instantiates with a permutation of the $\ol{X}$, and $IG^* (\mv{C})$ is finite.
+  Suppose an FGJ class \mv{C} has $n$ methods, which are mutually
+  recursive.
+  If \mv{C} does not exhibit
+  polymorphic recursion, then
+  \begin{itemize}
+  \item all methods quantify over the same number of generic
+    variables;
+  \item if a method has generic variables $\ol{X}$, then each call to
+    a method of \mv{C} instantiates with a permutation of the
+    $\ol{X}$;
+  \item $IG^* (\mv{C})$ is finite.
+  \end{itemize}
 \end{proposition}
 \begin{proof}
   Suppose for a contradiction that there are two distinct methods $\mv{m}_i$ and
@@ -603,6 +620,45 @@ polymorphic recursion.
   Hence, all instantiations must be permutations over a finite set of
   variables, so that $IG^*(\mv{C})$ is finite! 
 \end{proof}
+
+Moreover, if a class has only mutually recursive methods without
+polymorphic recursion, we can assume that each method uses the same
+generic variables, say $\ol{X}$, and each instantiation for
+class-internal method calls is the identity $\ol X/\ol X$.
+
+Using the same generic variables is achieved by $\alpha$ conversion.
+By Proposition~\ref{prop:polymorphi-recursion}, we already know that
+each instantiation is a permutation. Each self-recursive call must use
+an identity instantiation already, otherwise it would constitute an
+instance of polymorphic recursion. Suppose that method \mv{m} calls
+method \mv{n} instantiated with a non-identity permutation, say
+$\pi$ so that parameter $\mv{X_i}$ of \mv{n} gets instantiated with
+$\mv{X_{\pi(i)}}$ of \mv{m}. In this case, we reorder the generic
+parameters of \mv{n}  according to the inverse permutation
+$\pi^{-1}$ and propagate this permutation to all call sites of
+\mv{n}. For the call in \mv{m}, we obtain the identity permutation
+$\pi \cdot \pi^{-1}$, for self-recursive calls inside \mv{n}, the
+instantiation remains the identity (for the same reason), for a
+call site in another method which instantiates \mv{n} with permutation
+$\sigma$, we change that permutation to $\sigma \cdot \pi^{-1}$, which
+is again a permutation.
+This way, we can eliminate all non-identity instantiations from calls
+inside \mv{m}.
+
+We move our attention to \mv{n}. Each self-recursive call and each call to \mv{m} uses the
+identity instantiation, the latter by construction. So we only need to
+consider calls to $\mv{n'}\notin\{\mv{n}, \mv{m}\}$ with an
+instantiation which is not the identity permutation. We can also
+assume that $\mv{n'}$ is not called from $\mv{m}$: otherwise, \mv{n'}
+would have the generic variables in the same order as \mv{m} and hence
+as \mv{n}! But that means we can fix all calls to $\mv{n'}$ by
+applying the inverse permutations as for \mv{n} \emph{without disturbing the already
+  established identity instantiations}!
+
+Each such step eliminates all non-identity instantiations for at least
+one method without disturbing previous identity instantiations. Hence,
+the procedure terminates after finitely many steps with a class with
+all instantiations being identity permutations.
 
 % Features:
 % \begin{itemize}
