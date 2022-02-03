@@ -108,7 +108,7 @@ completion, that is, a well-typed FGJ program.
 \end{definition}
 \begin{theorem}
   Suppose that $\mathtt{\vdash \ol L : \Pi}$ such that $|\mathtt{\Pi (\exptype{C}{\ol{X}}.m)}| = 1$, for all $\mv{C.m}$ defined in $\ol L$. Then there is a completion $\ol{L}'$ of $\ol L$ such that
-  $\mv{L}'\ \mathtt{OK}$ is derivable in FGJ. 
+  $\ol{L}'\ \mathtt{OK}$ is derivable in FGJ. 
 \end{theorem}
 \begin{proof}
   The proof is by induction on the length of $\ol L$.
@@ -168,11 +168,18 @@ completion, that is, a well-typed FGJ program.
     \end{gather}
     for a completion of $\mathtt{e_0}$.
 
-    To see that, we need to consider the rules \rulename{GT-NEW} and \rulename{GT-INVK}. The
+    To see that, we need to consider the rules \rulename{GT-NEW},
+    \rulename{GT-CAST}, and \rulename{GT-INVK}. The 
     \rulename{GT-NEW} rule poses the existence of some $\ol{U}$ such that $\mv{N} =
     \exptype{C}{\ol{U}}$ for checking $\mv{e} = \mv{new}\ \mv{C} (\ol{e}) : \mv{N}$. In the completion, we
     define $\mv{e'} = \mv{new}\ \mv{N} (\ol{e}') : \mv{N}$ to apply rule \rulename{GT-NEW'} to the completions
     of the arguments.
+
+    The rule \rulename{GT-CAST} splits into three rules
+    \rulename{GT-UCAST'}, \rulename{GT-DCAST'}, and
+    \rulename{GT-SCAST'}. These rules are (designed to be) disjoint
+    and exhaustive, so that one of them applies to each occurrence of
+    a cast. 
 
     For the rule \rulename{GT-INVK}, we first consider calls to methods not defined in the current
     class. By our assumption on previously checked classes $\mv{D}$ and their methods $\mv{n}$,
