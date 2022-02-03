@@ -7,5 +7,5 @@ auto
 *.pdf
 *.rel
 *.synctex.gz
-
+*.vtc
 
