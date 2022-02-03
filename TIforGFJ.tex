@@ -113,32 +113,28 @@ The last step chooses the principal type out of those possibilities.
 \todo[inline]{PT: I thought the set of solutions constitutes the
   principal type. What's there to choose?}
 
-\subsection{Process multiple classes}
+\subsection{Type inference for a program}
 \label{sec:proc-mult-class}
 
-Type inference processes one class at a time.
+Type inference processes a program one class at a time.
 To do so, it must be possible to order the classes such that early
 classes never call methods in later classes.
 As an example, Figure~\ref{fig:invalidinput} shows a program that is
 acceptable in FGJ, but rejected by \TFGJ because the methods \mv{m1}
-and \mv{m2} are mutually recursive across class boundaries.
-In contrast, Figure~\ref{fig:correctinput} contains a program
+and \mv{m2} are mutually recursive across class boundaries. There is
+no order in which classes \mv{C1} and \mv{C2} can be processed.
+
+Figure~\ref{fig:correctinput} contains a program
 acceptable to both \TFGJ and FGJ because the mutual recursion of
-methods \mv{m1} and \mv{m2} is taking place inside class \mv{C2}.
+methods \mv{m1} and \mv{m2} is taking place inside class \mv{D2}. As
+\mv{D2} invokes method \mv{m} of \mv{D1}, type inference must process
+\mv{D1} before \mv{D2}, which corresponds to the constraints imposed
+by the typing of \TFGJ in Section~\ref{chapter:type-rules}.
 
-Only the first step creating the type assumptions is able to consider other classes as well.
+% Only the first step creating the type assumptions is able to consider other classes as well.
 
-Nevertheless we allow the input to consist out of multiple classes.
-But in that case there are some additional requirements for the input.
-%TODO: these requirements can also be in "Preliminaries"
 
-We assume that the algorithm are given the input classes in the correct order $C_1, \ldots C_2$.
-Hereby there must exist a correct typisation for the class $C_1$ when existing on its own.
-This is also regulated by our typing rules (see chapter \ref{chapter:type-rules}).
-
-\textbf{Example:}
-We give an example for a incorrect input program for our algorithm, where none of the given classes cannot be compiled on its own.
-  \begin{figure}
+\begin{figure}[tp]
     \centering
     \begin{minipage}{.48\textwidth}
 \begin{lstlisting}[style=tfgj]
@@ -155,11 +151,13 @@ class C2 extends Object{
   ~$\left|~
     \begin{minipage}{.48\textwidth}
 \begin{lstlisting}[style=tfgj]
-class C1 extends Object {
+class D1 extends Object {
+  m(){ return ...; }
 }
-class C2 extends Object{
-  m1(){ return new C2().m2(); }
-  m2(){ return new C2().m1(); }
+class D2 extends Object{
+  m1(x){ return new D2().m2(); }
+  m2( ){ return new D2().m1(
+                new D1().m()); }
 }
 \end{lstlisting}
       \caption{Valid \TFGJ program}
@@ -167,20 +165,19 @@ class C2 extends Object{
     \end{minipage}\right.$
 \end{figure}
 
-The problem in figure \ref{fig:invalidinput} is a circular method call graph.
-Method \texttt{m1} calls method \texttt{m2} and other way round.
-Our typing rules demand that one of the two classes has to only use his internal methods.
-Figure \ref{fig:correctinput} shows a possible way to alter the incorrect input to make it comply with our typing rules.
-The method \texttt{m1} was moved into the class \texttt{C2}.
-Now both methods still call each other, but they are inherited by the same class.
+We obtain a viable order for processing the class declarations by
+computing an approximate call graph based solely on method names. That
+is, if method \mv{m} is used in \mv{C3} and defined both in \mv{C1}
+and \mv{C2}, then \mv{C1} and \mv{C2} must both be processed before
+\mv{C3}. In such a case, the use of \mv{m} might be ambiguous so that
+type inference for class \mv{C3} proposes more than one solution. Global
+type inference attempts to extend all proposals to a solution for the
+whole program and backtracks if that fails.
 
-Another problem we face when compiling multiple classes is the fact that there can be more than a single principal typing for a method.
-When considering only one class at once it is not possible to set in the correc type right away.
-This problem can be solved with backtracking.
-Whenever the \textbf{Unify} algorithm gives more than one type solution, we pick the first one and continue.
-If the algorithm fails at some point it has to backtrack to this point and try one of the other solutions.
 
-\subsection{Generate Assumptions}
+\subsection{Proprocessing a class}
+\label{sec:proprocessing-class}
+
 % Every empty Type T in the input is assigned a type variable.
 % Assumptions saves every field, method and the class subtype relation
 
@@ -202,14 +199,14 @@ For methods:
   A m(\ol{A}\ \ol{x}) \{ \ldots \}
   }
   \end{align*}
-  For fields:
-\begin{align*}
-  \ddfrac{
-  \texttt{class}\ \exptype{C}{\ol{X}} \{ \ol{f}; \quad \ldots \} \quad \quad \ol{F} \ \text{are fresh type variables}
-  }{
-    \texttt{class}\ \exptype{C}{\ol{X}} \{ \ol{F} \ \ol{f}; \quad \ldots \}
-  }
-\end{align*}
+%   For fields:
+% \begin{align*}
+%   \ddfrac{
+%   \texttt{class}\ \exptype{C}{\ol{X}} \{ \ol{f}; \quad \ldots \} \quad \quad \ol{F} \ \text{are fresh type variables}
+%   }{
+%     \texttt{class}\ \exptype{C}{\ol{X}} \{ \ol{F} \ \ol{f}; \quad \ldots \}
+%   }
+% \end{align*}
 \item We define the two functions $\textit{ftype}_\textit{Ass}$ and $\textit{mtype}_\textit{Ass}$.
 Both functions return a set of all types for a method \texttt{m} or a field \texttt{f}.
 This is due to the fact that there can be multiple methods and fields with the same name.
@@ -230,22 +227,21 @@ This is due to the fact that there can be multiple methods and fields with the s
     \textit{ftype}_\textit{Ass}(\texttt{f}, \exptype{C}{\ol{X} \triangleleft \ol{N}}) = T
   }
 \end{align*}
-\item If the input for the type inference algorithm consists out of multiple classes we compile them one by one.
-Additionally we add the types of the already compiled classes to the assumption set.
-Therefore it is possible to have intersection types already in the assumptions.
+% \item If the input for the type inference algorithm consists out of multiple classes we compile them one by one.
+% Additionally we add the types of the already compiled classes to the assumption set.
+% Therefore it is possible to have intersection types already in the assumptions.
 \end{enumerate}
 
-\subsection{Multiple classes as input}
-We process each class individually.
-
-%Besprechung Peter:
-%Ich betrachte immer Klassen zusammen
-%Wo ich annehme, dass die sich rekursiv aufrufen
-%
-%Es gibt einen Präprozessor, der die aufrufgraphen ausrechnet
-%und die Klassen in Pakete packt
 
 \subsection{FJTYPE}
+\label{sec:fjtype}
+
+\todo[inline]{PT: define the syntax of constraints and constraint sets
+  formally, starting with the syntax for a type variable. Introduce
+  metavariables that are used consistently for single constraints (e.g., $c$) and
+  constraint sets (e.g., $C$).  Are there
+  restrictions on what is on the left/right side of a constraint?  An
+  OrConstraint is a set of constraint sets, correct? }
 The \textbf{FJTYPE} algorithm produces two kinds of constraints.
 \begin{description}
 \item[Constraint] A constraint consists of two types or type variables and an operator.
@@ -485,12 +481,14 @@ So every possible type of cast is allowed in \TFGJ, therefore no restrictions in
 \end{description}
 
 \section{Unify}
+\label{sec:unify-1}
 \input{Unify}
 
 \input{unifyProof}
 
-%\section{Insert principal type}
 \section{Insert intersection type}
+\label{sec:insert-inters-type}
+
 The outcome of the \textbf{Unify} algorithm is a set of type solutions $Uni_{set}$.
 The following function sets in all type solutions by generating overloaded methods:
 
@@ -837,9 +835,12 @@ class List<A> {
 \end{lstlisting}
 
 \section{Complexity}
+\label{sec:complexity}
+
 \input{complexity}
 
 \section{Examples}
+\label{sec:examples}
 
 \input{examples}
 
@@ -1056,7 +1057,9 @@ Also we exclude polymorphic recursion.
 %   \lstinline{List<String>} or \lstinline{Map} in the
 %   \lstinline{outerMap} example?}
 
-\section{Limits of the algorithm}
+\section{Limitations of the algorithm}
+\label{sec:limits-algorithm}
+
 Java does not allow generic variables with lower bounds.
 The expression \texttt{<A super String>} is not a correct definition in FJ.
 
@@ -1077,6 +1080,8 @@ We have to still calculate every possible supertype of \texttt{Example} which wi
 
 
 \section{Related Work}
+\label{sec:related-work}
+
 \input{relatedWork}
 
 \section{Conclusions}
