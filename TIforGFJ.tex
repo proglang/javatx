@@ -108,10 +108,10 @@ The algorithm is split into several parts, which are executed on a single class 
 \item Substitute principal type solution
 \end{enumerate}
 
-The solver returns a set of possible solutions for each method.
-The last step chooses the principal type out of those possibilities.
-\todo[inline]{PT: I thought the set of solutions constitutes the
-  principal type. What's there to choose?}
+The solver returns a set of all possible type solutions.
+This set inherits the principal type solution.
+The last step simplifies the calculated solutions and only inserts the principal typing.
+%The last step chooses the principal type out of those possibilities.
 
 \subsection{Type inference for a program}
 \label{sec:proc-mult-class}
@@ -194,19 +194,23 @@ new untyped class, which is now equipped with type variables.
 For methods:
 \begin{align*}
   \ddfrac{
-  m(\ol{x}) \{ \ldots \} \quad \quad A \cup \ol{A} \ \text{are fresh type variables}
+  m(\ol{x}) \{ \ldots \} \quad \quad \tv{a} \cup \ol{\tv{a}} \ \text{are fresh type variables}
   }{
-  A m(\ol{A}\ \ol{x}) \{ \ldots \}
+  \tv{a}\ m(\ol{\tv{a}}\ \ol{x}) \{ \ldots \}
   }
   \end{align*}
-%   For fields:
-% \begin{align*}
-%   \ddfrac{
-%   \texttt{class}\ \exptype{C}{\ol{X}} \{ \ol{f}; \quad \ldots \} \quad \quad \ol{F} \ \text{are fresh type variables}
-%   }{
-%     \texttt{class}\ \exptype{C}{\ol{X}} \{ \ol{F} \ \ol{f}; \quad \ldots \}
-%   }
-% \end{align*}
+\item Apply types from overridden methods:
+Every method which overrides a method in a superclass will be assigned the parameter types and generic variables from its parent method.
+\begin{align*}
+\ddfrac{
+  \begin{array}{c}
+  \mathtt{class } \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \ \mathtt{ extends } \ \mathtt{N \{ \overline{T} \ \overline{f}; \, K \, \overline{M} \}} \quad \quad \mathtt{ \ol{M}' \in N }\\
+  \mathtt{\tv{a}\ m(\ol{\tv{a}}\ x) \in \ol{M} \quad \quad \exptype{}{\ol{Y} \triangleleft \ol{P}}\ T\ m'(\ol{T}\ x) \in \ol{M}'  \quad \quad m\ \text{overrides}\ m'}
+  \end{array}
+}{
+  \text{replace}\ \mathtt{\tv{a}\ m(\ol{\tv{a}}\ x)} \ \text{with}\ \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ \tv{a}\ m(\ol{T}\ x)}
+}
+\end{align*}
 \item We define the two functions $\textit{ftype}_\textit{Ass}$ and $\textit{mtype}_\textit{Ass}$.
 Both functions return a set of all types for a method \texttt{m} or a field \texttt{f}.
 This is due to the fact that there can be multiple methods and fields with the same name.
@@ -242,7 +246,18 @@ This is due to the fact that there can be multiple methods and fields with the s
   constraint sets (e.g., $C$).  Are there
   restrictions on what is on the left/right side of a constraint?  An
   OrConstraint is a set of constraint sets, correct? }
-The \textbf{FJTYPE} algorithm produces two kinds of constraints.
+
+\begin{align*}
+%Type
+T = a | X | N \\
+%Constraints
+c = T \lessdot T | T \doteq T \\
+C = c | \orCons \\
+\ol{C} = \set{C_1, \ldots, C_2} \\
+\orCons = \set{\ol{c_1}, \ldots, \ol{c_n}} \\
+\end{align*}
+
+The \fjtype algorithm produces two kinds of constraints.
 \begin{description}
 \item[Constraint] A constraint consists of two types or type variables and an operator.
 The operator can either be a $\doteq$ (same type) or $\lessdot$ (subtype).
@@ -258,24 +273,24 @@ After our algorithm found a correct typisation we replace the type variables wit
 
 The algorithm \textbf{FJTYPE} is given as follows:
 
-\textbf{FJTYPE}:
-$
-\texttt{Class} \rightarrow \texttt{Constraints}\\
+\noindent
+$\fjtype : \mathtt{L \rightarrow \ol{C}}\\
  \begin{array}{@{}l@{}l@{}l}
- \textbf{FJT}&\textbf{Y} & \textbf{PE}(\mathtt{class } \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \ \mathtt{ extends } \ D \{ \overline{T} \ \overline{f}; \, K \, \overline{M} \}) =\\
-& \multicolumn{2}{@{}l@{}}{ \{ \ \textbf{TYPEMethod}(\{ \mathtt{this} : \exptype{C}{\ol{X}} \}, m_i) \quad | \quad m_i \in \overline{M} \ \} }\\ 
-& \multicolumn{2}{@{}l@{}}{ \set{ T \lessdot U \  | \  (m:\ \ol{T} \to T, m_o:\ \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{U} \to U) \in \overline{O}}} \\
-& & \text{with:}\ \overline{O} = \set{(m, m_o) \  | \  m \ \text{overrides method}\ m_o} \\
+  \fjtype & (\mathtt{class } \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \ \mathtt{ extends } \ \mathtt{N \{ \overline{T} \ \overline{f}; \, K \, \overline{M} \}}) =\\
+& \multicolumn{2}{@{}l@{}}{ \{ \ \typeMethod(\{ \mathtt{this} : \exptype{C}{\ol{X}} \}, \mathtt{m_i}) \quad | \quad \mathtt{m_i} \in \overline{M} \ \} }\\ 
+& \multicolumn{2}{@{}l@{}}{ \set{ \tv{a} \lessdot T \  | \ \mathtt{m_i} \in \overline{M},\ \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ \tv{a}\ m_i(\ol{T}\ x)} \ \text{overrides} \ \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T\ m_i'(\ol{T}\ x)}}} \\
 \end{array}$
 
 The \textbf{FJTYPE} function gets called for every class in the input.
 This function accumulates all the constraints generated from calling the
 \textbf{TYPEMethod} function for each method declared in the given class.
+It also generares constraints for overriden methods.
 
+\noindent
 $\textbf{TYPEMethod}:\texttt{TypeAssumptions} \times
-\texttt{Method} \rightarrow \texttt{Constraints}\\
+\texttt{M} \rightarrow \ol{C}\\
 \begin{array}{@{}l@{}l@{}l}
-\textbf{TY}& \textbf{PE} & \textbf{Method} (Ass, T_r \ \mathtt{m}(\overline{T} \, \overline{x})\{ \mathtt{ return }\ e; \}) =\\
+\typeMethod & (Ass, & T_r \ \mathtt{m}(\overline{T} \, \overline{x})\{ \mathtt{ return }\ e; \}) =\\
 & \textbf{let}
 & Ass_m = Ass \cup \{ \overline{T} : \overline{x} \}\\
 & & \underline{(e:rty, ConS)} = \textbf{TYPEExpr}(Ass_m, e)\\
