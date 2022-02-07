@@ -237,7 +237,7 @@ This is due to the fact that there can be multiple methods and fields with the s
 \end{enumerate}
 
 
-\subsection{FJTYPE}
+\subsection{Constraint generation}
 \label{sec:fjtype}
 
 \todo[inline]{PT: define the syntax of constraints and constraint sets
@@ -249,12 +249,12 @@ This is due to the fact that there can be multiple methods and fields with the s
 
 \begin{align*}
 %Type
-T = a | X | N \\
+T = a\ |\ X\ |\ N \\
 %Constraints
 c = T \lessdot T | T \doteq T \\
-C = c | \orCons \\
+C = c\ |\ \orCons \\
 \ol{C} = \set{C_1, \ldots, C_2} \\
-\orCons = \set{\ol{c_1}, \ldots, \ol{c_n}} \\
+\orCons{} = \set{\ol{c_1}, \ldots, \ol{c_n}} \\
 \end{align*}
 
 The \fjtype algorithm produces two kinds of constraints.
@@ -262,9 +262,10 @@ The \fjtype algorithm produces two kinds of constraints.
 \item[Constraint] A constraint consists of two types or type variables and an operator.
 The operator can either be a $\doteq$ (same type) or $\lessdot$ (subtype).
 Example: $(a \lessdot \mathtt{Object})$, means that the type variable $a$ should be a subtype of \texttt{Object}.
-\item[OrConstraint] An OrConstraint consists out of multiple constraint sets.\\
-For example $\textbf{OrConstraint}(\{ \ \{ (a \lessdot b), (a \leq \mathtt{Object}) \} \ , \ \{ (a \lessdot b)\} \ \})$
-is an Or-Constraint consisting of two constraint sets.
+\item[Or-Constraint] An Or-Constraint (\orCons{}) consists out of multiple sets of constraints.
+It is not possible to have \orCons{} nested inside another \orCons{}.\\
+For example $\orCons{}(\{ \ \{ (a \lessdot b), (a \leq \mathtt{Object}) \} \ , \ \{ (a \lessdot b)\} \ \})$
+is an Or-Constraint consisting of two sets of constraints.
 \end{description}
 
 Before the algorithm starts we equip every untyped method with type variables.
@@ -285,6 +286,8 @@ The \textbf{FJTYPE} function gets called for every class in the input.
 This function accumulates all the constraints generated from calling the
 \textbf{TYPEMethod} function for each method declared in the given class.
 It also generares constraints for overriden methods.
+If a method \texttt{m} in \texttt{C} overrides a method in its superclass,
+then we make sure that the return type of \texttt{m} in \texttt{C} is a subtype of the overriden method.
 
 \noindent
 $\textbf{TYPEMethod}:\texttt{TypeAssumptions} \times
@@ -332,18 +335,12 @@ $\begin{array}{@{}l@{}l@{}l}
 \textbf{TY}& \textbf{PE} & \textbf{Expr} (Ass, e.f) = \\
 & \textbf{let} % \\
 % &
-& (rty, ConS) = \textbf{TYPEExpr}(Ass, e),\\
-& & \begin{array}{@{}l@{}l}
-        Cons_{m} = \{\ & rty \doteq \exptype{C}{\ol{X}}, a \doteq T\\
-                    & |\, \text{for every field}\ T\ \texttt{f} \in \ol{f} \} \\%, \textbf{fresh}(\ol{X}) \lessdot \textbf{fresh}(\ol{N})\},\\
-                    & ,\, \text{in every class}\ \exptype{C}{\ol{X}} \{ \ldots \ol{f} \ldots \}\ \text{in the input} \} 
-                  \end{array}\\
-& & OrCons = \textbf{OrConstraint}(Cons_{m})\\
+& (rty, \consSet_e) = \textbf{TYPEExpr}(Ass, e),\\
+& & \consSet_f = \set{rty \lessdot \exptype{C}{\ol{X}}, \overline{X} \lessdot \overline{N}}\\
 & \mathbf{in}% \\
 % &
-& (a, [\textbf{fresh}(\ol{X})/\ol{X}][\textbf{fresh}(\ol{Y})/\ol{Y}]ConS \cup Cons_{f})\\
-& & \mathit{where\ } a \mathit{\ is\ a\ fresh\
-  type\ variable}\\ 
+& (\mathtt{T}, [\textbf{fresh}(\ol{X})/\ol{X}](\consSet_e \cup \consSet_f))\\
+& & \textit{given there exists a}\ \mathtt{T\ f \in \ol{f}}\ \textit{in a class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\set{ \ldots \ol{f} \ldots }\\ 
 \end{array}
 $
 
@@ -388,7 +385,7 @@ $\begin{array}{@{}l@{}l@{}l}
 & & Cons = \{ \bigcup_{T_i \in \overline{T}} (pt_i \lessdot T_i) \ | \ \mathtt{class }\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\{ \ldots, \texttt{C}(\overline{T} \overline{x}), \ldots \} \}\\
 & \mathbf{in}% \\
 % &
-& (\textbf{fresh}(\ol{X})/\ol{X}]\exptype{C}{\ol{X}}, [\textbf{fresh}(\ol{X})/\ol{X}](Cons \cup \bigcup_i Cons_i \cup \ol{X'} \lessdot \ol{N}))\\
+& \textbf{fresh}(\ol{X})/\ol{X}](\exptype{C}{\ol{X}}, (Cons \cup \bigcup_i Cons_i \cup \ol{X'} \lessdot \ol{N}))\\
 \end{array}
 $
 
