@@ -255,6 +255,9 @@ c = T \lessdot T | T \doteq T \\
 C = c\ |\ \orCons \\
 \ol{C} = \set{C_1, \ldots, C_2} \\
 \orCons{} = \set{\ol{c_1}, \ldots, \ol{c_n}} \\
+% Method assumptions:
+ass = N.\texttt{methodName} : \exptype{}{\ol{X} \triangleleft \ol{N}}\ \ol{T} \to T \\
+m_{ass} = \set{ ass_1, \ldots , ass_n } \\
 \end{align*}
 
 The \fjtype algorithm produces two kinds of constraints.
@@ -275,12 +278,26 @@ After our algorithm found a correct typisation we replace the type variables wit
 The algorithm \textbf{FJTYPE} is given as follows:
 
 \noindent
-$\fjtype : \mathtt{L \rightarrow \ol{C}}\\
- \begin{array}{@{}l@{}l@{}l}
+$\fjtype : \mathtt{L_{m-ass} \rightarrow L \rightarrow L \times \ol{C}}\\
+ \begin{array}{@{}l@{}l}
   \fjtype & (\mathtt{class } \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \ \mathtt{ extends } \ \mathtt{N \{ \overline{T} \ \overline{f}; \, K \, \overline{M} \}}) =\\
-& \multicolumn{2}{@{}l@{}}{ \{ \ \typeMethod(\{ \mathtt{this} : \exptype{C}{\ol{X}} \}, \mathtt{m_i}) \quad | \quad \mathtt{m_i} \in \overline{M} \ \} }\\ 
-& \multicolumn{2}{@{}l@{}}{ \set{ \tv{a} \lessdot T \  | \ \mathtt{m_i} \in \overline{M},\ \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ \tv{a}\ m_i(\ol{T}\ x)} \ \text{overrides} \ \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T\ m_i'(\ol{T}\ x)}}} \\
+  & \begin{array}{l@{}l@{}l}
+    \textbf{let} &\ \tv{a}_i, \ol{\tv{a}}, \tv{a} = \textit{fresh type variables} \\ % TODO: Rephrase this
+    &\ m_{ass} = \begin{array}[t]{l}
+     \set{ (\exptype{C}{\ol{X}}.\mathtt{m} : \ol{\tv{a}} \to \tv{a}) \ |\ m \in \ol{M}}
+     \cup \mathtt{L_{m-ass}} \cup \\
+     \set{ \exptype{C}{\ol{X}}.\mathtt{m} : \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ \ol{T} \to \tv{a}}
+      \ |\ \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T\ m'(\ol{T}\ x)} \in \textit{overrides}(\mathtt{m}), \mathtt{m} \in \overline{M}} \\ % TODO: add overriden methods
+    \end{array}\\
+  \textbf{in} & \{ \ \typeMethod( m_{ass} \cup \{ \mathtt{this} : \exptype{C}{\ol{X}} \}, \mathtt{m}) \ |\ \mathtt{m} \in \overline{M} \ \} \\ 
+  & \set{ \tv{a}_i \lessdot T_i
+  \ |\ \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T_i\ m'(\ol{T}\ x)} \in \textit{overrides}(\mathtt{m}_i), \mathtt{m}_i \in \overline{M}}
+  \end{array}
 \end{array}$
+
+We use intersection types during the constraint generation.
+In the end we select one possible solution after all classes got infered.
+%TODO: add this to syntax (intersection types in method assumptions)
 
 The \textbf{FJTYPE} function gets called for every class in the input.
 This function accumulates all the constraints generated from calling the
@@ -336,7 +353,7 @@ $\begin{array}{@{}l@{}l@{}l}
 & \textbf{let} % \\
 % &
 & (rty, \consSet_e) = \textbf{TYPEExpr}(Ass, e),\\
-& & \consSet_f = \set{rty \lessdot \exptype{C}{\ol{X}}}\\
+& & \consSet_f = \set{rty \lessdot \exptype{C}{\ol{X}}3}\\
 & \mathbf{in}% \\
 % &
 & (\mathtt{T}, [\textbf{fresh}(\ol{X})/\ol{X}](\consSet_e \cup \consSet_f))\\
