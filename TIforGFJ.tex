@@ -278,17 +278,17 @@ After our algorithm found a correct typisation we replace the type variables wit
 The algorithm \textbf{FJTYPE} is given as follows:
 
 \noindent
-$\fjtype : \mathtt{L_{m-ass} \rightarrow L \rightarrow L \times \ol{C}}\\
+$\fjtype : \typeAssumptions \rightarrow \texttt{L} \rightarrow \texttt{L} \times \ol{C}\\
  \begin{array}{@{}l@{}l}
-  \fjtype & (\methodAssumptions, \mathtt{class } \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \ \mathtt{ extends } \ \mathtt{N \{ \overline{T} \ \overline{f}; \, K \, \overline{M} \}}) =\\
+  \fjtype & (\typeAssumptions, \mathtt{class } \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \ \mathtt{ extends } \ \mathtt{N \{ \overline{T} \ \overline{f}; \, K \, \overline{M} \}}) =\\
   & \begin{array}{l@{}l@{}l}
     \textbf{let} &\ \tv{a}_i, \ol{\tv{a}}, \tv{a} = \textit{fresh type variables} \\ % TODO: Rephrase this
-    &\ m_{cons}, m_{override} = \set{\overridesFunc(\methodAssumptions, \exptype{C}{\ol{X}}.\mathtt{m}) \ |\ m \in \ol{M}} \\
-    &\ \methodAssumptions' = \begin{array}[t]{l}
+    &\ m_{cons}, m_{override} = \set{\overridesFunc(\typeAssumptions, \exptype{C}{\ol{X}}.\mathtt{m}) \ |\ m \in \ol{M}} \\
+    &\ \typeAssumptions' = \begin{array}[t]{l}
      \set{ (\exptype{C}{\ol{X}}.\mathtt{m} : \ol{\tv{a}} \to \tv{a}) \ |\ m \in \ol{M},\ \texttt{m}\ \text{does not override another method}} \\
-     \cup \ \methodAssumptions \cup m_{override}\\
+     \cup \ \typeAssumptions \cup m_{override}\\
     \end{array}\\
-  \textbf{in} & \{ \ \typeMethod( \methodAssumptions' \cup \{ \mathtt{this} : \exptype{C}{\ol{X}} \}, \mathtt{m}) \ |\ \mathtt{m} \in \overline{M} \ \} \cup m_{cons} \\ 
+  \textbf{in} & \{ \ \typeMethod( \typeAssumptions' \cup \{ \mathtt{this} : \exptype{C}{\ol{X}} \}, \mathtt{m}) \ |\ \mathtt{m} \in \overline{M} \ \} \cup m_{cons} \\ 
   \end{array}
 \end{array}$
 
@@ -300,21 +300,18 @@ We generate a constraint ($a\lessdot T)$ for each overriden method.
 
 \noindent
 $\begin{array}{l}
-%\overridesFunc : \methodAssumptions \to m_ass \to \consSet \times \ol{m_ass} \\
-\overridesFunc(\methodAssumptions, \exptype{C}{\ol{X}}.m) = \\
+%\overridesFunc : \typeAssumptions \to m_ass \to \consSet \times \ol{m_ass} \\
+\overridesFunc(\typeAssumptions, \exptype{C}{\ol{X}}.m) = \\
 \quad \quad \begin{array}{ll}
 \textbf{let}& \tv{a}_1, \ldots \tv{a}_i, \ldots, \tv{a}_n = \text{fresh type variables} \\
 & ass = \set{ \exptype{C}{\ol{X}}.\mathtt{m} : \mathtt{\exptype{}{\ol{Y}_i \triangleleft \ol{P}_i}\ \ol{T}_i \to \tv{a}_i}
-\ |\ \mathtt{\texttt{N.m} : \exptype{}{\ol{Y}_i \triangleleft \ol{P}_i}\ \ol{T}_i \to T_i} \in \methodAssumptions, \exptype{C}{\ol{X}} <: \texttt{N}} \\
-& cons = \set{ \tv{a}_i \lessdot \type{T}_i \ |\ \mathtt{\texttt{N.m} : \exptype{}{\ol{Y}_i \triangleleft \ol{P}_i}\ \ol{T}_i \to T_i} \in \methodAssumptions, \exptype{C}{\ol{X}} <: \texttt{N}} \\
+\ |\ \mathtt{\texttt{N.m} : \exptype{}{\ol{Y}_i \triangleleft \ol{P}_i}\ \ol{T}_i \to T_i} \in \typeAssumptions, \exptype{C}{\ol{X}} <: \texttt{N}} \\
+& cons = \set{ \tv{a}_i \lessdot \type{T}_i \ |\ \mathtt{\texttt{N.m} : \exptype{}{\ol{Y}_i \triangleleft \ol{P}_i}\ \ol{T}_i \to T_i} \in \typeAssumptions, \exptype{C}{\ol{X}} <: \texttt{N}} \\
 \multicolumn{2}{l}{\textbf{in}\ (ass,\ cons)} \\
 \end{array}\\
 %\textbf{with}\ \tv{a}_1, \ldots \tv{a}_i, \ldots, \tv{a}_n\ \text{as fresh type variables.}
 \end{array}
 $
-
-$\set{ \tv{a} \lessdot T ,\ \exptype{C}{\ol{X}}.\mathtt{m} : \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ \ol{T} \to \tv{a}}
-\ |\ \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T\ m'(\ol{T}\ x)} \in \overridesFunc(\mathtt{m}), \mathtt{m} \in \overline{M}}$
 
 We use intersection types during the constraint generation.
 In the end we select one possible solution after all classes got infered.
@@ -328,10 +325,10 @@ If a method \texttt{m} in \texttt{C} overrides a method in its superclass,
 then we make sure that the return type of \texttt{m} in \texttt{C} is a subtype of the overriden method.
 
 \noindent
-$\textbf{TYPEMethod}:\texttt{TypeAssumptions} \times
+$\textbf{TYPEMethod}: \typeAssumptions \to
 \texttt{M} \rightarrow \ol{C}\\
 \begin{array}{@{}l@{}l@{}l}
-\typeMethod & (Ass, & T_r \ \mathtt{m}(\overline{T} \, \overline{x})\{ \mathtt{ return }\ e; \}) =\\
+\typeMethod & (\typeAssumptions,\ & T_r \ \mathtt{m}(\overline{T} \, \overline{x})\{ \mathtt{ return }\ e; \}) =\\
 & \textbf{let}
 & Ass_m = Ass \cup \{ \overline{T} : \overline{x} \}\\
 & & \underline{(e:rty, ConS)} = \textbf{TYPEExpr}(Ass_m, e)\\
