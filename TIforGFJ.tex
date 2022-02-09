@@ -280,18 +280,15 @@ The algorithm \textbf{FJTYPE} is given as follows:
 \noindent
 $\fjtype : \mathtt{L_{m-ass} \rightarrow L \rightarrow L \times \ol{C}}\\
  \begin{array}{@{}l@{}l}
-  \fjtype & (\mathtt{class } \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \ \mathtt{ extends } \ \mathtt{N \{ \overline{T} \ \overline{f}; \, K \, \overline{M} \}}) =\\
+  \fjtype & (\methodAssumptions, \mathtt{class } \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \ \mathtt{ extends } \ \mathtt{N \{ \overline{T} \ \overline{f}; \, K \, \overline{M} \}}) =\\
   & \begin{array}{l@{}l@{}l}
     \textbf{let} &\ \tv{a}_i, \ol{\tv{a}}, \tv{a} = \textit{fresh type variables} \\ % TODO: Rephrase this
-    &\ m_{ass} = \begin{array}[t]{l}
-     \set{ (\exptype{C}{\ol{X}}.\mathtt{m} : \ol{\tv{a}} \to \tv{a}) \ |\ m \in \ol{M}}
-     \cup \mathtt{L_{m-ass}} \cup \\
-     \set{ \exptype{C}{\ol{X}}.\mathtt{m} : \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ \ol{T} \to \tv{a}}
-      \ |\ \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T\ m'(\ol{T}\ x)} \in \overridesFunc(\mathtt{m}), \mathtt{m} \in \overline{M}} \\ % TODO: add overriden methods
+    &\ m_{cons}, m_{override} = \set{\overridesFunc(\methodAssumptions, \exptype{C}{\ol{X}}.\mathtt{m}) \ |\ m \in \ol{M}} \\
+    &\ \methodAssumptions' = \begin{array}[t]{l}
+     \set{ (\exptype{C}{\ol{X}}.\mathtt{m} : \ol{\tv{a}} \to \tv{a}) \ |\ m \in \ol{M},\ \texttt{m}\ \text{does not override another method}} \\
+     \cup \ \methodAssumptions \cup m_{override}\\
     \end{array}\\
-  \textbf{in} & \{ \ \typeMethod( m_{ass} \cup \{ \mathtt{this} : \exptype{C}{\ol{X}} \}, \mathtt{m}) \ |\ \mathtt{m} \in \overline{M} \ \} \\ 
-  & \set{ \tv{a}_i \lessdot T_i
-  \ |\ \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T_i\ m'(\ol{T}\ x)} \in \overridesFunc(\mathtt{m}_i), \mathtt{m}_i \in \overline{M}}
+  \textbf{in} & \{ \ \typeMethod( \methodAssumptions' \cup \{ \mathtt{this} : \exptype{C}{\ol{X}} \}, \mathtt{m}) \ |\ \mathtt{m} \in \overline{M} \ \} \cup m_{cons} \\ 
   \end{array}
 \end{array}$
 
@@ -301,15 +298,15 @@ $\overridesFunc : L_{m-ass} \to m_ass \to \consSet \times \ol{m_ass}$
 It is possible that mulitple methods get overriden, due to the internal use of intersection types during the \fjtype{} algorithm.
 We generate a constraint ($a\lessdot T)$ for each overriden method.
 
+\noindent
 $\begin{array}{l}
-\overridesFunc : \ol{m_ass} \to m_ass \to \consSet \times \ol{m_ass} \\
-\overridesFunc(ass, \exptype{C}{\ol{X}}.m : \exptype{}{\ol{Y} \triangleleft \ol{P}}\ \ol{T} \to T) = \\
-  %\forall (\mathtt{N.\texttt{m} : \exptype{}{\ol{Y} \triangleleft \ol{P}}\ \ol{T} \to T}) \in \overridesFunc(\mathtt{m}): \\
+%\overridesFunc : \methodAssumptions \to m_ass \to \consSet \times \ol{m_ass} \\
+\overridesFunc(\methodAssumptions, \exptype{C}{\ol{X}}.m) = \\
 \quad \quad \begin{array}{ll}
 \textbf{let}& \tv{a}_1, \ldots \tv{a}_i, \ldots, \tv{a}_n = \text{fresh type variables} \\
-& ass = \set{ \exptype{C}{\ol{X}}.\mathtt{m_i} : \mathtt{\exptype{}{\ol{Y}_i \triangleleft \ol{P}_i}\ \ol{T}_i \to \tv{a}_i}
-\ |\ \mathtt{\exptype{}{\ol{Y}_i \triangleleft \ol{P}_i}\ T_i\ m_i(\ol{T}_i\ \ol{x}_i)} \in \overridesFunc(\mathtt{m}_i), \mathtt{m}_i \in \overline{M}} \\
-& cons = \set{ \tv{a}_i \lessdot T_i \ |\ \mathtt{\exptype{}{\ol{Y}_i \triangleleft \ol{P}_i}\ T_i\ m_i(\ol{T}_i\ \ol{x}_i)} \in \overridesFunc(\mathtt{m}_i), \mathtt{m}_i \in \overline{M}} \\
+& ass = \set{ \exptype{C}{\ol{X}}.\mathtt{m} : \mathtt{\exptype{}{\ol{Y}_i \triangleleft \ol{P}_i}\ \ol{T}_i \to \tv{a}_i}
+\ |\ \mathtt{\texttt{N.m} : \exptype{}{\ol{Y}_i \triangleleft \ol{P}_i}\ \ol{T}_i \to T_i} \in \methodAssumptions, \exptype{C}{\ol{X}} <: \texttt{N}} \\
+& cons = \set{ \tv{a}_i \lessdot \type{T}_i \ |\ \mathtt{\texttt{N.m} : \exptype{}{\ol{Y}_i \triangleleft \ol{P}_i}\ \ol{T}_i \to T_i} \in \methodAssumptions, \exptype{C}{\ol{X}} <: \texttt{N}} \\
 \multicolumn{2}{l}{\textbf{in}\ (ass,\ cons)} \\
 \end{array}\\
 %\textbf{with}\ \tv{a}_1, \ldots \tv{a}_i, \ldots, \tv{a}_n\ \text{as fresh type variables.}
