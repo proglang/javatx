@@ -247,7 +247,8 @@ This is due to the fact that there can be multiple methods and fields with the s
   restrictions on what is on the left/right side of a constraint?  An
   OrConstraint is a set of constraint sets, correct? }
 
-\begin{align*}
+\subsubsection{Syntax}
+$\begin{array}{l}
 %Type
 \type{T} = \tv{a}\ |\ \gType{X}\ |\ \type{N} \\
 %Constraints
@@ -257,22 +258,25 @@ c = \type{T} \lessdot \type{T} \ |\ \type{T} \doteq \type{T} \\
 \orCons{} = \set{\ol{c_1}, \ldots, \ol{c_n}} \\
 % Method assumptions:
 \methodAssumption = N.\texttt{methodName} : \exptype{}{\ol{X} \triangleleft \ol{N}}\ \ol{T} \to T \\
-\typeAssumptions = \overline{\methodAssumption}; \overline{L} \\
-\end{align*}
+\fieldAssumption = N.\texttt{methodName} : T \\
+\typeAssumptionsSymbol = (\overline{\methodAssumption} ; \overline{\fieldAssumption}) \\
+\end{array}$
 
-The \fjtype algorithm produces two kinds of constraints.
 \begin{description}
-\item[Constraint] A constraint consists of two types or type variables and an operator.
-The operator can either be a $\doteq$ (same type) or $\lessdot$ (subtype).
-Example: $(a \lessdot \mathtt{Object})$, means that the type variable $a$ should be a subtype of \texttt{Object}.
-\item[Or-Constraint] An Or-Constraint (\orCons{}) consists out of multiple sets of constraints ($c$).
-It is not possible to have \orCons{} nested inside another \orCons{}.\\
-For example $\orCons{}(\{ \ \{ (a \lessdot b), (a \leq \mathtt{Object}) \} \ , \ \{ (a \lessdot b)\} \ \})$
-is an Or-Constraint consisting of two sets of constraints.
-\item[Constraint-Set] A Constraint-Set (\consSet) is a set of constraints.
-It is able to hold a mix of normal Constraints and Or-Constraints.
-\end{description}
+  \item[Constraint] A constraint (\constraint) consists of two types or type variables and an operator.
+  The operator can either be a $\doteq$ (same type) or $\lessdot$ (subtype).
+  Example: $(a \lessdot \mathtt{Object})$, means that the type variable $a$ should be a subtype of \texttt{Object}.
+  \item[Or-Constraint] An Or-Constraint (\orCons{}) consists out of multiple sets of constraints ($c$).
+  It is not possible to have \orCons{} nested inside another \orCons{}.\\
+  For example $\orCons{}(\{ \ \{ (a \lessdot b), (a \leq \mathtt{Object}) \} \ , \ \{ (a \lessdot b)\} \ \})$
+  is an Or-Constraint consisting of two sets of constraints.
+  \item[Constraint-Set] A Constraint-Set (\consSet) is a set of constraints.
+  It is able to hold a mix of normal Constraints and Or-Constraints.
+  \end{description}
+  
 
+\subsubsection{\fjtype{}}
+%The \fjtype{} algorithm produces two kinds of constraints.
 Before the algorithm starts we equip every untyped method with type variables.
 Every method parameter gets a unique type variable as a type aswell as every method gets a unique type variable as a return type.
 After our algorithm found a correct typisation we replace the type variables with the inferred types and generate a GFJ program.
@@ -280,7 +284,7 @@ After our algorithm found a correct typisation we replace the type variables wit
 The algorithm \textbf{FJTYPE} is given as follows:
 
 \noindent
-$\fjtype : \typeAssumptions \rightarrow \texttt{L} \rightarrow \texttt{L} \times \ol{C}\\
+$\fjtype : \typeAssumptions \times \texttt{L} \rightarrow \ol{C}\\
  \begin{array}{@{}l@{}l}
   \fjtype & (\typeAssumptions, \mathtt{class } \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \ \mathtt{ extends } \ \mathtt{N \{ \overline{T} \ \overline{f}; \, K \, \overline{M} \}}) =\\
   & \begin{array}{l@{}l@{}l}
@@ -302,7 +306,7 @@ We generate a constraint ($a\lessdot T)$ for each overriden method.
 
 \noindent
 $\begin{array}{l}
-\overridesFunc{} : \typeAssumptions \to \methodAssumption \to \consSet \times \typeAssumptions \\
+\overridesFunc{} : \typeAssumptionsSymbol \times \methodAssumption \to \consSet \times \typeAssumptions \\
 \overridesFunc{}(\typeAssumptions,\ \exptype{C}{\ol{X}}.m) = \\
 \quad \quad \begin{array}{ll}
 \textbf{let}& \tv{a}_1, \ldots \tv{a}_i, \ldots, \tv{a}_n = \text{fresh type variables} \\
@@ -327,7 +331,7 @@ If a method \texttt{m} in \texttt{C} overrides a method in its superclass,
 then we make sure that the return type of \texttt{m} in \texttt{C} is a subtype of the overriden method.
 
 \noindent
-$\typeMethod: \typeAssumptions \to
+$\typeMethod: \typeAssumptionsSymbol \times
 \texttt{M} \rightarrow \ol{C}\\
 \begin{array}{@{}l@{}l@{}l}
 \typeMethod & (\typeAssumptions,\ & T_r \ \mathtt{m}(\overline{T} \, \overline{x})\{ \mathtt{ return }\ e; \}) =\\
@@ -349,7 +353,8 @@ In the following we define the \typeExpr function for every possible expression:
 
 \smallskip
 
-$\typeExpr:\texttt{TypeAssumptions} \times
+\noindent
+$\typeExpr: \typeAssumptionsSymbol \times
 \texttt{Expression} \rightarrow \texttt{Type} \times \texttt{Constraints}\\
 \begin{array}{@{}l@{}l}
 \textbf{TY} \textbf{PE} & \textbf{Expr} (Ass, \mathtt{this}) = (t , \{\})\\
@@ -367,40 +372,44 @@ $
 
 For our \textbf{TYPE} algorithm a field variable can be seen as a method call without parameters.
 Therefore generating constraints for a field access is the same as for a method call,
-with the difference that we search for fields with the same name instead of methods.\\
-$\begin{array}{@{}l@{}l@{}l}
-\textbf{TY}& \textbf{PE} & \textbf{Expr} (Ass, e.f) = \\
-& \textbf{let} % \\
-% &
+with the difference that we search for a field with the same name instead of methods.
+Also we know, that each field has an unique value. Therefore no Or-Constraints will be generated.
+\\
+\noindent
+$\begin{array}{@{}l@{}l}
+\typeExpr{} &(\typeAssumptions, e.\texttt{f}) = \\
+& \begin{array}{ll}
+\textbf{let} 
 & (rty, \consSet_e) = \typeExpr(Ass, e),\\
-& & \consSet_f = \set{rty \lessdot \exptype{C}{\ol{X}}3}\\
-& \mathbf{in}% \\
-% &
-& (\mathtt{T}, [\textbf{fresh}(\ol{X})/\ol{X}](\consSet_e \cup \consSet_f))\\
-& & \textit{given there exists a}\ \mathtt{T\ f \in \ol{f}}\ \textit{in a class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\set{ \ldots \ol{f} \ldots }\\ 
+& \consSet_f = \set{rty \lessdot \exptype{C}{\ol{X}}}\\
+\multicolumn{2}{l}{\mathbf{in}
+(\mathtt{T}, [\textbf{fresh}(\ol{X})/\ol{X}](\consSet_e \cup \consSet_f))}\\
+& \textit{given there exists a}\ \exptype{C}{\ol{X}}.\texttt{f} : \type{T} \in \ol{\fieldAssumption}\\
+\end{array} \\
 \end{array}
 $
 
 \smallskip
 
-$\begin{array}{@{}l@{}l@{}l}
-\textbf{TY}& \textbf{PE} & \textbf{Expr} (Ass, e.\mathtt{m}(\overline{e}) ) = \\
-& \textbf{let} % \\
+\noindent
+$\begin{array}{@{}l@{}l}
+\typeExpr{} & (\typeAssumptions, e.\mathtt{m}(\overline{e}) ) = \\
+& \begin{array}{ll}
+\textbf{let}& % \\
 % &
-& (rty, ConS) = \typeExpr(Ass, e),\\
-& & \forall e_i \in \overline{e} : (pt_i, ConS_i) = \typeExpr(e_i)  ,\\
-& & \begin{array}{@{}l@{}l}
+(rty, ConS) = \typeExpr(\typeAssumptions, e),\\
+& \forall e_i \in \overline{e} : (pt_i, ConS_i) = \typeExpr(e_i)  ,\\
+& \begin{array}{@{}l@{}l}
         Cons_{m} = \{\ & \set{ rty \lessdot \exptype{C}{\ol{X}}, a \doteq T, \bigcup_{T_i \in \overline{T}} (pt_i \lessdot T_i)
         , \ol{Y} \lessdot \ol{P} }\\
                     & |\, \text{for every method}\ \exptype{}{\ol{Y} \triangleleft \ol{P}} T\ \texttt{m}(\ol{T}\  \ol{p}) \in \ol{M} \} \\%, \textbf{fresh}(\ol{X}) \lessdot \textbf{fresh}(\ol{N})\},\\
                     & ,\, \text{in every class}\ \exptype{C}{\ol{X}} \{ \ldots \ol{M} \ldots \}\ \text{in the input} \} 
-                  \end{array}\\
-& & OrCons = \textbf{OrConstraint}(Cons_{m})\\
-& \mathbf{in}% \\
-% &
-& (a, [\textbf{fresh}(\ol{X})/\ol{X}][\textbf{fresh}(\ol{Y})/\ol{Y}](ConS \cup \bigcup_i ConS_i \cup OrCons))\\
-& & \text{where\ } a \text{\ is\ a\ fresh\
+\end{array}\\
+& OrCons = \textbf{OrConstraint}(Cons_{m})\\
+\multicolumn{2}{l}{\mathbf{in} (a, [\textbf{fresh}(\ol{X})/\ol{X}][\textbf{fresh}(\ol{Y})/\ol{Y}](ConS \cup \bigcup_i ConS_i \cup OrCons))}\\
+& \text{where\ } a \text{\ is\ a\ fresh\
   type\ variable}\\ 
+\end{array}
 \end{array}
 $
 
@@ -415,14 +424,16 @@ He has to comply to the bounds given by $\ol{N}$, which is why we add $\ol{X'} \
 It is important to change every occurence of $\ol{X}$ with the fresh type variables $\ol{X'}$ in the generated constraints.
 $\ol{X}$ can occur in the bound $\ol{N}$ aswell as in the types of the constructor parameters $\ol{T}$.
 
-$\begin{array}{@{}l@{}l@{}l}
-\textbf{TY}& \textbf{PE} & \textbf{Expr} (Ass, \mathtt{new }\ C(\overline{e}) ) = \\
-& \textbf{let} % \\
+%TODO: Hier noch Konstruktor Assumptions einführen und den TypeAssumptions hinzufügen
+\noindent
+$\begin{array}{@{}l@{}l}
+\typeExpr &(\typeAssumptions, \mathtt{new }\ C(\overline{e}) ) = \\
+&\begin{array}{ll}
+\textbf{let} % \\
 & \forall e_i \in \overline{e} : (pt_i, Cons_i) = \typeExpr(Ass, e_i)  ,\\
-& & Cons = \{ \bigcup_{T_i \in \overline{T}} (pt_i \lessdot T_i) \ | \ \mathtt{class }\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\{ \ldots, \texttt{C}(\overline{T} \overline{x}), \ldots \} \}\\
-& \mathbf{in}% \\
-% &
-& \textbf{fresh}(\ol{X})/\ol{X}](\exptype{C}{\ol{X}}, (Cons \cup \bigcup_i Cons_i \cup \ol{X'} \lessdot \ol{N}))\\
+& Cons = \{ \bigcup_{T_i \in \overline{T}} (pt_i \lessdot T_i) \ | \ \mathtt{class }\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\{ \ldots, \texttt{C}(\overline{T} \overline{x}), \ldots \} \}\\
+\multicolumn{2}{l}{\mathbf{in} \textbf{fresh}(\ol{X})/\ol{X}](\exptype{C}{\ol{X}}, (Cons \cup \bigcup_i Cons_i \cup \ol{X'} \lessdot \ol{N})) }\\
+\end{array}
 \end{array}
 $
 
