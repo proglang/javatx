@@ -251,9 +251,9 @@ This is due to the fact that there can be multiple methods and fields with the s
 %Type
 T = a\ |\ X\ |\ N \\
 %Constraints
-c = T \lessdot T | T \doteq T \\
+c = T \lessdot T \ |\ T \doteq T \\
 C = c\ |\ \orCons \\
-\ol{C} = \set{C_1, \ldots, C_2} \\
+\consSet = \set{C_1, \ldots, C_2} \\
 \orCons{} = \set{\ol{c_1}, \ldots, \ol{c_n}} \\
 % Method assumptions:
 ass = N.\texttt{methodName} : \exptype{}{\ol{X} \triangleleft \ol{N}}\ \ol{T} \to T \\
@@ -265,7 +265,7 @@ The \fjtype algorithm produces two kinds of constraints.
 \item[Constraint] A constraint consists of two types or type variables and an operator.
 The operator can either be a $\doteq$ (same type) or $\lessdot$ (subtype).
 Example: $(a \lessdot \mathtt{Object})$, means that the type variable $a$ should be a subtype of \texttt{Object}.
-\item[Or-Constraint] An Or-Constraint (\orCons{}) consists out of multiple sets of constraints.
+\item[Or-Constraint] An Or-Constraint (\orCons{}) consists out of multiple sets of constraints ($c$).
 It is not possible to have \orCons{} nested inside another \orCons{}.\\
 For example $\orCons{}(\{ \ \{ (a \lessdot b), (a \leq \mathtt{Object}) \} \ , \ \{ (a \lessdot b)\} \ \})$
 is an Or-Constraint consisting of two sets of constraints.
@@ -287,13 +287,37 @@ $\fjtype : \mathtt{L_{m-ass} \rightarrow L \rightarrow L \times \ol{C}}\\
      \set{ (\exptype{C}{\ol{X}}.\mathtt{m} : \ol{\tv{a}} \to \tv{a}) \ |\ m \in \ol{M}}
      \cup \mathtt{L_{m-ass}} \cup \\
      \set{ \exptype{C}{\ol{X}}.\mathtt{m} : \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ \ol{T} \to \tv{a}}
-      \ |\ \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T\ m'(\ol{T}\ x)} \in \textit{overrides}(\mathtt{m}), \mathtt{m} \in \overline{M}} \\ % TODO: add overriden methods
+      \ |\ \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T\ m'(\ol{T}\ x)} \in \overridesFunc(\mathtt{m}), \mathtt{m} \in \overline{M}} \\ % TODO: add overriden methods
     \end{array}\\
   \textbf{in} & \{ \ \typeMethod( m_{ass} \cup \{ \mathtt{this} : \exptype{C}{\ol{X}} \}, \mathtt{m}) \ |\ \mathtt{m} \in \overline{M} \ \} \\ 
   & \set{ \tv{a}_i \lessdot T_i
-  \ |\ \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T_i\ m'(\ol{T}\ x)} \in \textit{overrides}(\mathtt{m}_i), \mathtt{m}_i \in \overline{M}}
+  \ |\ \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T_i\ m'(\ol{T}\ x)} \in \overridesFunc(\mathtt{m}_i), \mathtt{m}_i \in \overline{M}}
   \end{array}
 \end{array}$
+
+The \overridesFunc returns a set of method types, which are overriden by the given method.
+$\overridesFunc : L_{m-ass} \to m_ass \to \consSet \times \ol{m_ass}$
+
+It is possible that mulitple methods get overriden, due to the internal use of intersection types during the \fjtype{} algorithm.
+We generate a constraint ($a\lessdot T)$ for each overriden method.
+
+$\begin{array}{l}
+\overridesFunc : \ol{m_ass} \to m_ass \to \consSet \times \ol{m_ass} \\
+\overridesFunc(ass, \exptype{C}{\ol{X}}.m : \exptype{}{\ol{Y} \triangleleft \ol{P}}\ \ol{T} \to T) = \\
+  %\forall (\mathtt{N.\texttt{m} : \exptype{}{\ol{Y} \triangleleft \ol{P}}\ \ol{T} \to T}) \in \overridesFunc(\mathtt{m}): \\
+\quad \quad \begin{array}{ll}
+\textbf{let}& \tv{a}_1, \ldots \tv{a}_i, \ldots, \tv{a}_n = \text{fresh type variables} \\
+& ass = \set{ \exptype{C}{\ol{X}}.\mathtt{m_i} : \mathtt{\exptype{}{\ol{Y}_i \triangleleft \ol{P}_i}\ \ol{T}_i \to \tv{a}_i}
+\ |\ \mathtt{\exptype{}{\ol{Y}_i \triangleleft \ol{P}_i}\ T_i\ m_i(\ol{T}_i\ \ol{x}_i)} \in \overridesFunc(\mathtt{m}_i), \mathtt{m}_i \in \overline{M}} \\
+& cons = \set{ \tv{a}_i \lessdot T_i \ |\ \mathtt{\exptype{}{\ol{Y}_i \triangleleft \ol{P}_i}\ T_i\ m_i(\ol{T}_i\ \ol{x}_i)} \in \overridesFunc(\mathtt{m}_i), \mathtt{m}_i \in \overline{M}} \\
+\multicolumn{2}{l}{\textbf{in}\ (ass,\ cons)} \\
+\end{array}\\
+%\textbf{with}\ \tv{a}_1, \ldots \tv{a}_i, \ldots, \tv{a}_n\ \text{as fresh type variables.}
+\end{array}
+$
+
+$\set{ \tv{a} \lessdot T ,\ \exptype{C}{\ol{X}}.\mathtt{m} : \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ \ol{T} \to \tv{a}}
+\ |\ \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T\ m'(\ol{T}\ x)} \in \overridesFunc(\mathtt{m}), \mathtt{m} \in \overline{M}}$
 
 We use intersection types during the constraint generation.
 In the end we select one possible solution after all classes got infered.
