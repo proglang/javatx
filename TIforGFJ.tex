@@ -249,15 +249,15 @@ This is due to the fact that there can be multiple methods and fields with the s
 
 \begin{align*}
 %Type
-T = a\ |\ X\ |\ N \\
+\type{T} = \tv{a}\ |\ \gType{X}\ |\ \type{N} \\
 %Constraints
-c = T \lessdot T \ |\ T \doteq T \\
-C = c\ |\ \orCons \\
-\consSet = \set{C_1, \ldots, C_2} \\
+c = \type{T} \lessdot \type{T} \ |\ \type{T} \doteq \type{T} \\
+\constraint = c\ |\ \orCons \\
+%\consSet = \set{C_1, \ldots, C_2} \\
 \orCons{} = \set{\ol{c_1}, \ldots, \ol{c_n}} \\
 % Method assumptions:
-ass = N.\texttt{methodName} : \exptype{}{\ol{X} \triangleleft \ol{N}}\ \ol{T} \to T \\
-m_{ass} = \set{ ass_1, \ldots , ass_n } \\
+\methodAssumption = N.\texttt{methodName} : \exptype{}{\ol{X} \triangleleft \ol{N}}\ \ol{T} \to T \\
+\typeAssumptions = \overline{\methodAssumption}; \overline{L} \\
 \end{align*}
 
 The \fjtype algorithm produces two kinds of constraints.
@@ -269,6 +269,8 @@ Example: $(a \lessdot \mathtt{Object})$, means that the type variable $a$ should
 It is not possible to have \orCons{} nested inside another \orCons{}.\\
 For example $\orCons{}(\{ \ \{ (a \lessdot b), (a \leq \mathtt{Object}) \} \ , \ \{ (a \lessdot b)\} \ \})$
 is an Or-Constraint consisting of two sets of constraints.
+\item[Constraint-Set] A Constraint-Set (\consSet) is a set of constraints.
+It is able to hold a mix of normal Constraints and Or-Constraints.
 \end{description}
 
 Before the algorithm starts we equip every untyped method with type variables.
@@ -282,26 +284,26 @@ $\fjtype : \typeAssumptions \rightarrow \texttt{L} \rightarrow \texttt{L} \times
  \begin{array}{@{}l@{}l}
   \fjtype & (\typeAssumptions, \mathtt{class } \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \ \mathtt{ extends } \ \mathtt{N \{ \overline{T} \ \overline{f}; \, K \, \overline{M} \}}) =\\
   & \begin{array}{l@{}l@{}l}
-    \textbf{let} &\ \tv{a}_i, \ol{\tv{a}}, \tv{a} = \textit{fresh type variables} \\ % TODO: Rephrase this
-    &\ m_{cons}, m_{override} = \set{\overridesFunc(\typeAssumptions, \exptype{C}{\ol{X}}.\mathtt{m}) \ |\ m \in \ol{M}} \\
+    \textbf{let} &\ m_{cons}, m_{override} = \set{\overridesFunc(\typeAssumptions, \exptype{C}{\ol{X}}.\mathtt{m}) \ |\ m \in \ol{M}} \\
     &\ \typeAssumptions' = \begin{array}[t]{l}
-     \set{ (\exptype{C}{\ol{X}}.\mathtt{m} : \ol{\tv{a}} \to \tv{a}) \ |\ m \in \ol{M},\ \texttt{m}\ \text{does not override another method}} \\
-     \cup \ \typeAssumptions \cup m_{override}\\
+     \set{ (\exptype{C}{\ol{X}}.\mathtt{m} : \ol{\tv{a}} \to \tv{a}) \ |\ m \in \ol{M},\\
+     \quad \quad \texttt{m}\ \text{does not override another method} \\
+     \quad \quad \tv{a}, \ol{\tv{a}}\ \text{are fresh type variables} } \cup \\
+     \typeAssumptions \cup m_{override}
     \end{array}\\
   \textbf{in} & \{ \ \typeMethod( \typeAssumptions' \cup \{ \mathtt{this} : \exptype{C}{\ol{X}} \}, \mathtt{m}) \ |\ \mathtt{m} \in \overline{M} \ \} \cup m_{cons} \\ 
   \end{array}
 \end{array}$
 
-The \overridesFunc returns a set of method types, which are overriden by the given method.
-$\overridesFunc : L_{m-ass} \to m_ass \to \consSet \times \ol{m_ass}$
+The \overridesFunc{} returns a set of method types, which are overriden by the given method.
 
 It is possible that mulitple methods get overriden, due to the internal use of intersection types during the \fjtype{} algorithm.
 We generate a constraint ($a\lessdot T)$ for each overriden method.
 
 \noindent
 $\begin{array}{l}
-%\overridesFunc : \typeAssumptions \to m_ass \to \consSet \times \ol{m_ass} \\
-\overridesFunc(\typeAssumptions, \exptype{C}{\ol{X}}.m) = \\
+\overridesFunc{} : \typeAssumptions \to \methodAssumption \to \consSet \times \typeAssumptions \\
+\overridesFunc{}(\typeAssumptions,\ \exptype{C}{\ol{X}}.m) = \\
 \quad \quad \begin{array}{ll}
 \textbf{let}& \tv{a}_1, \ldots \tv{a}_i, \ldots, \tv{a}_n = \text{fresh type variables} \\
 & ass = \set{ \exptype{C}{\ol{X}}.\mathtt{m} : \mathtt{\exptype{}{\ol{Y}_i \triangleleft \ol{P}_i}\ \ol{T}_i \to \tv{a}_i}
@@ -317,37 +319,37 @@ We use intersection types during the constraint generation.
 In the end we select one possible solution after all classes got infered.
 %TODO: add this to syntax (intersection types in method assumptions)
 
-The \textbf{FJTYPE} function gets called for every class in the input.
+The \fjtype function gets called for every class in the input.
 This function accumulates all the constraints generated from calling the
-\textbf{TYPEMethod} function for each method declared in the given class.
+typeMethod function for each method declared in the given class.
 It also generares constraints for overriden methods.
 If a method \texttt{m} in \texttt{C} overrides a method in its superclass,
 then we make sure that the return type of \texttt{m} in \texttt{C} is a subtype of the overriden method.
 
 \noindent
-$\textbf{TYPEMethod}: \typeAssumptions \to
+$\typeMethod: \typeAssumptions \to
 \texttt{M} \rightarrow \ol{C}\\
 \begin{array}{@{}l@{}l@{}l}
 \typeMethod & (\typeAssumptions,\ & T_r \ \mathtt{m}(\overline{T} \, \overline{x})\{ \mathtt{ return }\ e; \}) =\\
 & \textbf{let}
 & Ass_m = Ass \cup \{ \overline{T} : \overline{x} \}\\
-& & \underline{(e:rty, ConS)} = \textbf{TYPEExpr}(Ass_m, e)\\
+& & \underline{(e:rty, ConS)} = \typeExpr(Ass_m, e)\\
 & \mathbf{in}
 & (ConS \cup (rty \lessdot T_r))\\
 \end{array}
 $
 
-The \textbf{TYPEMethod} function for methods just calls the \textbf{TYPEExpr} function with the
-return expression. It is significant to note that it adds the assumptions for the method parameters to the global assumptions before passing them to \textbf{TYPEExpr}.
+The \typeMethod function for methods just calls the \typeExpr function with the
+return expression. It is significant to note that it adds the assumptions for the method parameters to the global assumptions before passing them to \typeExpr.
 %and the global assumptions plus the assumptions for the method parameters.
 
 \smallskip
 
-In the following we define the \textbf{TYPEExpr} function for every possible expression:
+In the following we define the \typeExpr function for every possible expression:
 
 \smallskip
 
-$\textbf{TYPEExpr}:\texttt{TypeAssumptions} \times
+$\typeExpr:\texttt{TypeAssumptions} \times
 \texttt{Expression} \rightarrow \texttt{Type} \times \texttt{Constraints}\\
 \begin{array}{@{}l@{}l}
 \textbf{TY} \textbf{PE} & \textbf{Expr} (Ass, \mathtt{this}) = (t , \{\})\\
@@ -370,7 +372,7 @@ $\begin{array}{@{}l@{}l@{}l}
 \textbf{TY}& \textbf{PE} & \textbf{Expr} (Ass, e.f) = \\
 & \textbf{let} % \\
 % &
-& (rty, \consSet_e) = \textbf{TYPEExpr}(Ass, e),\\
+& (rty, \consSet_e) = \typeExpr(Ass, e),\\
 & & \consSet_f = \set{rty \lessdot \exptype{C}{\ol{X}}3}\\
 & \mathbf{in}% \\
 % &
@@ -385,8 +387,8 @@ $\begin{array}{@{}l@{}l@{}l}
 \textbf{TY}& \textbf{PE} & \textbf{Expr} (Ass, e.\mathtt{m}(\overline{e}) ) = \\
 & \textbf{let} % \\
 % &
-& (rty, ConS) = \textbf{TYPEExpr}(Ass, e),\\
-& & \forall e_i \in \overline{e} : (pt_i, ConS_i) = \textbf{TYPEExpr}(e_i)  ,\\
+& (rty, ConS) = \typeExpr(Ass, e),\\
+& & \forall e_i \in \overline{e} : (pt_i, ConS_i) = \typeExpr(e_i)  ,\\
 & & \begin{array}{@{}l@{}l}
         Cons_{m} = \{\ & \set{ rty \lessdot \exptype{C}{\ol{X}}, a \doteq T, \bigcup_{T_i \in \overline{T}} (pt_i \lessdot T_i)
         , \ol{Y} \lessdot \ol{P} }\\
@@ -416,7 +418,7 @@ $\ol{X}$ can occur in the bound $\ol{N}$ aswell as in the types of the construct
 $\begin{array}{@{}l@{}l@{}l}
 \textbf{TY}& \textbf{PE} & \textbf{Expr} (Ass, \mathtt{new }\ C(\overline{e}) ) = \\
 & \textbf{let} % \\
-& \forall e_i \in \overline{e} : (pt_i, Cons_i) = \textbf{TYPEExpr}(Ass, e_i)  ,\\
+& \forall e_i \in \overline{e} : (pt_i, Cons_i) = \typeExpr(Ass, e_i)  ,\\
 & & Cons = \{ \bigcup_{T_i \in \overline{T}} (pt_i \lessdot T_i) \ | \ \mathtt{class }\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\{ \ldots, \texttt{C}(\overline{T} \overline{x}), \ldots \} \}\\
 & \mathbf{in}% \\
 % &
@@ -476,17 +478,17 @@ The constraint $rty \lessdot \exptype{C}{\ol{X}}$ assures that the type of the e
 \begin{small}
 \begin{tabularx}{\linewidth}{lX|Xl}
   \textbf{FGJ Type rule} &&& \textbf{Constraints} \\
-  $\triangle; \Gamma \vdash e_o : T_0$ &&& $(rty, ConS) = \textbf{TYPEExpr}(Ass, e_r)$\\ 
+  $\triangle; \Gamma \vdash e_o : T_0$ &&& $(rty, ConS) = \typeExpr(Ass, e_r)$\\ 
   $\mathtt{\textit{bound}(T_0)}$ &&& $rty \lessdot \exptype{C}{\ol{X}}$ \\
   $\mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ \ol{U} \to U} \in \textit{mtype}(m, N)$ &&& Lookup in the assumptions \\
  %$\textit{mtype}(m, \textit{bound}_\triangle(T_0)) = \ol{U} \to U$ & $rty \doteq cl$\\
- $\triangle; \Gamma \vdash \ol{e} : \ol{S}$ &&& $\forall e_i \in \overline{e} : (pt_i, ConS_i) = \textbf{TYPEExpr}(Ass, e_i)$\\
+ $\triangle; \Gamma \vdash \ol{e} : \ol{S}$ &&& $\forall e_i \in \overline{e} : (pt_i, ConS_i) = \typeExpr(Ass, e_i)$\\
  $\triangle \vdash \ol{S} <: \ol{U}$ &&& $ \bigcup_{T_i \in \overline{T}} (pt_i \lessdot T_i)$\\
  $\triangle; \Gamma \vdash \mathtt{e_0.m(\overline{e}) : U }$ &&& $a \doteq T$ \\
 \end{tabularx}
 \end{small}
 
-\textit{Note}: The \textbf{TYPEExpr} function only generates constraints which apply to our assumption.
+\textit{Note}: The \typeExpr function only generates constraints which apply to our assumption.
 \item[Method invocation (\texttt{GT-L-INVK})]
 The \texttt{GT-INVK} rule is for local method calls.
 The called method does not have a type yet and comes with type variables for the return and parameter types.
@@ -502,17 +504,17 @@ Fieldnames by default are unique in the FGJ language.
 
  \begin{tabular}{l|l}
    \textbf{FGJ Type rule} & \textbf{Constraints} \\
-   $\Gamma \vdash e_0:T_0$ & $(rty, ConS) = \textbf{TYPEExpr}(Ass, e_r)$\\ 
+   $\Gamma \vdash e_0:T_0$ & $(rty, ConS) = \typeExpr(Ass, e_r)$\\ 
    $\quad \mathit{fields}(\mathit{bound}_\triangle(T_0)) = \overline{T} \ \overline{f}$ & $rty \doteq \exptype{C}{\textbf{fresh}(\ol{X})}$ \\
   %$\textit{mtype}(m, \textit{bound}_\triangle(T_0)) = \ol{U} \to U$ & $rty \doteq cl$\\
-  $\triangle; \Gamma \vdash \ol{e} : \ol{S}$ & $\forall e_i \in \overline{e} : (pt_i, ConS_i) = \textbf{TYPEExpr}(Ass, e_i)$\\
+  $\triangle; \Gamma \vdash \ol{e} : \ol{S}$ & $\forall e_i \in \overline{e} : (pt_i, ConS_i) = \typeExpr(Ass, e_i)$\\
   $\triangle \vdash \ol{S} <: \ol{U}$ & $ \bigcup_{T_i \in \overline{T}} (pt_i \lessdot \textbf{fresh}(T_i))$\\
   $\triangle; \Gamma \vdash \mathtt{e_0.m(\overline{e}) : U }$ & $a \doteq \textbf{fresh}(T)$ \\
  \end{tabular}
  \item[Constructor]
 
 \begin{tabular}{l|l}
-  $\triangle; \Gamma \vdash \ol{e} : \ol{S}$ & $\forall e_i \in \overline{e} : (pt_i, ConS_i) = \textbf{TYPEExpr}(Ass, e_i)$\\
+  $\triangle; \Gamma \vdash \ol{e} : \ol{S}$ & $\forall e_i \in \overline{e} : (pt_i, ConS_i) = \typeExpr(Ass, e_i)$\\
   $\triangle \vdash \ol{S} <: \ol{T}$ & $\bigcup_{T_i \in \overline{T}} (pt_i \lessdot T_i)$
 \end{tabular}
 
