@@ -259,7 +259,8 @@ c = \type{T} \lessdot \type{T} \ |\ \type{T} \doteq \type{T} \\
 % Method assumptions:
 \methodAssumption = N.\texttt{methodName} : \exptype{}{\ol{X} \triangleleft \ol{N}}\ \ol{T} \to T \\
 \fieldAssumption = N.\texttt{fieldName} : T \\
-\typeAssumptionsSymbol = (\overline{\methodAssumption} ; \overline{\fieldAssumption}) \\
+\localVarAssumption = \texttt{localVar} : T\\
+\typeAssumptionsSymbol = (\overline{\methodAssumption} ; \overline{\fieldAssumption}; \overline{\localVarAssumption}) \\
 \end{array}$
 
 \begin{description}
@@ -336,10 +337,9 @@ $\typeMethod: \typeAssumptionsSymbol \times
 \begin{array}{@{}l@{}l@{}l}
 \typeMethod & (\typeAssumptions,\ & T_r \ \mathtt{m}(\overline{T} \, \overline{x})\{ \mathtt{ return }\ e; \}) =\\
 & \textbf{let}
-& Ass_m = Ass \cup \{ \overline{T} : \overline{x} \}\\
-& & \underline{(e:rty, ConS)} = \typeExpr(Ass_m, e)\\
+& \underline{(e:rty, \constraints)} = \typeExpr((\overline{\methodAssumption} ; \overline{\fieldAssumption}; \overline{\localVarAssumption} \cup \{ \overline{T} : \overline{x} \}), e)\\
 & \mathbf{in}
-& (ConS \cup (rty \lessdot T_r))\\
+& (\constraints \cup (rty \lessdot T_r))\\
 \end{array}
 $
 
@@ -357,14 +357,14 @@ In the following we define the \typeExpr function for every possible expression:
 $\typeExpr: \typeAssumptionsSymbol \times
 \texttt{Expression} \rightarrow \texttt{Type} \times \texttt{Constraints}\\
 \begin{array}{@{}l@{}l}
-\textbf{TY} \textbf{PE} & \textbf{Expr} (Ass, \mathtt{this}) = (t , \{\})\\
-& \textbf{with } (\mathtt{this} : t) \in Ass 
+\typeExpr & (\typeAssumptions, \mathtt{this}) = (t , \{\})\\
+& \textbf{with } (\mathtt{this} : t) \in \typeAssumptions 
 \end{array}
 $
 \smallskip
 $\begin{array}{@{}l@{}l}
-\textbf{TY} \textbf{PE} & \textbf{Expr} (Ass,x) = (t , \{\})\\
-& \textbf{with } (x : t) \in Ass 
+  \typeExpr &(\typeAssumptions,x) = (t , \{\})\\
+& \textbf{with } (x : t) \in \typeAssumptions 
 \end{array}
 $
 
