@@ -174,69 +174,6 @@ type inference for class \mv{C3} proposes more than one solution. Global
 type inference attempts to extend all proposals to a solution for the
 whole program and backtracks if that fails.
 
-
-\subsection{Proprocessing a class}
-\label{sec:proprocessing-class}
-
-% Every empty Type T in the input is assigned a type variable.
-% Assumptions saves every field, method and the class subtype relation
-
-%Generate subtype relationships:
-
-Generating assumptions consists of two parts.
-At first we add type variables to the untyped class.
-The second part generates the assumption set.
-This is the same algorithm for the already typed classes as for the 
-new untyped class, which is now equipped with type variables.
-
-\begin{enumerate}
-\item Every missing type in the input class gets assigned a fresh type variable.
-For methods:
-\begin{align*}
-  \ddfrac{
-  m(\ol{x}) \{ \ldots \} \quad \quad \tv{a} \cup \ol{\tv{a}} \ \text{are fresh type variables}
-  }{
-  \tv{a}\ m(\ol{\tv{a}}\ \ol{x}) \{ \ldots \}
-  }
-  \end{align*}
-\item Apply types from overridden methods:
-Every method which overrides a method in a superclass will be assigned the parameter types and generic variables from its parent method.
-\begin{align*}
-\ddfrac{
-  \begin{array}{c}
-  \mathtt{class } \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \ \mathtt{ extends } \ \mathtt{N \{ \overline{T} \ \overline{f}; \, K \, \overline{M} \}} \quad \quad \mathtt{ \ol{M}' \in N }\\
-  \mathtt{\tv{a}\ m(\ol{\tv{a}}\ x) \in \ol{M} \quad \quad \exptype{}{\ol{Y} \triangleleft \ol{P}}\ T\ m'(\ol{T}\ x) \in \ol{M}'  \quad \quad m\ \text{overrides}\ m'}
-  \end{array}
-}{
-  \text{replace}\ \mathtt{\tv{a}\ m(\ol{\tv{a}}\ x)} \ \text{with}\ \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ \tv{a}\ m(\ol{T}\ x)}
-}
-\end{align*}
-\item We define the two functions $\textit{ftype}_\textit{Ass}$ and $\textit{mtype}_\textit{Ass}$.
-Both functions return a set of all types for a method \texttt{m} or a field \texttt{f}.
-This is due to the fact that there can be multiple methods and fields with the same name.
-\begin{align*}
-  %TODO: fresh type variables for generic variables:
-  \ddfrac{
-    class\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\ \{\ \ol{N}\ \ol{f};\ K\ \ol{M}\ \} \quad \quad
-    \exptype{}{\ol{Y}}\ U\ \texttt{m}(\ol{U}\ \ol{x}) \{ \ldots \} \in \ol{M}
-  }{
-    \textit{mtype}_\textit{Ass}(\texttt{m}, \exptype{C}{\ol{X} \triangleleft \ol{N}}) =  \set{\exptype{}{\ol{Y}} (\ol{U} \to U )}
-  }
-\end{align*}
-\begin{align*}
-  \ddfrac{
-    class\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\ \{\ \ol{T}\ \ol{f};\ K\ \ol{M}\ \} \quad \quad
-    T\ \texttt{f} \in \ol{f}
-  }{
-    \textit{ftype}_\textit{Ass}(\texttt{f}, \exptype{C}{\ol{X} \triangleleft \ol{N}}) = T
-  }
-\end{align*}
-% \item If the input for the type inference algorithm consists out of multiple classes we compile them one by one.
-% Additionally we add the types of the already compiled classes to the assumption set.
-% Therefore it is possible to have intersection types already in the assumptions.
-\end{enumerate}
-
-
 \subsection{Constraint generation}
 \label{sec:fjtype}
 
@@ -289,36 +226,27 @@ $\fjtype : \typeAssumptions \times \texttt{L} \rightarrow \ol{C}\\
  \begin{array}{@{}l@{}l}
   \fjtype & (\typeAssumptions, \mathtt{class } \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \ \mathtt{ extends } \ \mathtt{N \{ \overline{T} \ \overline{f}; \, K \, \overline{M} \}}) =\\
   & \begin{array}{l@{}l@{}l}
-    \textbf{let} &\ m_{cons}, m_{override} = \set{\overridesFunc(\typeAssumptions, \exptype{C}{\ol{X}}.\mathtt{m}) \ |\ m \in \ol{M}} \\
-    &\ \typeAssumptions' = \begin{array}[t]{l}
+    \textbf{let} &\ \ol{\methodAssumption}_o = \set{\exptype{C}{\ol{X}}.\mathtt{m} : \exptype{}{\ol{Y} \triangleleft \ol{P}}\ \ol{T} \to \tv{a} \ |\ \texttt{m} \in \ol{M},
+    \texttt{m}\ \text{overrides}\ \texttt{N}.\texttt{m} : \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{\texttt{T}} \to \texttt{T}}\\
+    &\ \constraints_o = \set{\tv{a} \lessdot \texttt{T} \ |\ \texttt{m} \in \ol{M}, 
+    \texttt{m}\ \text{overrides}\ \texttt{N}.\texttt{m} : \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{\texttt{T}} \to \texttt{T}}\\
+    &\quad \quad \textbf{with}\ \tv{a}\ \text{being the same fresh type variable in both cases} \\
+    %\textbf{let} &\ m_{cons}, m_{override} = \set{\overridesFunc(\typeAssumptions, \exptype{C}{\ol{X}}.\mathtt{m}) \ |\ m \in \ol{M}} \\
+    &\ \methodAssumption' = \begin{array}[t]{l}
      \set{ (\exptype{C}{\ol{X}}.\mathtt{m} : \ol{\tv{a}} \to \tv{a}) \ |\ m \in \ol{M},\\
      \quad \quad \texttt{m}\ \text{does not override another method} \\
-     \quad \quad \tv{a}, \ol{\tv{a}}\ \text{are fresh type variables} } \cup \\
-     \typeAssumptions \cup m_{override}
+     \quad \quad \tv{a}, \ol{\tv{a}}\ \text{are fresh type variables} } \\
+     % \cup \\
+     %\typeAssumptions \cup m_{override}
     \end{array}\\
-  \textbf{in} & \{ \ \typeMethod( \typeAssumptions' \cup \{ \mathtt{this} : \exptype{C}{\ol{X}} \}, \mathtt{m}) \ |\ \mathtt{m} \in \overline{M} \ \} \cup m_{cons} \\ 
+  \textbf{in} & \{ \ \typeMethod( (\ol{\methodAssumption} \cup \ol{\methodAssumption}' \cup \ol{\methodAssumption}_o , \ol{\fieldAssumption}, \{ \mathtt{this} : \exptype{C}{\ol{X}} \}, \mathtt{m}) \ |\ \mathtt{m} \in \overline{M} \ \}
+   \cup \constraints_o \\ 
   \end{array}
 \end{array}$
 
-The \overridesFunc{} returns a set of method types, which are overriden by the given method.
 
 It is possible that mulitple methods get overriden, due to the internal use of intersection types during the \fjtype{} algorithm.
 We generate a constraint ($a\lessdot T)$ for each overriden method.
-
-\noindent
-$\begin{array}{l}
-\overridesFunc{} : \typeAssumptionsSymbol \times \methodAssumption \to \consSet \times \typeAssumptions \\
-\overridesFunc{}(\typeAssumptions,\ \exptype{C}{\ol{X}}.m) = \\
-\quad \quad \begin{array}{ll}
-\textbf{let}& \tv{a}_1, \ldots \tv{a}_i, \ldots, \tv{a}_n = \text{fresh type variables} \\
-& ass = \set{ \exptype{C}{\ol{X}}.\mathtt{m} : \mathtt{\exptype{}{\ol{Y}_i \triangleleft \ol{P}_i}\ \ol{T}_i \to \tv{a}_i}
-\ |\ \mathtt{\texttt{N.m} : \exptype{}{\ol{Y}_i \triangleleft \ol{P}_i}\ \ol{T}_i \to T_i} \in \typeAssumptions, \exptype{C}{\ol{X}} <: \texttt{N}} \\
-& cons = \set{ \tv{a}_i \lessdot \type{T}_i \ |\ \mathtt{\texttt{N.m} : \exptype{}{\ol{Y}_i \triangleleft \ol{P}_i}\ \ol{T}_i \to T_i} \in \typeAssumptions, \exptype{C}{\ol{X}} <: \texttt{N}} \\
-\multicolumn{2}{l}{\textbf{in}\ (ass,\ cons)} \\
-\end{array}\\
-%\textbf{with}\ \tv{a}_1, \ldots \tv{a}_i, \ldots, \tv{a}_n\ \text{as fresh type variables.}
-\end{array}
-$
 
 We use intersection types during the constraint generation.
 In the end we select one possible solution after all classes got infered.
