@@ -222,7 +222,7 @@ After our algorithm found a correct typisation we replace the type variables wit
 The algorithm \textbf{FJTYPE} is given as follows:
 
 \noindent
-$\fjtype : \typeAssumptions \times \texttt{L} \rightarrow \ol{C}\\
+$\fjtype : \typeAssumptionsSymbol \times \texttt{L} \rightarrow \ol{C}\\
  \begin{array}{@{}l@{}l}
   \fjtype & (\typeAssumptions, \mathtt{class } \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \ \mathtt{ extends } \ \mathtt{N \{ \overline{T} \ \overline{f}; \, K \, \overline{M} \}}) =\\
   & \begin{array}{l@{}l@{}l}
@@ -239,8 +239,9 @@ $\fjtype : \typeAssumptions \times \texttt{L} \rightarrow \ol{C}\\
      % \cup \\
      %\typeAssumptions \cup m_{override}
     \end{array}\\
-  \textbf{in} & \{ \ \typeMethod( (\ol{\methodAssumption} \cup \ol{\methodAssumption}' \cup \ol{\methodAssumption}_o , \ol{\fieldAssumption}, \{ \mathtt{this} : \exptype{C}{\ol{X}} \}, \mathtt{m}) \ |\ \mathtt{m} \in \overline{M} \ \}
-   \cup \constraints_o \\ 
+  \textbf{in} \\
+   &\ \displaystyle{ \left( \bigcup_{\texttt{m} \in \ol{M}} \typeMethod( (\ol{\methodAssumption} \cup \ol{\methodAssumption}' \cup \ol{\methodAssumption}_o , \ol{\fieldAssumption}, \{ \mathtt{this} : \exptype{C}{\ol{X}} \}), \mathtt{m}) \right)
+   \cup \constraints_o } \\ 
   \end{array}
 \end{array}$
 
@@ -263,11 +264,11 @@ then we make sure that the return type of \texttt{m} in \texttt{C} is a subtype 
 $\typeMethod: \typeAssumptionsSymbol \times
 \texttt{M} \rightarrow \ol{C}\\
 \begin{array}{@{}l@{}l@{}l}
-\typeMethod & (\typeAssumptions,\ & T_r \ \mathtt{m}(\overline{T} \, \overline{x})\{ \mathtt{ return }\ e; \}) =\\
+\typeMethod & (\typeAssumptions,\ & \type{T} \ \mathtt{m}(\overline{\texttt{T}} \ \overline{\texttt{x}})\{ \mathtt{ return }\ \texttt{e}; \}) =\\
 & \textbf{let}
-& \underline{(e:rty, \constraints)} = \typeExpr((\overline{\methodAssumption} ; \overline{\fieldAssumption}; \overline{\localVarAssumption} \cup \{ \overline{T} : \overline{x} \}), e)\\
+& (\texttt{e}:\type{R}, \constraints) = \typeExpr((\overline{\methodAssumption} ; \overline{\fieldAssumption}; \overline{\localVarAssumption} \cup \{ \overline{\texttt{T}} : \overline{\texttt{x}} \}), \texttt{e})\\
 & \mathbf{in}
-& (\constraints \cup (rty \lessdot T_r))\\
+& \constraints \cup \set{\type{R} \lessdot \type{T}}\\
 \end{array}
 $
 
@@ -284,16 +285,7 @@ In the following we define the \typeExpr function for every possible expression:
 \noindent
 $\typeExpr: \typeAssumptionsSymbol \times
 \texttt{Expression} \rightarrow \texttt{Type} \times \texttt{Constraints}\\
-\begin{array}{@{}l@{}l}
-\typeExpr & (\typeAssumptions, \mathtt{this}) = (t , \{\})\\
-& \textbf{with } (\mathtt{this} : t) \in \typeAssumptions 
-\end{array}
-$
-\smallskip
-$\begin{array}{@{}l@{}l}
-  \typeExpr &(\typeAssumptions,x) = (t , \{\})\\
-& \textbf{with } (x : t) \in \typeAssumptions 
-\end{array}
+\typeExpr ((\overline{\methodAssumption} ; \overline{\fieldAssumption}; \overline{\localVarAssumption}\cup \set{\mathtt{x} : \type{T})}, \mathtt{x}) = (\type{T} , \emptyset)
 $
 
 \smallskip
@@ -305,11 +297,11 @@ Also we know, that each field has an unique value. Therefore no Or-Constraints w
 \\
 \noindent
 $\begin{array}{@{}l@{}l}
-\typeExpr{} &(\typeAssumptions, e.\texttt{f}) = \\
+\typeExpr{} &(\typeAssumptions, \texttt{e}.\texttt{f}) = \\
 & \begin{array}{ll}
 \textbf{let} 
-& (rty, \consSet_e) = \typeExpr(Ass, e),\\
-& \consSet_f = \set{rty \lessdot \exptype{C}{\ol{X}}}\\
+& (\type{R}, \consSet_e) = \typeExpr(\typeAssumptions, \texttt{e}),\\
+& \consSet_f = \set{\type{R} \lessdot \exptype{C}{\ol{X}}}\\
 \multicolumn{2}{l}{\mathbf{in}
 (\mathtt{T}, [\textbf{fresh}(\ol{X})/\ol{X}](\consSet_e \cup \consSet_f))}\\
 & \textit{given there exists a}\ \exptype{C}{\ol{X}}.\texttt{f} : \type{T} \in \ol{\fieldAssumption}\\
@@ -321,20 +313,20 @@ $
 
 \noindent
 $\begin{array}{@{}l@{}l}
-\typeExpr{} & (\typeAssumptions, e.\mathtt{m}(\overline{e}) ) = \\
+\typeExpr{} & (\typeAssumptions, \texttt{e}.\mathtt{m}(\overline{\texttt{e}}) ) = \\
 & \begin{array}{ll}
 \textbf{let}& % \\
 % &
-(rty, ConS) = \typeExpr(\typeAssumptions, e),\\
-& \forall e_i \in \overline{e} : (pt_i, ConS_i) = \typeExpr(e_i)  ,\\
+(\type{R}, \constraints_R) = \typeExpr(\typeAssumptions, e),\\
+& \forall e_i \in \overline{e} : (pt_i, \constraints_i) = \typeExpr(e_i)  ,\\
 & \begin{array}{@{}l@{}l}
-        Cons_{m} = \{\ & \set{ rty \lessdot \exptype{C}{\ol{X}}, a \doteq T, \bigcup_{T_i \in \overline{T}} (pt_i \lessdot T_i)
+  \constraints_{m} = \{\ & \set{ \type{R} \lessdot \exptype{C}{\ol{X}}, \tv{a} \doteq \type{T}, \bigcup_{T_i \in \overline{T}} (pt_i \lessdot T_i)
         , \ol{Y} \lessdot \ol{P} }\\
                     & |\, \text{for every method}\ \exptype{}{\ol{Y} \triangleleft \ol{P}} T\ \texttt{m}(\ol{T}\  \ol{p}) \in \ol{M} \} \\%, \textbf{fresh}(\ol{X}) \lessdot \textbf{fresh}(\ol{N})\},\\
                     & ,\, \text{in every class}\ \exptype{C}{\ol{X}} \{ \ldots \ol{M} \ldots \}\ \text{in the input} \} 
 \end{array}\\
-& OrCons = \textbf{OrConstraint}(Cons_{m})\\
-\multicolumn{2}{l}{\mathbf{in} (a, [\textbf{fresh}(\ol{X})/\ol{X}][\textbf{fresh}(\ol{Y})/\ol{Y}](ConS \cup \bigcup_i ConS_i \cup OrCons))}\\
+& \constraints = \orCons(\constraints_{m})\\
+\multicolumn{2}{l}{\mathbf{in} (a, [\textbf{fresh}(\ol{X})/\ol{X}][\textbf{fresh}(\ol{Y})/\ol{Y}](\constraints_R \cup \bigcup_i \constraints_i \cup \constraints))}\\
 & \text{where\ } a \text{\ is\ a\ fresh\
   type\ variable}\\ 
 \end{array}
@@ -355,12 +347,14 @@ $\ol{X}$ can occur in the bound $\ol{N}$ aswell as in the types of the construct
 %TODO: Hier noch Konstruktor Assumptions einführen und den TypeAssumptions hinzufügen
 \noindent
 $\begin{array}{@{}l@{}l}
-\typeExpr &(\typeAssumptions, \mathtt{new }\ C(\overline{e}) ) = \\
+\typeExpr &(\typeAssumptions, \mathtt{new }\ \texttt{C}(\overline{\texttt{e}}) ) = \\
 &\begin{array}{ll}
 \textbf{let} % \\
-& \forall e_i \in \overline{e} : (pt_i, Cons_i) = \typeExpr(Ass, e_i)  ,\\
-& Cons = \{ \bigcup_{T_i \in \overline{T}} (pt_i \lessdot T_i) \ | \ \mathtt{class }\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\{ \ldots, \texttt{C}(\overline{T} \overline{x}), \ldots \} \}\\
-\multicolumn{2}{l}{\mathbf{in} \textbf{fresh}(\ol{X})/\ol{X}](\exptype{C}{\ol{X}}, (Cons \cup \bigcup_i Cons_i \cup \ol{X'} \lessdot \ol{N})) }\\
+& \forall \texttt{e}_i \in \overline{\texttt{e}} : (\type{P}_i, \constraints_i) = \typeExpr(\typeAssumptions, \texttt{e}_i)  ,\\
+%& \constraints = \{ \bigcup_{T_i \in \overline{T}} (pt_i \lessdot \type{T}_i) \ | \ \mathtt{class }\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\{ \ldots, \texttt{C}(\overline{T} \overline{x}), \ldots \} \}\\
+& \constraints = \{ \bigcup_{T_i \in \overline{T}} (\type{P}_i \lessdot \type{T}_i) \ | \ \exptype{C}{\ol{X}}.\texttt{f}_i : \type{T}_i \}\\
+\multicolumn{2}{l}{\mathbf{in}\ [\textbf{fresh}(\ol{X})/\ol{X}](\exptype{C}{\ol{X}}, \constraints \cup \bigcup_i \constraints_i \cup \set{\ol{X} \lessdot \ol{N}}) }\\
+& \text{taken } \ol{\type{N}}\ \text{from the class definition}\ \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \set{\ldots} \\
 \end{array}
 \end{array}
 $
@@ -412,15 +406,15 @@ By direct comparison we show that each of the generated constraints applies the 
 The \texttt{GT-INVK} rule states the condition $\textit{mtype}(m, \textit{bound}_\triangle(T_0)) = \exptype{}{\ol{Y}}\ \ol{U} \to U$.
 %In our version of typeless FGJ every method name is unique
 %and there is only one class with that particular method.
-The constraint $rty \lessdot \exptype{C}{\ol{X}}$ assures that the type of the expression $e_0$ contains the method \texttt{m}.
+The constraint $\type{R} \lessdot \exptype{C}{\ol{X}}$ assures that the type of the expression $e_0$ contains the method \texttt{m}.
 
 \begin{small}
 \begin{tabularx}{\linewidth}{lX|Xl}
   \textbf{FGJ Type rule} &&& \textbf{Constraints} \\
-  $\triangle; \Gamma \vdash e_o : T_0$ &&& $(rty, ConS) = \typeExpr(Ass, e_r)$\\ 
-  $\mathtt{\textit{bound}(T_0)}$ &&& $rty \lessdot \exptype{C}{\ol{X}}$ \\
+  $\triangle; \Gamma \vdash e_o : T_0$ &&& $(\type{R}, ConS) = \typeExpr(Ass, e_r)$\\ 
+  $\mathtt{\textit{bound}(T_0)}$ &&& $\type{R} \lessdot \exptype{C}{\ol{X}}$ \\
   $\mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ \ol{U} \to U} \in \textit{mtype}(m, N)$ &&& Lookup in the assumptions \\
- %$\textit{mtype}(m, \textit{bound}_\triangle(T_0)) = \ol{U} \to U$ & $rty \doteq cl$\\
+ %$\textit{mtype}(m, \textit{bound}_\triangle(T_0)) = \ol{U} \to U$ & $\type{R} \doteq cl$\\
  $\triangle; \Gamma \vdash \ol{e} : \ol{S}$ &&& $\forall e_i \in \overline{e} : (pt_i, ConS_i) = \typeExpr(Ass, e_i)$\\
  $\triangle \vdash \ol{S} <: \ol{U}$ &&& $ \bigcup_{T_i \in \overline{T}} (pt_i \lessdot T_i)$\\
  $\triangle; \Gamma \vdash \mathtt{e_0.m(\overline{e}) : U }$ &&& $a \doteq T$ \\
@@ -443,9 +437,9 @@ Fieldnames by default are unique in the FGJ language.
 
  \begin{tabular}{l|l}
    \textbf{FGJ Type rule} & \textbf{Constraints} \\
-   $\Gamma \vdash e_0:T_0$ & $(rty, ConS) = \typeExpr(Ass, e_r)$\\ 
-   $\quad \mathit{fields}(\mathit{bound}_\triangle(T_0)) = \overline{T} \ \overline{f}$ & $rty \doteq \exptype{C}{\textbf{fresh}(\ol{X})}$ \\
-  %$\textit{mtype}(m, \textit{bound}_\triangle(T_0)) = \ol{U} \to U$ & $rty \doteq cl$\\
+   $\Gamma \vdash e_0:T_0$ & $(\type{R}, ConS) = \typeExpr(Ass, e_r)$\\ 
+   $\quad \mathit{fields}(\mathit{bound}_\triangle(T_0)) = \overline{T} \ \overline{f}$ & $\type{R} \doteq \exptype{C}{\textbf{fresh}(\ol{X})}$ \\
+  %$\textit{mtype}(m, \textit{bound}_\triangle(T_0)) = \ol{U} \to U$ & $\type{R} \doteq cl$\\
   $\triangle; \Gamma \vdash \ol{e} : \ol{S}$ & $\forall e_i \in \overline{e} : (pt_i, ConS_i) = \typeExpr(Ass, e_i)$\\
   $\triangle \vdash \ol{S} <: \ol{U}$ & $ \bigcup_{T_i \in \overline{T}} (pt_i \lessdot \textbf{fresh}(T_i))$\\
   $\triangle; \Gamma \vdash \mathtt{e_0.m(\overline{e}) : U }$ & $a \doteq \textbf{fresh}(T)$ \\
@@ -1064,7 +1058,7 @@ $p \lessdot \exptype{List}{b}, r \lessdot \exptype{List}{b}, \texttt{Example} \l
 Now we cannot insert a generic type variable with super bounds like this:
 \texttt{B super Example}
 
-We have to still calculate every possible supertype of \texttt{Example} which will lead to an array of possible solutions.
+We have to still calculate every possible supe\type{R}pe of \texttt{Example} which will lead to an array of possible solutions.
 
 
 \section{Related Work}
