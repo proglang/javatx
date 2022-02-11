@@ -12,9 +12,9 @@ or fail $Uni = \emptyset$.
 \textit{Hints:}
 \begin{itemize}
 \item The $\lessdot^*$ used in this chapter means,
-that $a \lessdot^* b$ can either be a single constraint $a \lessdot b$ or a transitive series of constraints
-$a \lessdot c, \ldots, m \lessdot n, n \lessdot b$.
-\item $[a/b]T$ means replacing all type variables $b$ with $a$ in the type $T$.
+that $\tv{a} \lessdot^* \tv{b}$ can either be a single constraint $\tv{a} \lessdot b$ or a transitive series of constraints
+$\tv{a} \lessdot \tv{c}, \ldots, \tv{m} \lessdot \tv{n}, \tv{n} \lessdot \tv{b}$.
+\item $[\tv{a}/\tv{b}]T$ means replacing all type variables $\tv{b}$ with $\tv{a}$ in the type $\type{T}$.
 %\item The function $\textbf{fresh}(i)$ returns an array of $i$ fresh type variables.
 \end{itemize}
 \begin{definition}[Isolated type variable] \label{def:isolated-type-variable}
@@ -26,10 +26,10 @@ $a \lessdot c, \ldots, m \lessdot n, n \lessdot b$.
     \textrm
     A set of constraints $Eq$ has reached solved form if it contains only the following kind of constraints:
     \begin{enumerate}
-      \item $a \lessdot b$ %, with $a$ and $b$ both isolated type variables
-      \item $a \doteq b$
-      \item $a \lessdot \exptype{C}{\ol{X}}$, with $a \notin \ol{X}$ %, with $a$ not appearing in any other constraints of type 2 or 3.
-      \item $a \doteq \exptype{C}{\ol{X}}$, with $a \notin \ol{X}$
+      \item $\tv{a} \lessdot \tv{b}$ %, with $a$ and $b$ both isolated type variables
+      \item $\tv{a} \doteq \tv{b}$
+      \item $\tv{a} \lessdot \exptype{C}{\ol{X}}$, with $\tv{a} \notin \ol{X}$ %, with $a$ not appearing in any other constraints of type 2 or 3.
+      \item $\tv{a} \doteq \exptype{C}{\ol{X}}$, with $\tv{a} \notin \ol{X}$
     \end{enumerate}
   \end{definition}  
 
@@ -37,7 +37,7 @@ The unify algorithm first has to build the cartesian product of all the \textbf{
 \begin{align*}
 \Omega &= \text{All }\mathbf{OrConstraints} \text{ in } {Cons}_{in}\\
 C &= {Cons}_{in} \setminus \Omega \\
-Eq_{set} &= \Omega_1 \times \ldots \times \Omega_n \times C \quad \text{for all }\Omega_i \in \Omega
+Eq_{set} &= \orCons^1 \times \ldots \times \orCons^n \times C \quad \text{for all }\orCons^i \in \Omega
 \end{align*}
 
 %The algorithm starts by setting $Eq_{set} = \set{ Cons_{in} }$.
@@ -57,15 +57,15 @@ Eq_2 =& Eq / Eq_1 \\
 Eq_{set}
     = 
     & \times\, 
-    (\displaystyle{\bigotimes_{(\exptype{C}{\overline{T}} \lessdot a) \in Eq_2}}\!\!
-    \set{a \doteq [\ol{T}/\ol{X}]N \ | \ \exptype{C}{\overline{X}} <: N })\\
-    & (\displaystyle{\bigotimes_{\set{a \lessdot \exptype{C}{\overline{T}}} \in Eq_2, \set{ a \lessdot^* b} \in Eq_1}}\!\!
-    \set{ b \lessdot \exptype{C}{\ol{T}}} \cup \set{b \doteq [\ol{T}/\ol{X}]N \ | \ \exptype{C}{\overline{X}} <: N })\\
-    & \times\, \set{[a \doteq N \ | \  (a \doteq N) \in Eq_2]} \\
-    & \times\, \set{[a \lessdot N \ | \  (a \lessdot N) \in Eq_2]}  \\
-    & \times\, \set{[N \doteq a \ | \  (N \doteq a) \in Eq_2]}  \\
-    & \times\, \set{[N \doteq N \ | \  (N \doteq N \in Eq_2]} \\
-    & \times\, \set{[N \lessdot N \ | \  (N \lessdot N) \in Eq_2]} \times Eq_1 \\
+    (\displaystyle{\bigotimes_{(\exptype{C}{\overline{T}} \lessdot   \tv{a}) \in Eq_2}}\!\!
+    \set{\tv{a} \doteq [\ol{T}/\ol{X}]\type{N} \ | \ \exptype{C}{\overline{X}} <: \type{N} })\\
+    & (\displaystyle{\bigotimes_{\set{a \lessdot \exptype{C}{\overline{T}}} \in Eq_2, \set{ \tv{a} \lessdot^* \tv{b}} \in Eq_1}}\!\!
+    \set{ b \lessdot \exptype{C}{\ol{T}}} \cup \set{b \doteq [\ol{T}/\ol{X}]N \ | \ \exptype{C}{\overline{X}} <: \type{N} })\\
+    & \times\, \set{[\tv{a} \doteq \type{N} \ | \  (\tv{a} \doteq \type{N}) \in Eq_2]} \\
+    & \times\, \set{[\tv{a} \lessdot \type{N} \ | \  (\tv{a} \lessdot \type{N}) \in Eq_2]}  \\
+    & \times\, \set{[\type{N} \doteq \tv{a} \ | \  (\type{N} \doteq \tv{a}) \in Eq_2]}  \\
+    & \times\, \set{[\type{N} \doteq \type{N} \ | \  (\type{N} \doteq \type{N} \in Eq_2]} \\
+    & \times\, \set{[\type{N} \lessdot \type{N} \ | \  (\type{N} \lessdot \type{N}) \in Eq_2]} \times Eq_1 \\
 \end{align*}
 \item \label{subst-step}  Application of the following \emph{subst} rule for every $Eq'' \in Eq_{set}$
     %\begin{enumerate}
@@ -74,11 +74,11 @@ Eq_{set}
       $$\begin{array}[c]{lll}
         (\mathrm{subst}) &
         \begin{array}[c]{l}
-          Eq'' \cup \set{a \doteq N}\\
+          Eq'' \cup \set{\tv{a} \doteq \type{N}}\\
           \hline
-          Eq''[a \mapsto N] \cup \set{a \doteq N}
+          Eq''[\tv{a} \mapsto \type{N}] \cup \set{a \doteq \type{N}}
         \end{array}
-        & a \textrm{ occurs in } Eq'' \textrm{ but not in } N
+        & \tv{a} \textrm{ occurs in } Eq'' \textrm{ but not in } \type{N}
       \end{array}$$
       
       for each $a \doteq N$ in each element of $Eq' \in Eq'_{set}$.
@@ -98,16 +98,16 @@ $Eq_{solved} = \set{ Eq \ | \ Eq \in Eq_{set}, Eq \ \text{is in solved form}}$
 \item We apply the following rule to every constraint set in $Eq_{solved}$:
 \begin{align*}
 \ddfrac{
-  Eq \cup \set{ a \lessdot b } %There are only Type variables left at this point
+  Eq \cup \set{ \tv{a} \lessdot \tv{b} } %There are only Type variables left at this point
 }{
-  [a/b]Eq \cup \set{ a \doteq b }
+  [\tv{a}/\tv{b}]Eq \cup \set{ \tv{a} \doteq \tv{b} }
 }
 \end{align*}
 \item Finally we generate the unifiers:
 \begin{align*}
     \emph{Uni} = &
-   \set{\sigma \ | \ Eq \in Eq_{solved},\ \sigma = \set{a \mapsto T \ | \ (a \doteq \texttt{T}) \in Eq} } \ \cup \\
-   & \set{\sigma \ | \ Eq \in Eq_{solved},\ \sigma = \set{a \mapsto (X \triangleleft T) \ | \ (a \lessdot \texttt{T}) \in Eq} }
+   \set{\sigma \ | \ Eq \in Eq_{solved},\ \sigma = \set{\tv{a} \mapsto \type{T} \ | \ (\tv{a} \doteq \type{T}) \in Eq} } \ \cup \\
+   & \set{\sigma \ | \ Eq \in Eq_{solved},\ \sigma = \set{\tv{a} \mapsto (\type{X} \triangleleft \type{T}) \ | \ (\tv{a} \lessdot \type{T}) \in Eq} }
 \end{align*}
 \end{enumerate}
 \end{enumerate}
@@ -121,13 +121,13 @@ $Eq_{solved} = \set{ Eq \ | \ Eq \in Eq_{set}, Eq \ \text{is in solved form}}$
       & $
       \begin{array}[c]{ll}
       \begin{array}[c]{l}
-         Eq \cup \, \set{a \lessdot
+         Eq \cup \, \set{\tv{a} \lessdot
          \exptype{C}{\ol{X}},
-         a \lessdot
+         \tv{a} \lessdot
           \exptype{D}{\ol{Y}}} \\ 
         \hline
         \vspace*{-0.4cm}\\
-        Eq \cup \set{a \lessdot \exptype{C}{\ol{X}}
+        Eq \cup \set{\tv{a} \lessdot \exptype{C}{\ol{X}}
         , \exptype{C}{\ol{X}} \lessdot \exptype{D}{\ol{Y}}}
       %Eq \cup \set{\theta_1 \doteq \lambda'_1 \ldo \theta_n \doteq \lambda'_n}
       \end{array}
@@ -139,17 +139,17 @@ $Eq_{solved} = \set{ Eq \ | \ Eq \in Eq_{set}, Eq \ \text{is in solved form}}$
     & $
     \begin{array}[c]{ll}
     \begin{array}[c]{l}
-       Eq \cup \, \set{a \lessdot
+       Eq \cup \, \set{\tv{a} \lessdot
        \exptype{C}{\ol{X}},
-       b \lessdot^* a, b \lessdot \exptype{D}{\ol{Y}}} \\ 
+       \tv{b} \lessdot^* \tv{a}, \tv{b} \lessdot \exptype{D}{\ol{Y}}} \\ 
       \hline
       \vspace*{-0.4cm}\\
       Eq \cup \set{
-        a \lessdot
+        \tv{a} \lessdot
        \exptype{C}{\ol{X}},
-       b \lessdot^* a
-      , b \lessdot  \exptype{D}{\ol{Y}}
-      , b \lessdot \exptype{C}{\ol{X}}
+       \tv{b} \lessdot^* \tv{a}
+      , \tv{b} \lessdot  \exptype{D}{\ol{Y}}
+      , \tv{b} \lessdot \exptype{C}{\ol{X}}
        }
     %Eq \cup \set{\theta_1 \doteq \lambda'_1 \ldo \theta_n \doteq \lambda'_n}
     \end{array}
@@ -182,10 +182,10 @@ $Eq_{solved} = \set{ Eq \ | \ Eq \in Eq_{set}, Eq \ \text{is in solved form}}$
       $ \\\\
 (equals) & $
 \begin{array}[c]{l}
-  Eq \cup \set{a \lessdot
-    b, b \lessdot c, \ldots, m \lessdot n, n \lessdot a}\\
+  Eq \cup \set{\tv{a} \lessdot
+  \tv{b}, \tv{b} \lessdot \tv{c}, \ldots, \tv{m} \lessdot \tv{n}, \tv{n} \lessdot \tv{a}}\\
   \hline
-  Eq \cup \set{a \doteq b, a \doteq c, \ldots}
+  Eq \cup \set{\tv{a} \doteq \tv{b}, \tv{a} \doteq \tv{c}, \ldots}
 \end{array}
       $ \\\\
     \end{tabular}}
@@ -200,18 +200,18 @@ $Eq_{solved} = \set{ Eq \ | \ Eq \in Eq_{set}, Eq \ \text{is in solved form}}$
       (erase1)  & $ 
       \begin{array}[c]{ll}
         \begin{array}[c]{l}
-          Eq \cup \set{C \lessdot D}\\
+          Eq \cup \set{\type{C} \lessdot \type{D}}\\
           \hline
           Eq
         \end{array}
-        & C <: D
+        & \type{C} <: \type{D}
       \end{array}$\\
           \end{tabular}\\
 &\begin{tabular}[t]{ll}
       (erase2)  & $ 
       \begin{array}[c]{ll}
         \begin{array}[c]{l}
-          Eq \cup \set{a \doteq a}\\
+          Eq \cup \set{\tv{a} \doteq \tv{a}}\\
           \hline
           Eq
         \end{array}
@@ -221,9 +221,9 @@ $Eq_{solved} = \set{ Eq \ | \ Eq \in Eq_{set}, Eq \ \text{is in solved form}}$
        (swap) & $
             \begin{array}[c]{ll}
               \begin{array}[c]{l}
-                Eq \cup \set{C \doteq a}\\
+                Eq \cup \set{\type{C} \doteq \tv{a}}\\
                 \hline
-                Eq \cup \set{a \doteq C}
+                Eq \cup \set{\tv{a} \doteq \type{C}}
               \end{array}
             \end{array}$
           \end{tabular}
