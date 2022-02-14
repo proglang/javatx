@@ -208,7 +208,7 @@ c = \type{T} \lessdot \type{T} \ |\ \type{T} \doteq \type{T} \\
   It is not possible to have \orCons{} nested inside another \orCons{}.\\
   For example $\orCons{}(\{ \ \{ (a \lessdot b), (a \leq \mathtt{Object}) \} \ , \ \{ (a \lessdot b)\} \ \})$
   is an Or-Constraint consisting of two sets of constraints.
-  \item[Constraint-Set] The \fjtype algorithm returns a Constraint-Set (\consSet).
+  \item[Constraint-Set] The \fjtype{} algorithm returns a Constraint-Set (\consSet).
   It is able to hold a mix of normal Constraints and Or-Constraints.
   \end{description}
   
@@ -338,10 +338,10 @@ $
 The \texttt{new}-statement comes without the generic variables
 (\texttt{new Classname(...)} instead of \texttt{new Classname<Class>(...)}).
 The correct type will be inferred by our type inference algorithm.
-We generate new type variables $\ol{X'}$ for the generic variables of the class \texttt{C},
+We generate new type variables for the generic variables of the class \texttt{C},
 so the \textbf{Unify} algorithm can later set in the correct types for these variables.
-He has to comply to the bounds given by $\ol{N}$, which is why we add $\ol{X'} \lessdot \ol{N}$ to the constraints.
-It is important to change every occurence of $\ol{X}$ with the fresh type variables $\ol{X'}$ in the generated constraints.
+He has to comply to the bounds given by $\ol{N}$, which is why we add $\ol{X} \lessdot \ol{N}$ to the constraints.
+It is important to change every occurence of $\ol{X}$ with the fresh type variables $\textbf{fresh}(\ol{X})$ in the generated constraints.
 $\ol{X}$ can occur in the bound $\ol{N}$ aswell as in the types of the constructor parameters $\ol{T}$.
 
 %TODO: Hier noch Konstruktor Assumptions einführen und den TypeAssumptions hinzufügen
@@ -352,7 +352,7 @@ $\begin{array}{@{}l@{}l}
 \textbf{let} % \\
 & \forall \texttt{e}_i \in \overline{\texttt{e}} : (\type{P}_i, \constraints_i) = \typeExpr(\typeAssumptions, \texttt{e}_i)  ,\\
 %& \constraints = \{ \bigcup_{T_i \in \overline{T}} (pt_i \lessdot \type{T}_i) \ | \ \mathtt{class }\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\{ \ldots, \texttt{C}(\overline{T} \overline{x}), \ldots \} \}\\
-& \constraints = \{ \bigcup_{T_i \in \overline{T}} (\type{P}_i \lessdot \type{T}_i) \ | \ \exptype{C}{\ol{X}}.\texttt{f}_i : \type{T}_i \}\\
+& \constraints = \{ \type{P}_i \lessdot \type{T}_i \ | \ \exptype{C}{\ol{X}}.\texttt{f}_i : \type{T}_i \in \ol{\fieldAssumption} \}\\
 \multicolumn{2}{l}{\mathbf{in}\ [\textbf{fresh}(\ol{X})/\ol{X}](\exptype{C}{\ol{X}}, \constraints \cup \bigcup_i \constraints_i \cup \set{\ol{X} \lessdot \ol{N}}) }\\
 & \text{taken } \ol{\type{N}}\ \text{from the class definition}\ \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \set{\ldots} \\
 \end{array}
