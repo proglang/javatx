@@ -41,7 +41,7 @@ is shown in Figure~\ref{fig:intro-example-generic-fj}.
 % \end{lstlisting}
 %   \end{subfigure}
   \begin{subfigure}[t]{0.49\linewidth}
-\begin{lstlisting}
+\begin{lstlisting}[style=fgj]
 class Pair<X,Y> {
   X fst;
   Y snd;
@@ -62,7 +62,7 @@ class Pair<X,Y> {
   \end{subfigure}
   ~
   \begin{subfigure}[t]{0.49\linewidth}
-\begin{lstlisting}
+\begin{lstlisting}[style=tfgj]
 class Pair<X,Y> {
   X fst;
  Y snd;
@@ -78,7 +78,7 @@ class Pair<X,Y> {
   }
 }  
 \end{lstlisting}
-    \caption{FGJ with global type inference}
+    \caption{FGJ with global type inference (\TFGJ)}
     \label{fig:intro-example-generic-jtx}
   \end{subfigure}
   \caption{Example code}
@@ -88,7 +88,7 @@ While the overhead of explicit types look reasonable in the example,
 realistic programs often contain variable initializations like
 the following:\footnote{Taken from
   \url{https://stackoverflow.com/questions/4120216/map-of-maps-how-to-keep-the-inner-maps-as-maps/4120268}.} 
-\begin{lstlisting}[basicstyle=\ttfamily\fontsize{8}{9.6}\selectfont]
+\begin{lstlisting}[basicstyle=\ttfamily\fontsize{8}{9.6}\selectfont,style=fgj]
   HashMap<String, HashMap<String, Object>> outerMap =
     new HashMap<String, HashMap<String, Object>>();
 \end{lstlisting}
@@ -99,7 +99,7 @@ satisfactorily with examples like the initialization of
 In many initialization scenarios for local variables, Java infers their type
 if it is obvious from the context. In the
 example, we can write
-\begin{lstlisting}[basicstyle=\ttfamily\fontsize{8}{9.6}\selectfont]
+\begin{lstlisting}[basicstyle=\ttfamily\fontsize{8}{9.6}\selectfont,style=fgj]
 var outerMap = new HashMap<String, HashMap<String, Object>>();
 \end{lstlisting}
 because the constructor of the map spells out the type in
@@ -138,7 +138,7 @@ motivation to study global type inference is threefold.
   \lstinline{outerMap} example provides a good example of this
   problem. From a software engineering
   perspective, it would be better to use a more general abstract type like
-\begin{lstlisting}[basicstyle=\ttfamily\fontsize{8}{9.6}\selectfont]
+\begin{lstlisting}[basicstyle=\ttfamily\fontsize{8}{9.6}\selectfont,style=fgj]
 Map<String, Map<String, Object>> outerMap = ...
 \end{lstlisting}
   Global type inference finds most general types.
@@ -147,7 +147,7 @@ Map<String, Map<String, Object>> outerMap = ...
   inference helps programmers to find the most general type. Suppose
   we wanted to add a static  method \texttt{eqPair} for pairs of integers to the
   \lstinline/Pair/ class.
-\begin{lstlisting}[basicstyle=\ttfamily\fontsize{8}{9.6}\selectfont]
+\begin{lstlisting}[basicstyle=\ttfamily\fontsize{8}{9.6}\selectfont,style=fgj]
 boolean eqPair (Pair<Integer,Integer> p) {
   return p.fst.equals(p.snd);
 }
@@ -157,20 +157,20 @@ boolean eqPair (Pair<Integer,Integer> p) {
 \end{itemize}
   \begin{figure}[t]
     \begin{minipage}[t]{0.49\linewidth}
-\begin{lstlisting}
+\begin{lstlisting}[style=tfgj]
 eqPair (p) {
   return p.fst.equals(p.snd);
 }
 \end{lstlisting}
     \end{minipage}
     \begin{minipage}[t]{0.49\linewidth}
-\begin{lstlisting}
+\begin{lstlisting}[style=fgj]
 <T> boolean eqPair (Pair<T,T> p){
   return p.fst.equals<T>(p.snd);
 }
 \end{lstlisting}
     \end{minipage}
-    \caption{eqPair}
+    \caption{\lstinline{eqPair} in \TFGJ and FGJ}
     \label{fig:equal-pair}
   \end{figure}
 % \item Sometimes, it can be hard to find a correct typing at all.

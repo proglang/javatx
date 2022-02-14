@@ -409,7 +409,7 @@ follows:
 \begin{lstlisting}[style=tfgj]
 class UseGlobal {
   main() {
-    return new Global().m(new List<Object>());
+    return new Global().m((List<Object>) new List());
 } }
 \end{lstlisting}
 Due to the dependency on \texttt{Global.m()}, type inference considers this class after class
@@ -516,8 +516,8 @@ composes the instantiating substitutions, exhaustively:
   i \stackrel{[\ol{U}/\ol{X}_j]\ol{V}/\ol{X}_k}{\longrightarrow} k
 \end{gather}
 
-\begin{definition}
-  We say that method $\mv{m}_i$ is involved in polymorphic recursion
+\begin{definition}\label{def:method-in-poly-rec}
+  Method $\mv{m}_i$ is \emph{involved in polymorphic recursion}
   if there is an edge
   \begin{gather}\label{eq:2}
     i \stackrel{\ol{W}/\ol{X}_i}{\longrightarrow} i \quad \in IG^*
@@ -535,7 +535,7 @@ involved in polymorphic recursion:
     \mv{prc} \stackrel{\mv{X,Y}/\mv{X,Y}}{\longrightarrow} \mv{prc}
   \end{array}
 \end{gather*}
-The method call to \mv{swap} does not appear in the graph because
+The call to \mv{swap} does not appear in the graph because
 \mv{swap} is defined in a different class.
 
 For \mv{UsePair2}, we obtain a multigraph $IG^* (\mv{UsePair2})$ with
