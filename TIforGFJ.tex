@@ -287,39 +287,37 @@ $\typeMethod: \typeAssumptionsSymbol \times
 \end{array}
 $
 
-The \typeMethod function for methods just calls the \typeExpr function with the
+The \typeMethod{} function for methods just calls the \typeExpr{} function with the
 return expression. It is significant to note that it adds the assumptions for the method parameters to the global assumptions before passing them to \typeExpr.
 %and the global assumptions plus the assumptions for the method parameters.
 
 \smallskip
 
-In the following we define the \typeExpr function for every possible expression:
+In the following we define the \typeExpr{} function for every possible expression:
 
 \smallskip
 
 \noindent
 $\typeExpr: \typeAssumptionsSymbol \times
-\texttt{Expression} \rightarrow \texttt{Type} \times \texttt{Constraints}\\
+\texttt{Expression} \rightarrow \type{T} \times \constraints\\
 \typeExpr ((\overline{\methodAssumption} ; \overline{\fieldAssumption}; \overline{\localVarAssumption}\cup \set{\mathtt{x} : \type{T})}, \mathtt{x}) = (\type{T} , \emptyset)
 $
 
 \smallskip
 
-For our \textbf{TYPE} algorithm a field variable can be seen as a method call without parameters.
-Therefore generating constraints for a field access is the same as for a method call,
-with the difference that we search for a field with the same name instead of methods.
-Also we know, that each field has an unique value. Therefore no Or-Constraints will be generated.
-\\
+
 \noindent
 $\begin{array}{@{}l@{}l}
 \typeExpr{} &(\typeAssumptions, \texttt{e}.\texttt{f}) = \\
 & \begin{array}{ll}
 \textbf{let} 
 & (\type{R}, \consSet_e) = \typeExpr(\typeAssumptions, \texttt{e}),\\
-& \consSet_f = \set{\type{R} \lessdot \exptype{C}{\ol{X}}}\\
+& \consSet_f = \set{\set{\type{R} \lessdot \exptype{C}{\ol{X}},\ a \doteq T} \ |\ \exptype{C}{\ol{X}}.\texttt{f} : \type{T} \in \ol{\fieldAssumption}}\\
+& \constraints = \orCons(\constraints_{m})\\
 \multicolumn{2}{l}{\mathbf{in}
-(\mathtt{T}, [\textbf{fresh}(\ol{X})/\ol{X}](\consSet_e \cup \consSet_f))}\\
-& \textit{given there exists a}\ \exptype{C}{\ol{X}}.\texttt{f} : \type{T} \in \ol{\fieldAssumption}\\
+(\tv{a}, [\textbf{fresh}(\ol{X})/\ol{X}](\consSet_e \cup \constraints))}\\
+& \text{where\ } a \text{\ is\ a\ fresh\
+  type\ variable}\\ 
 \end{array} \\
 \end{array}
 $
@@ -332,31 +330,32 @@ $\begin{array}{@{}l@{}l}
 & \begin{array}{ll}
 \textbf{let}& % \\
 % &
-(\type{R}, \constraints_R) = \typeExpr(\typeAssumptions, e),\\
-& \forall e_i \in \overline{e} : (pt_i, \constraints_i) = \typeExpr(e_i)  ,\\
+(\type{R}, \constraints_R) = \typeExpr(\typeAssumptions, \texttt{e}),\\
+& \forall e_i \in \overline{e} : (pt_i, \constraints_i) = \typeExpr(\texttt{e}_i)  ,\\
 & \begin{array}{@{}l@{}l}
-  \constraints_{m} = \{\ & \set{ \type{R} \lessdot \exptype{C}{\ol{X}}, \tv{a} \doteq \type{T}, \bigcup_{T_i \in \overline{T}} (pt_i \lessdot T_i)
-        , \ol{Y} \lessdot \ol{P} }\\
-                    & |\, \text{for every method}\ \exptype{}{\ol{Y} \triangleleft \ol{P}} T\ \texttt{m}(\ol{T}\  \ol{p}) \in \ol{M} \} \\%, \textbf{fresh}(\ol{X}) \lessdot \textbf{fresh}(\ol{N})\},\\
-                    & ,\, \text{in every class}\ \exptype{C}{\ol{X}} \{ \ldots \ol{M} \ldots \}\ \text{in the input} \} 
+  \constraints_{m} = \set{ & [\textbf{fresh}(\ol{Y})/\ol{Y}]\set{\type{R} \lessdot \exptype{C}{\ol{X}}, \tv{a} \doteq \type{T}, \bigcup_{T_i \in \overline{T}} (pt_i \lessdot T_i) , \ol{Y} \lessdot \ol{P}}\\
+  & \ |\ (\exptype{C}{\ol{X}}.\texttt{m} : \exptype{}{\ol{Y} \triangleleft \ol{P}} \ \ol{T} \to T) \in \ol{\methodAssumption} }
 \end{array}\\
 & \constraints = \orCons(\constraints_{m})\\
-\multicolumn{2}{l}{\mathbf{in} (a, [\textbf{fresh}(\ol{X})/\ol{X}][\textbf{fresh}(\ol{Y})/\ol{Y}](\constraints_R \cup \bigcup_i \constraints_i \cup \constraints))}\\
+\multicolumn{2}{l}{\mathbf{in} (a, [\textbf{fresh}(\ol{X})/\ol{X}](\constraints_R \cup \bigcup_i \constraints_i \cup \constraints))}\\
 & \text{where\ } a \text{\ is\ a\ fresh\
   type\ variable}\\ 
 \end{array}
 \end{array}
 $
 
+%\{\ & \set{ \type{R} \lessdot \exptype{C}{\ol{X}}, \tv{a} \doteq \type{T}, \overline{\type{pt}} \lessdot \overline{\type{T}} }
+%        , \ol{Y} \lessdot \ol{P} } }} \ |\ \exptype{}{\ol{Y} \triangleleft \ol{P}} T\ \texttt{m}(\ol{T}\  \ol{p}) \}
+
 \smallskip
 
 The \texttt{new}-statement comes without the generic variables
 (\texttt{new Classname(...)} instead of \texttt{new Classname<Class>(...)}).
 The correct type will be inferred by our type inference algorithm.
-We generate new type variables $\ol{X'}$ for the generic variables of the class \texttt{C},
+We generate new type variables for the generic variables of the class \texttt{C},
 so the \textbf{Unify} algorithm can later set in the correct types for these variables.
-He has to comply to the bounds given by $\ol{N}$, which is why we add $\ol{X'} \lessdot \ol{N}$ to the constraints.
-It is important to change every occurence of $\ol{X}$ with the fresh type variables $\ol{X'}$ in the generated constraints.
+He has to comply to the bounds given by $\ol{N}$, which is why we add $\ol{X} \lessdot \ol{N}$ to the constraints.
+It is important to change every occurence of $\ol{X}$ with the fresh type variables $\textbf{fresh}(\ol{X})$ in the generated constraints.
 $\ol{X}$ can occur in the bound $\ol{N}$ aswell as in the types of the constructor parameters $\ol{T}$.
 
 %TODO: Hier noch Konstruktor Assumptions einführen und den TypeAssumptions hinzufügen
@@ -367,7 +366,7 @@ $\begin{array}{@{}l@{}l}
 \textbf{let} % \\
 & \forall \texttt{e}_i \in \overline{\texttt{e}} : (\type{P}_i, \constraints_i) = \typeExpr(\typeAssumptions, \texttt{e}_i)  ,\\
 %& \constraints = \{ \bigcup_{T_i \in \overline{T}} (pt_i \lessdot \type{T}_i) \ | \ \mathtt{class }\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\{ \ldots, \texttt{C}(\overline{T} \overline{x}), \ldots \} \}\\
-& \constraints = \{ \bigcup_{T_i \in \overline{T}} (\type{P}_i \lessdot \type{T}_i) \ | \ \exptype{C}{\ol{X}}.\texttt{f}_i : \type{T}_i \}\\
+& \constraints = \{ \type{P}_i \lessdot \type{T}_i \ | \ \exptype{C}{\ol{X}}.\texttt{f}_i : \type{T}_i \in \ol{\fieldAssumption} \}\\
 \multicolumn{2}{l}{\mathbf{in}\ [\textbf{fresh}(\ol{X})/\ol{X}](\exptype{C}{\ol{X}}, \constraints \cup \bigcup_i \constraints_i \cup \set{\ol{X} \lessdot \ol{N}}) }\\
 & \text{taken } \ol{\type{N}}\ \text{from the class definition}\ \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \set{\ldots} \\
 \end{array}
