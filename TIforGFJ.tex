@@ -171,47 +171,62 @@ is, if method \mv{m} is used in \mv{C3} and defined both in \mv{C1}
 and \mv{C2}, then \mv{C1} and \mv{C2} must both be processed before
 \mv{C3}. In such a case, the use of \mv{m} might be ambiguous so that
 type inference for class \mv{C3} proposes more than one solution. Global
-type inference attempts to extend all proposals to a solution for the
+type inference attempts to extend each partial solution to a solution for the
 whole program and backtracks if that fails.
 
 \subsection{Constraint generation}
 \label{sec:fjtype}
+\begin{figure}[tp]
+  \begin{align*}
+    % Type
+    \itype{T} &::= \tv{a} \mid \mv{T} && \text{type variable or type}\\
+    % Constraints
+    \simpleCons &::= \itype{T} \lessdot \itype{T} \mid \itype{T} \doteq
+        \itype{T} && \text{simple constraint: subtype or equality}\\
+    % \consSet = \set{C_1, \ldots, C_2} \\
+    \orCons{} &::= \set{\overline{\simpleCons_1}, \ldots, \overline{\simpleCons_n}} && \text{or-constraint}\\
+    \constraint &::= \simpleCons\ |\ \orCons \\
+    % Method assumptions:
+    \methodAssumption &::= N.\texttt{m} : \exptype{}{\ol{X}
+                        \triangleleft \ol{N}}\ \ol{T} \to T  &&
+                                                                \text{method
+                                                                type assumption}\\
+    \fieldAssumption &::= N.\texttt{f} : T && \text{field type assumption}\\
+    \localVarAssumption &::= \texttt{x} : T && \text{parameter assumption}\\
+    \typeAssumptionsSymbol &::= (\overline{\methodAssumption} ; \overline{\fieldAssumption}; \overline{\localVarAssumption}) 
+  \end{align*}
+  \caption{Syntax of constraints}
+  \label{fig:syntax-constraints}
+\end{figure}
 
-\todo[inline]{PT: define the syntax of constraints and constraint sets
-  formally, starting with the syntax for a type variable. Introduce
-  metavariables that are used consistently for single constraints (e.g., $c$) and
-  constraint sets (e.g., $C$).  Are there
-  restrictions on what is on the left/right side of a constraint?  An
-  OrConstraint is a set of constraint sets, correct? }
+Figure~\ref{fig:syntax-constraints} defines the syntax of
+constraints. We extend types with \emph{type variables} ranged over by
+$\tv{a}$. A constraint is either a simple constraint $\simpleCons$ or
+an or-constraint $\orCons$, which is a set of sets of simple
+constraints. An or-constraint represents different alternatives and
+cannot be nested. The output of constraint generation is a set of
+constraints $\consSet$, which can hold simple constraints as well as or-constraints.
+% \begin{description}
+%   \item[Constraint] A constraint (\constraint) consists of two types or type variables and an operator.
+%   The operator can either be a $\doteq$ (same type) or $\lessdot$ (subtype).
+%   Example: $(a \lessdot \mathtt{Object})$, means that the type variable $a$ should be a subtype of \texttt{Object}.
+%   \item[Or-Constraint] An Or-Constraint (\orCons{}) consists out of multiple sets of constraints ($c$).
+%   It is not possible to have \orCons{} nested inside another \orCons{}.\\
+%   For example $\orCons{}(\{ \ \{ (a \lessdot b), (a \leq \mathtt{Object}) \} \ , \ \{ (a \lessdot b)\} \ \})$
+%   is an Or-Constraint consisting of two sets of constraints.
+%   \item[Constraint-Set] The \fjtype algorithm returns a Constraint-Set (\consSet).
+%   It is able to hold a mix of normal Constraints and Or-Constraints.
+%   \end{description}
 
-\subsubsection{Syntax}
-$\begin{array}{l}
-%Type
-\type{T} = \tv{a}\ |\ \gType{X}\ |\ \type{N} \\
-%Constraints
-c = \type{T} \lessdot \type{T} \ |\ \type{T} \doteq \type{T} \\
-\constraint = c\ |\ \orCons \\
-%\consSet = \set{C_1, \ldots, C_2} \\
-\orCons{} = \set{\ol{c_1}, \ldots, \ol{c_n}} \\
-% Method assumptions:
-\methodAssumption = N.\texttt{methodName} : \exptype{}{\ol{X} \triangleleft \ol{N}}\ \ol{T} \to T \\
-\fieldAssumption = N.\texttt{fieldName} : T \\
-\localVarAssumption = \texttt{localVar} : T\\
-\typeAssumptionsSymbol = (\overline{\methodAssumption} ; \overline{\fieldAssumption}; \overline{\localVarAssumption}) \\
-\end{array}$
-
-\begin{description}
-  \item[Constraint] A constraint (\constraint) consists of two types or type variables and an operator.
-  The operator can either be a $\doteq$ (same type) or $\lessdot$ (subtype).
-  Example: $(a \lessdot \mathtt{Object})$, means that the type variable $a$ should be a subtype of \texttt{Object}.
-  \item[Or-Constraint] An Or-Constraint (\orCons{}) consists out of multiple sets of constraints ($c$).
-  It is not possible to have \orCons{} nested inside another \orCons{}.\\
-  For example $\orCons{}(\{ \ \{ (a \lessdot b), (a \leq \mathtt{Object}) \} \ , \ \{ (a \lessdot b)\} \ \})$
-  is an Or-Constraint consisting of two sets of constraints.
-  \item[Constraint-Set] The \fjtype algorithm returns a Constraint-Set (\consSet).
-  It is able to hold a mix of normal Constraints and Or-Constraints.
-  \end{description}
-  
+\todo[inline]{PJT 20220214: field type assumptions should have
+  the form $\exptype C{\ol X} : \mv T$ (where $\mv T$ may contain the
+  $\ol X$) as field types are not inferred. In particular, they cannot
+  contain type variables $\tv{a}$. Is that correct?}
+\todo[inline]{PJT 20220214: do not change the
+  meaning of previous symbols. In this case, the new definitions for
+  $\mv\Gamma$ and $\mv\Pi$ conflict with previous ones. It would be
+  better (and easy) to adapt the definition so that both can live
+  peaceful side by side.}
 
 \subsubsection{\fjtype{}}
 %The \fjtype{} algorithm produces two kinds of constraints.
