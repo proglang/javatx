@@ -193,7 +193,7 @@ whole program and backtracks if that fails.
                                                                 type assumption}\\
     \fieldAssumption &::= N.\texttt{f} : \type{T} && \text{field type assumption}\\
     \localVarAssumption &::= \texttt{x} : \itype{T} && \text{parameter assumption}\\
-    \typeAssumptionsSymbol &::= (\overline{\methodAssumption} ; \overline{\fieldAssumption}; \overline{\localVarAssumption}) 
+    \typeAssumptionsSymbol &::= (\mv{\Pi}\ \overline{\methodAssumption} ; \overline{\fieldAssumption}; \overline{\localVarAssumption}) 
   \end{align*}
   \caption{Syntax of constraints}
   \label{fig:syntax-constraints}
@@ -203,7 +203,8 @@ Figure~\ref{fig:syntax-constraints} defines the syntax of
 constraints. We extend types with \emph{type variables} ranged over by
 $\tv{a}$. A constraint is either a simple constraint $\simpleCons$ or
 an or-constraint $\orCons$, which is a set of sets of simple
-constraints. An or-constraint represents different alternatives and
+constraints. An or-constraint represents different alternatives,
+similar to an intersection type, and
 cannot be nested. The output of constraint generation is a set of
 constraints $\consSet$, which can hold simple constraints as well as or-constraints.
 % \begin{description}
@@ -222,70 +223,109 @@ constraints $\consSet$, which can hold simple constraints as well as or-constrai
   the form $\exptype C{\ol X} : \mv T$ (where $\mv T$ may contain the
   $\ol X$) as field types are not inferred. In particular, they cannot
   contain type variables $\tv{a}$. Is that correct?}
-\todo[inline]{PJT 20220214: do not change the
-  meaning of previous symbols. In this case, the new definitions for
-  $\mv\Gamma$ and $\mv\Pi$ conflict with previous ones. It would be
-  better (and easy) to adapt the definition so that both can live
-  peaceful side by side.}
+\todo[inline]{PJT 20220215: I think that the input to \fjtype is
+  actually a method environment $\mv\Pi$. This makes it easier to
+  detect the overriding: just use \textit{mtype} to check if the
+  method was checked before. See suggested change.}
 
-\subsubsection{\fjtype{}}
+% \subsubsection{\fjtype{}}
 %The \fjtype{} algorithm produces two kinds of constraints.
-Before the algorithm starts we equip every untyped method with type variables.
-Every method parameter gets a unique type variable as a type aswell as every method gets a unique type variable as a return type.
-After our algorithm found a correct typisation we replace the type variables with the inferred types and generate a GFJ program.
-
-The algorithm \textbf{FJTYPE} is given as follows:
-
-\noindent
-$\fjtype : \typeAssumptionsSymbol \times \texttt{L} \rightarrow \ol{\constraint}\\
- \begin{array}{@{}l@{}l}
-  \fjtype & (\typeAssumptions, \mathtt{class } \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \ \mathtt{ extends } \ \mathtt{N \{ \overline{T} \ \overline{f}; \, K \, \overline{M} \}}) =\\
-  & \begin{array}{l@{}l@{}l}
-    \textbf{let} &\ \ol{\methodAssumption}_o = \set{\exptype{C}{\ol{X}}.\mathtt{m} : \exptype{}{\ol{Y} \triangleleft \ol{P}}\ \ol{T} \to \tv{a} \ |\ \texttt{m} \in \ol{M},
-    \texttt{m}\ \text{overrides}\ \type{N}.\texttt{m} : \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{\type{T}} \to \type{T}}\\
-    &\ \constraints_o = \set{\tv{a} \lessdot \type{T} \ |\ \texttt{m} \in \ol{M}, 
-    \texttt{m}\ \text{overrides}\ \type{N}.\texttt{m} : \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{\type{T}} \to \type{T}}\\
-    &\quad \quad \textbf{with}\ \tv{a}\ \text{being the same fresh type variable in both cases} \\
-    %\textbf{let} &\ m_{cons}, m_{override} = \set{\overridesFunc(\typeAssumptions, \exptype{C}{\ol{X}}.\mathtt{m}) \ |\ m \in \ol{M}} \\
-    &\ \methodAssumption' = \begin{array}[t]{l}
-     \set{ (\exptype{C}{\ol{X}}.\mathtt{m} : \ol{\tv{a}} \to \tv{a}) \ |\ \mathtt{m} \in \ol{M},\\
-     \quad \quad \texttt{m}\ \text{does not override another method} \\
-     \quad \quad \tv{a}, \ol{\tv{a}}\ \text{are fresh type variables} } \\
-     % \cup \\
-     %\typeAssumptions \cup m_{override}
-    \end{array}\\
-  \textbf{in} \\
-   &\ \displaystyle{ \left( \bigcup_{\texttt{m} \in \ol{M}} \typeMethod( (\ol{\methodAssumption} \cup \ol{\methodAssumption}' \cup \ol{\methodAssumption}_o , \ol{\fieldAssumption}, \{ \mathtt{this} : \exptype{C}{\ol{X}} \}), \mathtt{m}) \right)
-   \cup \constraints_o } \\ 
-  \end{array}
-\end{array}$
+% Before the algorithm starts we equip every untyped method with type variables.
+% Every method parameter gets a unique type variable as a type aswell as every method gets a unique type variable as a return type.
+% After our algorithm found a correct typisation we replace the type variables with the inferred types and generate a GFJ program.
 
 
-It is possible that mulitple methods get overriden, due to the internal use of intersection types during the \fjtype{} algorithm.
-We generate a constraint ($a\lessdot T)$ for each overriden method.
+Figure~\ref{fig:constraints-for-classes} contains the algorithm
+{\fjtype} to generate constraints for classes. Its input
+consists of the method type environment $\mv\Pi$ of the previously
+checked classes and their field type assumptions
+$\ol{\fieldAssumption}$. It distinguishes between overriding and
+non-overriding method definitions. The former are recognized by
+successful lookup of their type using \textit{mtype}. We set up the
+method type assumptions accordingly and generate a constraint between
+the inferred return type $\tv{a}_{\mv m}$ and the one of the
+overridden method to allow for covariant overriding.
+Constraints for the latter methods are generated with all fresh
+variables for the argument and result types.
 
-We use intersection types during the constraint generation.
-In the end we select one possible solution after all classes got infered.
+\begin{figure}[tp]
+  \begin{gather*}
+    % \fjtype : \typeAssumptionsSymbol \times \texttt{L} \rightarrow \ol{\constraint}\\
+    \begin{array}{@{}l@{}l}
+      \fjtype & ({(\mv{\Pi} ; \overline{\fieldAssumption})}, \mathtt{class } \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \ \mathtt{ extends } \ \mathtt{N \{ \overline{T} \ \overline{f}; \, K \, \overline{M} \}}) =\\
+              & \begin{array}{l@{}l@{}l}
+                  \textbf{let} &\ \overline{\tv{a}}_{\mv m} \text{ be fresh type variables
+                                 for each }\mv{m}\in\ol{M} \\
+                               &\ \ol{\methodAssumption}_o = \set{\exptype{C}{\ol{X}}.\mv{m} :
+                                 \exptype{}{\ol{Y} \triangleleft \ol{P}}\ \ol{T} \to \tv{a}_{\mv m} \mid \mv{m} \in \ol{M},
+                                 \textit{mtype}(\mv{m}, \type{N}, \mv\Pi) = \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{\type{T}} \to \type{T}}\\
+                               &\ \constraints_o = \set{\tv{a}_{\mv m} \lessdot \type{T} \ |\ \texttt{m} \in \ol{M}, 
+                                 \textit{mtype}(\mv{m}, \mv{N}, \mv\Pi) = \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{\type{T}} \to \type{T}}\\
+                               % \textbf{let} &\ m_{cons},
+                               % m_{override}
+                               % =
+                               % \set{\overridesFunc(\typeAssumptions,
+                               % \exptype{C}{\ol{X}}.\mathtt{m}) \ |\
+                               % m
+                               % \in \ol{M}} \\
+                               &\ \ol{\methodAssumption}' = 
+                                 \set{ (\exptype{C}{\ol{X}}.\mv{m} : \ol{\tv{a}} \to \tv{a}_{\mv
+                                 m}) \mid \mv{m} \in \ol{M},
+                                 \textit{mtype} (\mv m, \mv N,
+                                 \mv\Pi) \text{ not defined}, \ol{\tv{a}}\ \text{fresh} } \\
+                               % \cup \\
+                               % \typeAssumptions \cup m_{override}
+                  \textbf{in} \\
+                               &\ \displaystyle{ \left(
+                                 \bigcup_{\texttt{m} \in \ol{M}}
+                                 \typeMethod( (\mv{\Pi} \cup
+                                 \ol{\methodAssumption}' \cup
+                                 \ol{\methodAssumption}_o ;
+                                 \ol{\fieldAssumption}), \exptype{C}{\ol{X}},  \mathtt{m}) \right)
+                                 \cup \constraints_o } \\ 
+                \end{array}
+    \end{array}
+  \end{gather*}
+  \caption{Constraint generation for classes}
+  \label{fig:constraints-for-classes}
+\end{figure}
+
+% We use intersection types during the constraint generation.
+% In the end we select one possible solution after all classes got infered.
 %TODO: add this to syntax (intersection types in method assumptions)
 
+\if0
 The \fjtype function gets called for every class in the input.
 This function accumulates all the constraints generated from calling the
 typeMethod function for each method declared in the given class.
 It also generares constraints for overriden methods.
 If a method \texttt{m} in \texttt{C} overrides a method in its superclass,
-then we make sure that the return type of \texttt{m} in \texttt{C} is a subtype of the overriden method.
+then we make sure that the return type of \texttt{m} in \texttt{C} is
+a subtype of the overriden method.
+\fi
 
-\noindent
-$\typeMethod: \typeAssumptionsSymbol \times
-\texttt{M} \rightarrow \ol{\constraint}\\
+Constraint generation alternates with constraint solving: After
+generating constraints with {\fjtype}, we solve them to obtain one or
+more candidate extensions for the method type environment
+$\mv\Pi$. Next, we pick a candidate and continue with the next class
+until all classes are checked and we have an overall method type
+environment.  Otherwise, we backtrack to check the next candidate. 
+
+\begin{gather*}
+%%%%%   \typeMethod: \typeAssumptionsSymbol \times \texttt{M} \rightarrow \ol{\constraint}\\
 \begin{array}{@{}l@{}l@{}l}
-\typeMethod & (\typeAssumptions,\ & \type{T} \ \mathtt{m}(\overline{\texttt{T}} \ \overline{\texttt{x}})\{ \mathtt{ return }\ \texttt{e}; \}) =\\
-& \textbf{let}
-& (\texttt{e}:\type{R}, \constraints) = \typeExpr((\overline{\methodAssumption} ; \overline{\fieldAssumption}; \overline{\localVarAssumption} \cup \{ \overline{\texttt{T}} : \overline{\texttt{x}} \}), \texttt{e})\\
-& \mathbf{in}
-& \constraints \cup \set{\type{R} \lessdot \type{T}}\\
+  \typeMethod & (\ensuremath{(\mv{\Pi} ; \overline{\fieldAssumption})}, \exptype{C}{\ol{X}},\ &\  \mathtt{m}(\ol{x})\{ \mathtt{ return }\ \texttt{e}; \}) =\\
+              & \textbf{let} & \exptype{}{\ol{Y} \triangleleft \ol{P}}\ \overline{T} \to T  = \mv{\Pi} (\exptype{C}{\ol{X}}.\mv{m})
+  \\
+              & %\textbf{let}
+                                                                                              & ({R}, \constraints) =
+                                                                                                \typeExpr((\mv\Pi ;
+                                                                                                \overline{\fieldAssumption}; \set{\mv{this} :
+                                                                                                \exptype{C}{\ol{X}} } \cup \set{ \ol{x} : \overline{{T}} }), \texttt{e})\\
+              & \mathbf{in}
+                                                                                              & \constraints \cup \set{{R} \lessdot {T}}\\
 \end{array}
-$
+\end{gather*}
 
 The \typeMethod{} function for methods just calls the \typeExpr{} function with the
 return expression. It is significant to note that it adds the assumptions for the method parameters to the global assumptions before passing them to \typeExpr.
@@ -300,18 +340,45 @@ In the following we define the \typeExpr{} function for every possible expressio
 \noindent
 $\typeExpr: \typeAssumptionsSymbol \times
 \texttt{Expression} \rightarrow \type{T} \times \constraints\\
-\typeExpr ((\overline{\methodAssumption} ; \overline{\fieldAssumption}; \overline{\localVarAssumption}\cup \set{\mathtt{x} : \type{T})}, \mathtt{x}) = (\type{T} , \emptyset)
+\typeExpr ((\overline{\methodAssumption} ; \overline{\fieldAssumption}; \overline{\localVarAssumption}\cup \set{\mathtt{x} : {T})}, \mathtt{x}) = ({T} , \emptyset)
 $
 
 \smallskip
+\todo[inline]{PJT 20220215: I think there is an issue in the
+  constraint generation for fields. If I understand correctly,
+  accessing fields may trigger the creation of an or-constraint. Not
+  sure how this rule enacts it. See my alternative suggestion below.}
 
 
+\begin{gather*}
+  \begin{array}{@{}l@{}l}
+    \typeExpr{} &(\typeAssumptions, \texttt{e}.\texttt{f}) = \\
+                & \begin{array}{ll}
+                    \textbf{let} 
+                    & ({R}, \consSet_e) = \typeExpr(\typeAssumptions, \texttt{e})\\
+                    & \tv{a} \text{ fresh} \\
+                    & \consSet = \orCons\set{
+                      \set{
+                      {R} \lessdot \exptype{C}{\ol{\tv{a}}} , \tv{a} \doteq
+                      \type{T}[\overline{\tv{a}}/\ol{X}]
+                      \mid \overline{\tv{a}} \text{ fresh}
+                      }
+                      \mid \exptype{C}{\ol{X}}.\mv{f} : \mv{T} \in \ol{\fieldAssumption}
+                      }\\
+                      % & \constraints = \orCons(\constraints_{m})\\
+                    {\mathbf{in}} & {
+                    (\tv{a}, (\consSet_e \cup \constraints))}
+                  \end{array} 
+  \end{array}
+\end{gather*}
+
+\todo[inline]{Original version follows}
 \noindent
 $\begin{array}{@{}l@{}l}
 \typeExpr{} &(\typeAssumptions, \texttt{e}.\texttt{f}) = \\
 & \begin{array}{ll}
 \textbf{let} 
-& (\type{R}, \consSet_e) = \typeExpr(\typeAssumptions, \texttt{e}),\\
+& ({R}, \consSet_e) = \typeExpr(\typeAssumptions, \texttt{e}),\\
 & \consSet_f = \set{\set{\type{R} \lessdot \exptype{C}{\ol{X}},\ \tv{a} \doteq \type{T}} \ |\ \exptype{C}{\ol{X}}.\texttt{f} : \type{T} \in \ol{\fieldAssumption}}\\
 & \constraints = \orCons(\constraints_{m})\\
 \multicolumn{2}{l}{\mathbf{in}
