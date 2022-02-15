@@ -188,11 +188,11 @@ whole program and backtracks if that fails.
     \constraint &::= \simpleCons\ |\ \orCons \\
     % Method assumptions:
     \methodAssumption &::= N.\texttt{m} : \exptype{}{\ol{X}
-                        \triangleleft \ol{N}}\ \ol{T} \to T  &&
+                        \triangleleft \ol{N}}\ \ol{\itype{T}} \to \itype{T}  &&
                                                                 \text{method
                                                                 type assumption}\\
-    \fieldAssumption &::= N.\texttt{f} : T && \text{field type assumption}\\
-    \localVarAssumption &::= \texttt{x} : T && \text{parameter assumption}\\
+    \fieldAssumption &::= N.\texttt{f} : \type{T} && \text{field type assumption}\\
+    \localVarAssumption &::= \texttt{x} : \itype{T} && \text{parameter assumption}\\
     \typeAssumptionsSymbol &::= (\overline{\methodAssumption} ; \overline{\fieldAssumption}; \overline{\localVarAssumption}) 
   \end{align*}
   \caption{Syntax of constraints}
