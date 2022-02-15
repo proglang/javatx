@@ -237,18 +237,18 @@ After our algorithm found a correct typisation we replace the type variables wit
 The algorithm \textbf{FJTYPE} is given as follows:
 
 \noindent
-$\fjtype : \typeAssumptionsSymbol \times \texttt{L} \rightarrow \ol{C}\\
+$\fjtype : \typeAssumptionsSymbol \times \texttt{L} \rightarrow \ol{\constraint}\\
  \begin{array}{@{}l@{}l}
   \fjtype & (\typeAssumptions, \mathtt{class } \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \ \mathtt{ extends } \ \mathtt{N \{ \overline{T} \ \overline{f}; \, K \, \overline{M} \}}) =\\
   & \begin{array}{l@{}l@{}l}
     \textbf{let} &\ \ol{\methodAssumption}_o = \set{\exptype{C}{\ol{X}}.\mathtt{m} : \exptype{}{\ol{Y} \triangleleft \ol{P}}\ \ol{T} \to \tv{a} \ |\ \texttt{m} \in \ol{M},
-    \texttt{m}\ \text{overrides}\ \texttt{N}.\texttt{m} : \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{\texttt{T}} \to \texttt{T}}\\
-    &\ \constraints_o = \set{\tv{a} \lessdot \texttt{T} \ |\ \texttt{m} \in \ol{M}, 
-    \texttt{m}\ \text{overrides}\ \texttt{N}.\texttt{m} : \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{\texttt{T}} \to \texttt{T}}\\
+    \texttt{m}\ \text{overrides}\ \type{N}.\texttt{m} : \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{\type{T}} \to \type{T}}\\
+    &\ \constraints_o = \set{\tv{a} \lessdot \type{T} \ |\ \texttt{m} \in \ol{M}, 
+    \texttt{m}\ \text{overrides}\ \type{N}.\texttt{m} : \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{\type{T}} \to \type{T}}\\
     &\quad \quad \textbf{with}\ \tv{a}\ \text{being the same fresh type variable in both cases} \\
     %\textbf{let} &\ m_{cons}, m_{override} = \set{\overridesFunc(\typeAssumptions, \exptype{C}{\ol{X}}.\mathtt{m}) \ |\ m \in \ol{M}} \\
     &\ \methodAssumption' = \begin{array}[t]{l}
-     \set{ (\exptype{C}{\ol{X}}.\mathtt{m} : \ol{\tv{a}} \to \tv{a}) \ |\ m \in \ol{M},\\
+     \set{ (\exptype{C}{\ol{X}}.\mathtt{m} : \ol{\tv{a}} \to \tv{a}) \ |\ \mathtt{m} \in \ol{M},\\
      \quad \quad \texttt{m}\ \text{does not override another method} \\
      \quad \quad \tv{a}, \ol{\tv{a}}\ \text{are fresh type variables} } \\
      % \cup \\
@@ -277,7 +277,7 @@ then we make sure that the return type of \texttt{m} in \texttt{C} is a subtype 
 
 \noindent
 $\typeMethod: \typeAssumptionsSymbol \times
-\texttt{M} \rightarrow \ol{C}\\
+\texttt{M} \rightarrow \ol{\constraint}\\
 \begin{array}{@{}l@{}l@{}l}
 \typeMethod & (\typeAssumptions,\ & \type{T} \ \mathtt{m}(\overline{\texttt{T}} \ \overline{\texttt{x}})\{ \mathtt{ return }\ \texttt{e}; \}) =\\
 & \textbf{let}
@@ -312,11 +312,11 @@ $\begin{array}{@{}l@{}l}
 & \begin{array}{ll}
 \textbf{let} 
 & (\type{R}, \consSet_e) = \typeExpr(\typeAssumptions, \texttt{e}),\\
-& \consSet_f = \set{\set{\type{R} \lessdot \exptype{C}{\ol{X}},\ a \doteq T} \ |\ \exptype{C}{\ol{X}}.\texttt{f} : \type{T} \in \ol{\fieldAssumption}}\\
+& \consSet_f = \set{\set{\type{R} \lessdot \exptype{C}{\ol{X}},\ \tv{a} \doteq \type{T}} \ |\ \exptype{C}{\ol{X}}.\texttt{f} : \type{T} \in \ol{\fieldAssumption}}\\
 & \constraints = \orCons(\constraints_{m})\\
 \multicolumn{2}{l}{\mathbf{in}
 (\tv{a}, [\textbf{fresh}(\ol{X})/\ol{X}](\consSet_e \cup \constraints))}\\
-& \text{where\ } a \text{\ is\ a\ fresh\
+& \text{where\ } \tv{a} \text{\ is\ a\ fresh\
   type\ variable}\\ 
 \end{array} \\
 \end{array}
@@ -331,14 +331,14 @@ $\begin{array}{@{}l@{}l}
 \textbf{let}& % \\
 % &
 (\type{R}, \constraints_R) = \typeExpr(\typeAssumptions, \texttt{e}),\\
-& \forall e_i \in \overline{e} : (pt_i, \constraints_i) = \typeExpr(\texttt{e}_i)  ,\\
+& \forall \texttt{e}_i \in \overline{e} : (\type{pt}_i, \constraints_i) = \typeExpr(\texttt{e}_i)  ,\\
 & \begin{array}{@{}l@{}l}
-  \constraints_{m} = \set{ & [\textbf{fresh}(\ol{Y})/\ol{Y}]\set{\type{R} \lessdot \exptype{C}{\ol{X}}, \tv{a} \doteq \type{T}, \bigcup_{T_i \in \overline{T}} (pt_i \lessdot T_i) , \ol{Y} \lessdot \ol{P}}\\
-  & \ |\ (\exptype{C}{\ol{X}}.\texttt{m} : \exptype{}{\ol{Y} \triangleleft \ol{P}} \ \ol{T} \to T) \in \ol{\methodAssumption} }
+  \constraints_{m} = \set{ & [\textbf{fresh}(\ol{Y})/\ol{Y}]\set{\type{R} \lessdot \exptype{C}{\ol{X}}, \tv{a} \doteq \type{T}, \bigcup_{\type{T}_i \in \overline{T}} (\type{pt}_i \lessdot \type{T}_i) , \ol{Y} \lessdot \ol{P}}\\
+  & \ |\ (\exptype{C}{\ol{X}}.\texttt{m} : \exptype{}{\ol{Y} \triangleleft \ol{P}} \ \ol{T} \to \type{T}) \in \overline{\methodAssumption} }
 \end{array}\\
 & \constraints = \orCons(\constraints_{m})\\
-\multicolumn{2}{l}{\mathbf{in} (a, [\textbf{fresh}(\ol{X})/\ol{X}](\constraints_R \cup \bigcup_i \constraints_i \cup \constraints))}\\
-& \text{where\ } a \text{\ is\ a\ fresh\
+\multicolumn{2}{l}{\mathbf{in} (\tv{a}, [\textbf{fresh}(\ol{X})/\ol{X}](\constraints_R \cup \bigcup_i \constraints_i \cup \constraints))}\\
+& \text{where\ } \tv{a} \text{\ is\ a\ fresh\
   type\ variable}\\ 
 \end{array}
 \end{array}
@@ -353,7 +353,7 @@ The \texttt{new}-statement comes without the generic variables
 (\texttt{new Classname(...)} instead of \texttt{new Classname<Class>(...)}).
 The correct type will be inferred by our type inference algorithm.
 We generate new type variables for the generic variables of the class \texttt{C},
-so the \textbf{Unify} algorithm can later set in the correct types for these variables.
+so the \unify algorithm can later set in the correct types for these variables.
 He has to comply to the bounds given by $\ol{N}$, which is why we add $\ol{X} \lessdot \ol{N}$ to the constraints.
 It is important to change every occurence of $\ol{X}$ with the fresh type variables $\textbf{fresh}(\ol{X})$ in the generated constraints.
 $\ol{X}$ can occur in the bound $\ol{N}$ aswell as in the types of the constructor parameters $\ol{T}$.
@@ -396,10 +396,10 @@ This prevents polymorphic recursion for local method calls.
 \end{theoremAndi}
 %Theorem: The Unify algorithm is complete
 %Theorem: \textbf{FJTYPE} generates the principal type
-\textbf{Proof:} The \textbf{Unify} algorithm is complete, so every correct type is included in the solution set.
+\textbf{Proof:} The \unify algorithm is complete, so every correct type is included in the solution set.
 We only have to choose the right type out of those solutions.
 When compiling multiple classes the problem arises,
-that only one of the type solutions calculated by \textbf{Unify} is correct
+that only one of the type solutions calculated by \unify is correct
 in respective to the other classes that will be compiled afterwards.
 
 All types that are possible under the FGJ typing rules, plus our additional assumptions,
@@ -485,7 +485,7 @@ So every possible type of cast is allowed in \TFGJ, therefore no restrictions in
 \section{Insert intersection type}
 \label{sec:insert-inters-type}
 
-The outcome of the \textbf{Unify} algorithm is a set of type solutions $Uni_{set}$.
+The outcome of the \unify algorithm is a set of type solutions $Uni_{set}$.
 The following function sets in all type solutions by generating overloaded methods:
 
 \begin{description}
@@ -599,7 +599,7 @@ We have to define our own typing rules for generic type variables:
     other type-scheme for the 
 declaration is a generic instance of it.}\cite{DM82}
 
-When setting in the type solution generated by the \textbf{Unify} algorithm,
+When setting in the type solution generated by the \unify algorithm,
 overloaded method can arise.
 Overloaded methods always have the same method body and only differ in their typing.
 In the last step of the type inference algorithm we want to filter out obsolete method typings.
@@ -749,7 +749,7 @@ At first we split every overloaded method into multiple methods with only one ty
 \end{tabularx}
 \end{small}
 
-Every type solution computed by \textbf{Unify} is a correct solution.
+Every type solution computed by \unify is a correct solution.
 %TODO Link to the Lemma proofing this
 We can generate a new set of methods from every type solution and then merge those together.
 This will result in a correct FGJ program.
@@ -769,7 +769,7 @@ FGJ \texttt{GT-METHOD}
 
 %Proof that we insert the principle type:
 Only constraints of the form $a \lessdot \texttt{N}$ can be inserted as generic variables infront of a method.
-After the \textbf{Unify} algorithm the following constraints remain.
+After the \unify algorithm the following constraints remain.
 \begin{itemize}
   \item $a \lessdot b$, this is removed by replacing every $b$ with $a$ in the result set
   \item $a \lessdot N$, this is used as generic type variables
@@ -788,7 +788,7 @@ At first remove the $a \lessdot b$ constraints with the \texttt{flatten} rule.
 \end{align*}
 
 
-The \textbf{Unify} algorithm returns a set of unifiers ${Uni}$.
+The \unify algorithm returns a set of unifiers ${Uni}$.
 Each element of that set is a correct solution.
 The unifiers $\sigma$ map type placeholders to types.
 When generating the intersection types for the methods we have to make sure that the
@@ -938,7 +938,7 @@ method(new SpecialMap<Object,Integer,String>());
 
 Then the constraint $\exptype{SpecialMap}{Object,Integer,String} \lessdot \exptype{Map}{X,String}$
 is generated by the \textbf{FJTYPE} algorithm.
-This constraint will be processed by the \texttt{adapt} rule of the \textbf{Unify} algorithm.
+This constraint will be processed by the \texttt{adapt} rule of the \unify algorithm.
 Remember that $(\exptype{SpecialMap}{A,B,C} \olsub \exptype{Map}{A,C}) \in S_\leq$.
 \begin{align*}
   Eq& \cup \exptype{SpecialMap}{Object,Integer,String} \lessdot \exptype{Map}{X,String} \\
