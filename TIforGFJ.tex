@@ -228,7 +228,6 @@ constraints $\consSet$, which can hold simple constraints as well as or-constrai
   detect the overriding: just use \textit{mtype} to check if the
   method was checked before. See suggested change.}
 
-% \subsubsection{\fjtype{}}
 %The \fjtype{} algorithm produces two kinds of constraints.
 % Before the algorithm starts we equip every untyped method with type variables.
 % Every method parameter gets a unique type variable as a type aswell as every method gets a unique type variable as a return type.
@@ -237,9 +236,9 @@ constraints $\consSet$, which can hold simple constraints as well as or-constrai
 
 Figure~\ref{fig:constraints-for-classes} contains the algorithm
 {\fjtype} to generate constraints for classes. Its input
-consists of the method type environment $\mv\Pi$ of the previously
+consists of the method type environment $\mv{\methodAssumption{}}$ of the previously
 checked classes and their field type assumptions
-$\ol{\fieldAssumption}$. It distinguishes between overriding and
+$\ol{\fieldAssumption{}}$. It distinguishes between overriding and
 non-overriding method definitions. The former are recognized by
 successful lookup of their type using \textit{mtype}. We set up the
 method type assumptions accordingly and generate a constraint between

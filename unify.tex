@@ -70,7 +70,6 @@ Eq_{set}
 \item \label{subst-step}  Application of the following \emph{subst} rule for every $Eq'' \in Eq_{set}$
     %\begin{enumerate}
     %\item Apply the following subst\_eq rule
-    
       $$\begin{array}[c]{lll}
         (\mathrm{subst}) &
         \begin{array}[c]{l}
@@ -103,6 +102,9 @@ $Eq_{solved} = \set{ Eq \ | \ Eq \in Eq_{set}, Eq \ \text{is in solved form}}$
   [\tv{a}/\tv{b}]Eq \cup \set{ \tv{a} \doteq \tv{b} }
 }
 \end{align*}
+%At this point every tv is at the most in one constraint on the left side!
+%TODO: Does this still work, if we then insert A extends Object for every removed a =. b constraint?
+%can tvs be entangled between method calls?
 \item Finally we generate the unifiers:
 \begin{align*}
     \emph{Uni} = &
