@@ -176,21 +176,6 @@ whole program and backtracks if that fails.
 
 \subsection{Constraint generation}
 \label{sec:fjtype}
-
-
-$\begin{array}{l}
-  \textbf{sortClasses} : \ol{L} \to \ol{L} \\
-  \textbf{typeInsert} : \ol{\methodAssumption} \times Uni \to \ol{\methodAssumption}\\
-  \textbf{typeInsert}(\ol{\methodAssumption}, \overline{\sigma}) = \\
-  1
-  \textbf{typeinference} : \ol{L} \to \ol{L} \times \ol{\methodAssumption} \\
-  \textbf{let}\ \texttt{L}_1, \ldots \texttt{L}_n = \textbf{sortClasses}(\ol{L}) \\
-  (\constraints, \typeAssumptions ) = \fjtype{}((\emptyset, \emptyset, \emptyset), \texttt{L}_1) \\
-  \typeAssumptions' = \textbf{typeInsert}(\typeAssumptions, \constraints)\\
-   = \fjtype{}(\typeAssumptions', \texttt{L}_2)
-  \end{array}
-  $
-
 \begin{figure}[tp]
   \begin{align*}
     % Type
