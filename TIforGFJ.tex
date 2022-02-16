@@ -618,6 +618,43 @@ So every possible type of cast is allowed in \TFGJ, therefore no restrictions in
 
 \section{Insert intersection type}
 \label{sec:insert-inters-type}
+Flatten the constraints returned from \unify{}:
+\begin{align*}
+  \ddfrac{
+    Uni \cup \set{ a \lessdot b}
+  }{
+    [b/a]Uni
+  }
+  \quad \texttt{flatten}
+\end{align*}
+We remove $a \lessdot b$ constraints. They cannot be used in method types.
+
+Determine generics for method:\\
+$\begin{array}{l}
+  \textbf{genericinsert}(Uni , \ol{\tv{a}}) = 
+  \set{ \type{A} \triangleleft \type{Object}\ |\ (\tv{a} \lessdot N) \notin Uni', (\tv{a} \doteq N) \notin Uni',\ \tv{a} \in \ol{\tv{a}}}  \cup \\
+  \set{ \set{A \triangleleft \exptype{C}{\ol{X}}} \cup \textbf{genericinsert}(Uni, \set{\tv{x} \ |\ \tv{x} \in \ol{X}, \tv{x}\ \text{is type variable}}) \ |\ (a \lessdot \exptype{C}{\ol{X}}) \in Uni',\ a \in \ol{\tv{a}}}\\
+  \end{array}$
+
+Generate unifiers: \\
+  $\begin{array}{l}
+    \textbf{TypeSubstitutions}(Uni , \ol{\tv{a}}) = \\
+    \set{ \sigma(\tv{a}) = \type{A}\ |\ (\tv{x} \doteq N) \notin Uni,\ \tv{a} \in \ol{\tv{a}}}
+    \cup \set{ \sigma(\tv{a}) = N \ |\ (\tv{x} \doteq N) \in Uni,\ \tv{x} \in \ol{\tv{a}}}
+ \end{array}$
+
+Equip method assumption with types: \\
+$\begin{array}{l}
+  \textbf{typeInsert}(\type{N}.\texttt{m} : \ol{\tv{a}} \to \tv{a}, \sigma) = \\
+  \textbf{let}\ \sigma = \textbf{TypeSubstitutions}(Uni, \set{\tv{a}} \cup \ol{\tv{a}})\\
+  \quad \ol{X} = \textbf{genericinsert}(Uni, \set{\tv{a}} \cup \ol{\tv{a}})\\
+  \textbf{in}\ \type{N}.\texttt{m} : \exptype{}{\ol{X}}\ \sigma(\ol{\type{T}}) \to \sigma(\type{T})
+\end{array}$
+
+$\begin{array}{l}
+  \textbf{typeInsert} : \ol{\methodAssumption} \times Uni \to \ol{\methodAssumption}\\
+  \textbf{typeInsert} (\ol{\methodAssumption}, Uni) = \set{ \textbf{typeInsert}(\methodAssumption, Uni) \ |\ \methodAssumption \in \ol{\methodAssumption}}
+\end{array}$
 
 The outcome of the \unify{} algorithm is a set of type solutions $Uni_{set}$.
 The following function sets in all type solutions by generating overloaded methods:
