@@ -176,6 +176,21 @@ whole program and backtracks if that fails.
 
 \subsection{Constraint generation}
 \label{sec:fjtype}
+
+
+$\begin{array}{l}
+  \textbf{sortClasses} : \ol{L} \to \ol{L} \\
+  \textbf{typeInsert} : \ol{\methodAssumption} \times Uni \to \ol{\methodAssumption}\\
+  \textbf{typeInsert}(\ol{\methodAssumption}, \overline{\sigma}) = \\
+  1
+  \textbf{typeinference} : \ol{L} \to \ol{L} \times \ol{\methodAssumption} \\
+  \textbf{let}\ \texttt{L}_1, \ldots \texttt{L}_n = \textbf{sortClasses}(\ol{L}) \\
+  (\constraints, \typeAssumptions ) = \fjtype{}((\emptyset, \emptyset, \emptyset), \texttt{L}_1) \\
+  \typeAssumptions' = \textbf{typeInsert}(\typeAssumptions, \constraints)\\
+   = \fjtype{}(\typeAssumptions', \texttt{L}_2)
+  \end{array}
+  $
+
 \begin{figure}[tp]
   \begin{align*}
     % Type
@@ -236,7 +251,7 @@ constraints $\consSet$, which can hold simple constraints as well as or-constrai
 
 Figure~\ref{fig:constraints-for-classes} contains the algorithm
 {\fjtype} to generate constraints for classes. Its input
-consists of the method type environment $\mv{\methodAssumption{}}$ of the previously
+consists of the method type environment $\mv\Pi$ of the previously
 checked classes and their field type assumptions
 $\ol{\fieldAssumption{}}$. It distinguishes between overriding and
 non-overriding method definitions. The former are recognized by
@@ -378,10 +393,9 @@ $\begin{array}{@{}l@{}l}
 & \begin{array}{ll}
 \textbf{let} 
 & ({R}, \consSet_e) = \typeExpr(\typeAssumptions, \texttt{e}),\\
-& \consSet_f = \set{\set{\type{R} \lessdot \exptype{C}{\ol{X}},\ \tv{a} \doteq \type{T}} \ |\ \exptype{C}{\ol{X}}.\texttt{f} : \type{T} \in \ol{\fieldAssumption}}\\
-& \constraints = \orCons(\constraints_{m})\\
+& \consSet_f = \orCons{}(\set{[\textbf{fresh}(\ol{X})/\ol{X}]\set{\type{R} \lessdot \exptype{C}{\ol{X}},\ \tv{a} \doteq \type{T}} \ |\ \exptype{C}{\ol{X}}.\texttt{f} : \type{T} \in \ol{\fieldAssumption}})\\
 \multicolumn{2}{l}{\mathbf{in}
-(\tv{a}, [\textbf{fresh}(\ol{X})/\ol{X}](\consSet_e \cup \constraints))}\\
+(\tv{a}, (\consSet_e \cup \consSet_f))}\\
 & \text{where\ } \tv{a} \text{\ is\ a\ fresh\
   type\ variable}\\ 
 \end{array} \\
