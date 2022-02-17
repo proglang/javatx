@@ -188,22 +188,25 @@ whole program and backtracks if that fails.
     \orCons{} &::= \set{\overline{\simpleCons_1}, \ldots, \overline{\simpleCons_n}} && \text{or-constraint}\\
     \constraint &::= \simpleCons\ |\ \orCons \\
     % Method assumptions:
-    \methodAssumption &::= N.\texttt{m} : \exptype{}{\ol{X}
-                        \triangleleft \ol{N}}\ \ol{\itype{T}} \to \itype{T}  &&
+    \methodAssumption &::= \exptype{C}{\ol X}.\texttt{m} : \exptype{}{\ol{Y}
+                        \triangleleft \ol{P}}\ \ol{\itype{T}} \to \itype{T}  &&
                                                                 \text{method
                                                                 type assumption}\\
-    \fieldAssumption &::= N.\texttt{f} : \type{T} && \text{field type assumption}\\
-    \localVarAssumption &::= \texttt{x} : \itype{T} && \text{parameter assumption}\\
-    \typeAssumptionsSymbol &::= (\commentaryintext{\mv{\Pi}}{Was ist jetzt $\Pi$?}\ \overline{\methodAssumption} ; \overline{\fieldAssumption}; \overline{\localVarAssumption}) 
+    \fieldAssumption &::= \exptype{C}{\ol X}.\texttt{f} : \type{T} && \text{field type assumption}\\
+    \localVarAssumption &::= \texttt{x} : \itype{T} && \text{parameter
+                                                       assumption}\\
+    \mtypeEnvironment & ::= \mv\Pi \cup \overline{\methodAssumption} &
+                & \text{method type environment} \\
+    \typeAssumptionsSymbol &::= ({\mtypeEnvironment} ; \overline{\fieldAssumption}; \overline{\localVarAssumption}) 
   \end{align*}
-  \caption{Syntax of onstraints}
+  \caption{Syntax of constraints and type assumptions}
   \label{fig:syntax-constraints}
 \end{figure}
 
 Figure~\ref{fig:syntax-constraints} defines the syntax of
 constraints. We extend types with \emph{type variables} ranged over by
 $\tv{a}$. A constraint is either a simple constraint $\simpleCons$ or
-an or-constraint $\orCons$, which is a set of set of simple
+an or-constraint $\orCons$, which is a set of sets of simple
 constraints. An or-constraint represents different alternatives,
 similar to an intersection type, and
 cannot be nested. The output of constraint generation is a set of
@@ -237,8 +240,7 @@ constraints $\consSet$, which can hold simple constraints as well as or-constrai
 
 Figure~\ref{fig:constraints-for-classes} contains the algorithm
 {\fjtype} to generate constraints for classes. Its input
-consists of the method type environment \commentarymargintext{$\mv\Pi$}{Aha hier kommt
-    $\Pi$. Sollte vorher erklärt werden.} of the previously
+consists of the method type environment $\mv\Pi$ of the previously
 checked classes and their field type assumptions
 $\ol{\fieldAssumption{}}$. It distinguishes between overriding and
 non-overriding method definitions. The former are recognized by
@@ -340,9 +342,14 @@ In the following we define the \typeExpr{} function for every possible expressio
 
 \noindent
 $\typeExpr: \typeAssumptionsSymbol \times
-\texttt{Expression} \rightarrow \type{T} \times \constraints\\
-\typeExpr ((\overline{\methodAssumption} ; \overline{\fieldAssumption}; \overline{\localVarAssumption}\cup \set{\mathtt{x} : {T})}, \mathtt{x}) = ({T} , \emptyset)
+\texttt{Expression} \rightarrow \type{T} \times \constraints
 $
+\begin{gather*}
+  \typeExpr (({\mtypeEnvironment} ; \overline{\fieldAssumption};
+  \overline{\localVarAssumption}), \mathtt{x}) =
+  (\overline{\localVarAssumption} (\mv x) , \emptyset)
+\end{gather*}
+
 
 \smallskip
 \todo[inline]{PJT 20220215: I think there is an issue in the
@@ -350,17 +357,20 @@ $
   accessing fields may trigger the creation of an or-constraint. Not
   sure how this rule enacts it. See my alternative suggestion below.}
 
+
 \begin{gather*}
   \begin{array}{@{}l@{}l}
-    \typeExpr{} &(\commentarymark{\typeAssumptions}, \texttt{e}.\texttt{f}) = \\
+    \typeExpr{} &(({\mtypeEnvironment} ; \overline{\fieldAssumption};
+                  \overline{\localVarAssumption}), \texttt{e}.\texttt{f}) = \\
                 & \begin{array}{ll}
                     \textbf{let} 
-                    & ({R}, \consSet_e) = \typeExpr(\typeAssumptions, \texttt{e})\\
+                    & ({R}, \consSet_e) = \typeExpr(({\mtypeEnvironment} ; \overline{\fieldAssumption};
+                      \overline{\localVarAssumption}), \texttt{e})\\
                     & \tv{a} \text{ fresh} \\
                     & \consSet = \orCons\set{
                       \set{
                       {R} \lessdot \exptype{C}{\ol{\tv{a}}} , \tv{a} \doteq
-                      \type{T}[\overline{\tv{a}}/\ol{X}]
+                      [\overline{\tv{a}}/\ol{X}]\type{T}
                       \mid \overline{\tv{a}} \text{ fresh}
                       }
                       \mid \exptype{C}{\ol{X}}.\mv{f} : \mv{T} \in \ol{\fieldAssumption}
@@ -371,7 +381,6 @@ $
                   \end{array} 
   \end{array}
 \end{gather*}
-\commentary{$(\overline{\methodAssumption} ; \overline{\fieldAssumption}; \overline{\localVarAssumption})$? Das gilt für alle weiteren Funktionen auch!!!}
 
 \todo[inline]{Original version follows}
 \noindent
@@ -390,7 +399,30 @@ $\begin{array}{@{}l@{}l}
 $
 
 \smallskip
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\todo[inline]{20220216: alternative suggestion for method calls}
+\noindent
+$\begin{array}{@{}l@{}l}
+\typeExpr{} & (({\mtypeEnvironment} ; \overline{\fieldAssumption};
+  \overline{\localVarAssumption}), \texttt{e}.\mathtt{m}(\overline{\texttt{e}}) ) = \\
+& \begin{array}{ll}
+\textbf{let}& % \\
+% &
+({R}, \constraints_R) = \typeExpr(({\mtypeEnvironment} ; \overline{\fieldAssumption};
+  \overline{\localVarAssumption}), \texttt{e})\\
+& \forall \texttt{e}_i \in \ol{e} : (R_i, \constraints_i) = \typeExpr(({\mtypeEnvironment} ; \overline{\fieldAssumption};
+  \overline{\localVarAssumption}), \texttt{e}_i)  \\
+                    & \tv{a} \text{ fresh} \\
+& \begin{array}{@{}l@{}l}
+  \constraints = \orCons\set{ & \set{{R} \lessdot \exptype{C}{\ol{\tv{a}}}, \tv{a} \doteq {T}, \overline{R} \lessdot \overline{T} , \ol{Y} \lessdot [\ol{\tv{a}}/\ol{X}]\ol{P} \mid \overline{\tv{a}} \text{ fresh}}\\
+  & \ |\ (\exptype{C}{\ol{X}}.\texttt{m} : \exptype{}{\ol{Y} \triangleleft \ol{P}} \ \overline{T} \to {T}) \in {\mtypeEnvironment} }
+\end{array}\\
+\multicolumn{2}{l}{\mathbf{in} (\tv{a},(\constraints_R \cup \bigcup_i \constraints_i \cup \constraints))}
+\end{array}
+\end{array}
+$
 
+\todo[inline]{Original version follows}
 \noindent
 $\begin{array}{@{}l@{}l}
 \typeExpr{} & (\typeAssumptions, \texttt{e}.\mathtt{m}(\overline{\texttt{e}}) ) = \\
@@ -425,6 +457,26 @@ He has to comply to the bounds given by $\ol{N}$, which is why we add $\ol{X} \l
 It is important to change every occurence of $\ol{X}$ with the fresh type variables $\textbf{fresh}(\ol{X})$ in the generated constraints.
 $\ol{X}$ can occur in the bound $\ol{N}$ as well as in the types of the constructor parameters $\ol{T}$.
 
+
+\begin{gather*}
+  \begin{array}{@{}l@{}l}
+    \typeExpr &(({\mtypeEnvironment} ; \overline{\fieldAssumption};
+                \overline{\localVarAssumption}), \mathtt{new }\ \texttt{C}(\ol{e}) ) = \\
+              &\begin{array}{ll}
+                 \textbf{let} % \\
+                 & \forall \texttt{e}_i \in \overline{\texttt{e}} : (R_i, \constraints_i) = \typeExpr(({\mtypeEnvironment} ; \overline{\fieldAssumption};
+                   \overline{\localVarAssumption}), \texttt{e}_i)  \\
+                 & \overline{\tv{a}} \text{ fresh} \\
+                 & \textit{fields} (\exptype{C}{\overline{\tv{a}}}) = \overline{T}\ \ol{f} \\
+                 & \constraints = \overline{R} \lessdot \overline{T} , \overline{\tv{a}} \lessdot [\overline{\tv{a}}/\ol{X}]\ol{N} \\
+                 \multicolumn{2}{l}{\mathbf{in}\ (\exptype{C}{\ol{\tv{a}}}, \constraints \cup \bigcup_i \constraints_i) }\\
+                 & \text{where}\ \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \set{\ldots} \\
+               \end{array}
+  \end{array}
+\end{gather*}
+
+
+\todo[inline]{Original version follows}
 %TODO: Hier noch Konstruktor Assumptions einführen und den TypeAssumptions hinzufügen
 \noindent
 $\begin{array}{@{}l@{}l}
@@ -441,8 +493,27 @@ $\begin{array}{@{}l@{}l}
 $
 
 We do not generate constraints for casts.
+\todo[inline]{PJT 20220216: more precisely, we ignore the return type and pass on the constraints}
+\begin{gather*}
+  \begin{array}{@{}l@{}l}
+    \typeExpr &(({\mtypeEnvironment} ; \overline{\fieldAssumption};
+                \overline{\localVarAssumption}), (\texttt{N})\mv{e} ) = \\
+              &\begin{array}{ll}
+                 \textbf{let} % \\
+                 & (R, \constraints) = \typeExpr(({\mtypeEnvironment} ; \overline{\fieldAssumption};
+                   \overline{\localVarAssumption}), \texttt{e})  \\
+                 \multicolumn{2}{l}{\mathbf{in}\ (\mv{N}, \constraints) }
+               \end{array}
+  \end{array}
+\end{gather*}
+
 
 \subsubsection{Completeness of the type inference algorithm}
+\todo[inline]{The following theorem talks about soundness of type inference and it lacks a formal
+  statement! Before it can be stated, we need to say what is a solution of a constraint. Moreover,
+  the constraint generation for classes has to return the newly generated method type assumptions:
+  when we apply the solution to those, we obtain an updated method environment, which we can relate
+  to the output of the \TFGJ class typing.}
 \begin{theoremAndi}
   A type assignment which satisfies the constraints generated by \FGJType also satisfies the type rules of our \TFGJ language.
 \end{theoremAndi}
@@ -551,6 +622,43 @@ So every possible type of cast is allowed in \TFGJ, therefore no restrictions in
 
 \section{Insert intersection type}
 \label{sec:insert-inters-type}
+Flatten the constraints returned from \unify{}:
+\begin{align*}
+  \ddfrac{
+    Uni \cup \set{ a \lessdot b}
+  }{
+    [b/a]Uni
+  }
+  \quad \texttt{flatten}
+\end{align*}
+We remove $a \lessdot b$ constraints. They cannot be used in method types.
+
+Determine generics for method:\\
+$\begin{array}{l}
+  \textbf{genericinsert}(Uni , \ol{\tv{a}}) = 
+  \set{ \type{A} \triangleleft \type{Object}\ |\ (\tv{a} \lessdot N) \notin Uni', (\tv{a} \doteq N) \notin Uni',\ \tv{a} \in \ol{\tv{a}}}  \cup \\
+  \set{ \set{A \triangleleft \exptype{C}{\ol{X}}} \cup \textbf{genericinsert}(Uni, \set{\tv{x} \ |\ \tv{x} \in \ol{X}, \tv{x}\ \text{is type variable}}) \ |\ (a \lessdot \exptype{C}{\ol{X}}) \in Uni',\ a \in \ol{\tv{a}}}\\
+  \end{array}$
+
+Generate unifiers: \\
+  $\begin{array}{l}
+    \textbf{TypeSubstitutions}(Uni , \ol{\tv{a}}) = \\
+    \set{ \sigma(\tv{a}) = \type{A}\ |\ (\tv{x} \doteq N) \notin Uni,\ \tv{a} \in \ol{\tv{a}}}
+    \cup \set{ \sigma(\tv{a}) = N \ |\ (\tv{x} \doteq N) \in Uni,\ \tv{x} \in \ol{\tv{a}}}
+ \end{array}$
+
+Equip method assumption with types: \\
+$\begin{array}{l}
+  \textbf{typeInsert}(\type{N}.\texttt{m} : \ol{\tv{a}} \to \tv{a}, \sigma) = \\
+  \textbf{let}\ \sigma = \textbf{TypeSubstitutions}(Uni, \set{\tv{a}} \cup \ol{\tv{a}})\\
+  \quad \ol{X} = \textbf{genericinsert}(Uni, \set{\tv{a}} \cup \ol{\tv{a}})\\
+  \textbf{in}\ \type{N}.\texttt{m} : \exptype{}{\ol{X}}\ \sigma(\ol{\type{T}}) \to \sigma(\type{T})
+\end{array}$
+
+$\begin{array}{l}
+  \textbf{typeInsert} : \ol{\methodAssumption} \times Uni \to \ol{\methodAssumption}\\
+  \textbf{typeInsert} (\ol{\methodAssumption}, Uni) = \set{ \textbf{typeInsert}(\methodAssumption, Uni) \ |\ \methodAssumption \in \ol{\methodAssumption}}
+\end{array}$
 
 The outcome of the \unify{} algorithm is a set of type solutions $Uni_{set}$.
 The following function sets in all type solutions by generating overloaded methods:

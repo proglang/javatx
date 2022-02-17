@@ -4,19 +4,19 @@
 \begin{theoremAndi}
   \label{theo:unifySoundness}
   \textbf{(Soundness):}
-  If the \textbf{Unify} algorithm finds a solution it does not contradict any of the input constraints:
+  If the \unify{} algorithm finds a solution it does not contradict any of the input constraints:
   $\nexists (a \lessdot b) \in {Cons}_{in}$ where $\sigma(a) \nless : \sigma(b)$
 \end{theoremAndi}
 
 \textit{Proof:}
 We show theorem \ref{theo:unifySoundness} by going backwards over every step of the algorithm.
 We assume there exists a unifier $\sigma = \set {a_1 \mapsto \theta_1, \ldots , a_n \mapsto \theta_n}$ for the input constraints,
-which is the result of the \textbf{Unify} algorithm.
+which is the result of the \unify{} algorithm.
 This means for every constraint in the input set $(a \lessdot b) \in {Cons}_{in}$ and $(c \doteq d) \in {Cons}_{in}$
 this unifier will substitute all variables in a way that all constraints are satisfied:
 $\sigma(a) \leq \sigma(b)$, $\sigma(c) = \sigma(d)$\\
 
-We now look at each step of the \textbf{Unify} algorithm
+We now look at each step of the \unify{} algorithm
 which transforms the input set of constraints $Eq$ to a set $Eq'$.
 If we assume the unifier $\sigma$ is correct for the set $Eq'$,
 then we can show that it will also be correct for the constraints $Eq$. 
@@ -116,12 +116,12 @@ No constraint is altered, deleted or modified during this step.
 
 
 \begin{theoremAndi}\label{theo:unifyCompleteness}
-  \textbf{(Completeness):} The \textbf{Unify} algorithm calculates a general unifier for the input set of constraints ($Cons_{in}$).
+  \textbf{(Completeness):} The \unify{} algorithm calculates a general unifier for the input set of constraints ($Cons_{in}$).
   A unifier $\sigma$ is a general unifier for $Cons_{in}$ if it unifies $Cons_{in}$
   and for every other unifier $\omega$ there is a substitution $\lambda$ so that $\omega(x) = \lambda(\sigma(x))$.
 \end{theoremAndi}
 \textit{Proof:}
-%The \textbf{Unify} calculates multiple solutions.
+%The \unify{} calculates multiple solutions.
 
 %Our proof goes as follows:
 We look at every step of the algorithm, which alters the set of constraints $Eq$,
@@ -255,24 +255,24 @@ By replacing all ($a \lessdot b$) constraints with ($a \doteq b$) we do not remo
 In the last step all the constraint sets, which are in solved form, are converted to unifiers.
 
 We see that only a constraint set which has no unifier does not reach solved form.
-We showed that in every step of the \textbf{Unify} algorithm we never exclude a possible unifier.
+We showed that in every step of the \unify{} algorithm we never exclude a possible unifier.
 Also we showed that after we reach step 5 only constraint sets with a correct unifier are in solved form.
 By removing all constraint sets which are not in solved form the algorithm does not
 remove a possible correct unifier.
 
 If we assume that there is a possible principal type solution $\sigma$ for the input set $Cons_{in}$
-and the \textbf{Unify} algorithm does not exclude any of the possible unifiers,
-then the result \textbf{Unify} contains the principal type solution.
+and the \unify{} algorithm does not exclude any of the possible unifiers,
+then the result \unify{} contains the principal type solution.
 \hfill $\square$
 \end{description}
 
 \begin{theoremAndi}\label{theo:unifyTermination}
-  \textbf{(Termination):} The \textbf{Unify} algorithm terminates on every finite input set.
+  \textbf{(Termination):} The \unify{} algorithm terminates on every finite input set.
 \end{theoremAndi}
-The \textbf{Unify} algorithm gets called with a set of input constraints.
+The \unify{} algorithm gets called with a set of input constraints.
 After resolving the \textbf{OrConstraints} we end up with multiple $Eq$ sets.
 Afterwards the algorithm iterates over each of those sets (see Chapter \ref{sec:unify}).
-We will show that \textbf{Unify} terminates on each of those sets by showing,
+We will show that \unify{} terminates on each of those sets by showing,
 that each step of the algorithm removes at least one type variable
 until the finishing state is reached.
 The finishing state for a constraint set is reached when step 3 is not able to substitute a type variable.
@@ -280,7 +280,7 @@ This is checked by step 4 of the algorithm.
 Then the $Eq$ set is either in solved form or determined to be unsolvable.
 
 \textit{Proof:}
-The \textbf{Unify} algorithm reduces the amount of type variables with every iteration.
+The \unify{} algorithm reduces the amount of type variables with every iteration.
 No step adds a new type variable to the constraint set.
 Additionally we have to show that the first step of the algorithm also terminates on every finite input set.
 
@@ -323,7 +323,7 @@ But the \texttt{adopt} rule triggers two other rules. The \texttt{match} and the
       $
   \item We can now apply the \texttt{match} rule to the two resulting $(b \lessdot \ldots)$-constraints.
   If this is not possible due to type \texttt{C} not being a subtype of \texttt{D} or vice versa,
-  then the $Eq$ set has no possible solution and \textbf{Unify} would terminate as fail $Uni = \emptyset$: \\
+  then the $Eq$ set has no possible solution and \unify{} would terminate as fail $Uni = \emptyset$: \\
   $
   \begin{array}[c]{ll}
   \begin{array}[c]{l}
@@ -372,7 +372,7 @@ The \texttt{adopt} alone adds a $\lessdot$ constraint,
 but due to the fact that it is always used together with \texttt{match} and \texttt{adapt} it effectively just adds a $\doteq$ constraint.
 
 \item[Step 2] This step does not add new type variables to the constraint set.
-\item[Step 3] The third step of the \textbf{Unify} algorithm removes at least one type variable
+\item[Step 3] The third step of the \unify{} algorithm removes at least one type variable
 from the constraint set or otherwise does not alter $Eq$ at all.
 If $Eq$ is not altered the algorithm terminates in the next step.
 The type variable is not completely removed but stays inside $Eq$ only in one $a \doteq N$ constraint.
@@ -381,7 +381,7 @@ The \texttt{subst} step can therefore only be executed once per type variable.
 \end{description}
 
 We see that with each iteration over the steps 1-3 at least one type variable is removed from the constraint set.
-Due to the fact that there is never added a fresh type variable during the \textbf{Unify} algorithm,
+Due to the fact that there is never added a fresh type variable during the \unify{} algorithm,
 the algorithm will terminate for any given finite set of constraints. \hfill $\square$
 
 \section{Elimination Matrix}
