@@ -11,8 +11,8 @@
   escapeinside={(*@}{@*)},
   captionpos=b,
 }
-\lstdefinestyle{fgj}{backgroundcolor=\color{white}}
-\lstdefinestyle{tfgj}{backgroundcolor=\color{lightgray}}
+\lstdefinestyle{fgj}{backgroundcolor=\color{lime!20}}
+\lstdefinestyle{tfgj}{backgroundcolor=\color{lightgray!20}}
 
 
 \newtheorem{theoremAndi}{Theorem}
@@ -34,8 +34,17 @@
 \definecolor{red}{rgb}{1,0,0}
 \newcommand{\red}[1]{\textcolor{red}{#1}}
 
-\newcommand{\commentarymargin}[1]{\red{\({}^*\)}\marginpar[\tiny \red{\({}^*\)#1}]{\tiny \red{\({}^*\)#1}}}
-\newcommand{\erased}[1]{\commentarymargin{\sout{#1}}}
+\newcommand{\commentarystar}[1]{\red{\({}^*\)}\marginpar[\tiny
+  \red{\({}^*\)#1}]{\tiny \red{\({}^*\)#1}}}
+\newcommand{\commentary}[1]{\marginpar[\tiny
+  \red{#1}]{\tiny \red{#1}}}
+\newcommand{\commentarymark}[1]{\color{red} #1\ensuremath{^*}\color{black}}
+\newcommand{\commentarymargintext}[2]{\color{red} #1$^*$
+  \color{black}\marginpar[\tiny \red{\({}^*\)#2}]{\tiny \red{\({}^*\)#2}}}
+\newcommand{\commentaryintext}[2]{\color{red} #1\textrm{$^*${\tiny #2}}\color{black}}
+\newcommand{\commentarymath}[2]{\color{red} #1^*\color{black}\)\marginpar[\tiny \red{\({}^*\)#2}]{\tiny \red{\({}^*\)#2}}\(}
+\newcommand{\replaced}[2]{\erased{#1}\color{red}#2\color{black}}
+\newcommand{\erased}[1]{\commentary{\sout{#1}}}
 
 \newcommand\Erase[1]{|#1|}
 \newcommand\Angle[1]{\langle#1\rangle}
@@ -59,20 +68,23 @@
 %%% Commands for FGJTYPE algorithm
 \newcommand{\tv}[1]{\mathit{ #1 }}
 \newcommand{\fjtype}{\textbf{FJTYPE}}
+\newcommand{\unify}{\textbf{Unify}}
 \newcommand{\typeMethod}{\textbf{TYPEMethod}}
 \newcommand{\typeExpr}{\textbf{TYPEExpr}}
-\newcommand{\constraint}{\ensuremath{\mathtt{C}}}
-\newcommand{\consSet}{\ensuremath{\overline{\mathtt{C}}}}
-\newcommand{\orCons}{\ensuremath{\textbf{C}_{||}}}
+\newcommand{\constraint}{\ensuremath{\mathit{c}}}%{\ensuremath{\mathtt{C}}}
+\newcommand{\consSet}{\ensuremath{\overline{\constraint}}}%{\ensuremath{\overline{\mathtt{C}}}}
+\newcommand{\orCons}{\ensuremath{oc}}%{\ensuremath{\textbf{C}_{||}}}
+\newcommand{\simpleCons}{\ensuremath{sc}}
 \newcommand{\overridesFunc}{\textit{overrides}}
-\newcommand{\typeAssumptionsSymbol}{\ensuremath{\Pi}}
-\newcommand{\typeAssumptions}{\ensuremath{(\overline{\methodAssumption} ; \overline{\fieldAssumption}; \overline{\localVarAssumption})}}
-\newcommand{\constraints}{\ensuremath{\mathtt{\overline{C}}}}
+\newcommand{\typeAssumptionsSymbol}{\ensuremath{\Theta}}
+\newcommand{\typeAssumptions}{\ensuremath{(\mv{\Pi} ; \overline{\fieldAssumption}; \overline{\localVarAssumption})}}%{\ensuremath{(\overline{\methodAssumption} ; \overline{\fieldAssumption}; \overline{\localVarAssumption})}}
+\newcommand{\constraints}{\ensuremath{\mathit{\overline{c}}}}
+\newcommand{\itype}[1]{\ensuremath{\mathit{#1}}}
 \newcommand{\type}[1]{\texttt{#1}}
 \newcommand{\gType}[1]{\texttt{#1}}
-\newcommand{\methodAssumption}{\ensuremath{\mathtt{\pi}}}
-\newcommand{\fieldAssumption}{\ensuremath{\mathtt{\tau}}}
-\newcommand{\localVarAssumption}{\ensuremath{\mathtt{\Gamma}}}
+\newcommand{\methodAssumption}{\ensuremath{\mathtt{\lambda}}}
+\newcommand{\fieldAssumption}{\ensuremath{\mathtt{\varphi}}}
+\newcommand{\localVarAssumption}{\ensuremath{\mathtt{\eta}}}
 
 
 %%% Local Variables:
