@@ -181,11 +181,10 @@ whole program and backtracks if that fails.
     % Type
     \itype{T} &::= \tv{a} \mid \mv{T} && \text{type variable or type}\\
     % Constraints
-    \simpleCons &::= \itype{T} \lessdot \itype{T} \mid \itype{T} \doteq
-        \itype{T} && \text{simple constraint: subtype or equality}\\
-    % \consSet = \set{C_1, \ldots, C_2} \\
-    \orCons{} &::= \set{\overline{\simpleCons_1}, \ldots, \overline{\simpleCons_n}} && \text{or-constraint}\\
-    \constraint &::= \simpleCons\ |\ \orCons \\
+    \simpleCons &::= \itype{T} \lessdot \itype{T} \mid \itype{T} \doteq \itype{T} && \text{simple constraint: subtype or equality}\\
+    \orCons{} &::= \set{\set{\overline{\simpleCons_1}}, \ldots, \set{\overline{\simpleCons_n}}} && \text{or-constraint}\\
+    \constraint &::= \simpleCons\mid \orCons && \text{constraint}\\
+    \consSet &::= \set{\constraints} && \text{constraint set}\\
     % Method assumptions:
     \methodAssumption &::= \exptype{C}{\ol X}.\texttt{m} : \exptype{}{\ol{Y}
                         \triangleleft \ol{P}}\ \ol{\itype{T}} \to \itype{T}  &&
@@ -223,10 +222,7 @@ constraints $\consSet$, which can hold simple constraints as well as or-constrai
 %   \end{description}
 
 
-\todo[inline]{PJT 20220215: I think that the input to \fjtype is
-  actually a method environment $\mv\Pi$. This makes it easier to
-  detect the overriding: just use \textit{mtype} to check if the
-  method was checked before. See suggested change.}
+
 
 %The \fjtype{} algorithm produces two kinds of constraints.
 % Before the algorithm starts we equip every untyped method with type variables.
@@ -258,7 +254,7 @@ variables for the argument and result types.
                                &\ \ol{\methodAssumption}_o = \set{\exptype{C}{\ol{X}}.\mv{m} :
                                  \exptype{}{\ol{Y} \triangleleft \ol{P}}\ \ol{T} \to \tv{a}_{\mv m} \mid \mv{m} \in \ol{M},
                                  \textit{mtype}(\mv{m}, \type{N}, \mv\Pi) = \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{\type{T}} \to \type{T}}\\
-                               &\ \constraints_o = \set{\tv{a}_{\mv m} \lessdot \type{T} \ |\ \texttt{m} \in \ol{M}, 
+                               &\ \consSet_o = \set{\tv{a}_{\mv m} \lessdot \type{T} \ |\ \texttt{m} \in \ol{M}, 
                                  \textit{mtype}(\mv{m}, \mv{N}, \mv\Pi) = \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{\type{T}} \to \type{T}}\\
                                % \textbf{let} &\ m_{cons},
                                % m_{override}
@@ -281,7 +277,7 @@ variables for the argument and result types.
                                  \ol{\methodAssumption}' \cup
                                  \ol{\methodAssumption}_o ;
                                  \ol{\fieldAssumption}), \exptype{C}{\ol{X}},  \mathtt{m}) \right)
-                                 \cup \constraints_o } \\ 
+                                 \cup \consSet_o } \\ 
                 \end{array}
     \end{array}
   \end{gather*}
@@ -317,12 +313,12 @@ environment.  Otherwise, we backtrack to check the next candidate.
               & \textbf{let} & \exptype{}{\ol{Y} \triangleleft \ol{P}}\ \overline{T} \to T  = \mv{\Pi} (\exptype{C}{\ol{X}}.\mv{m})
   \\
               & %\textbf{let}
-                                                                                              & ({R}, \constraints) =
+                                                                                              & ({R}, \consSet) =
                                                                                                 \typeExpr((\mv\Pi ;
                                                                                                 \overline{\fieldAssumption}; \set{\mv{this} :
                                                                                                 \exptype{C}{\ol{X}} } \cup \set{ \ol{x} : \overline{{T}} }), \texttt{e})\\
               & \mathbf{in}
-                                                                                              & \constraints \cup \set{{R} \lessdot {T}}\\
+                                                                                              & \consSet \cup \set{{R} \lessdot {T}}\\
 \end{array}
 \end{gather*}
 
@@ -338,7 +334,7 @@ In the following we define the \typeExpr{} function for every possible expressio
 
 \noindent
 $\typeExpr: \typeAssumptionsSymbol \times
-\texttt{Expression} \rightarrow \type{T} \times \constraints
+\texttt{Expression} \rightarrow {T} \times \consSet
 $
 \begin{gather*}
   \typeExpr (({\mtypeEnvironment} ; \overline{\fieldAssumption};
@@ -346,24 +342,16 @@ $
   (\overline{\localVarAssumption} (\mv x) , \emptyset)
 \end{gather*}
 
-
-\smallskip
-\todo[inline]{PJT 20220215: I think there is an issue in the
-  constraint generation for fields. If I understand correctly,
-  accessing fields may trigger the creation of an or-constraint. Not
-  sure how this rule enacts it. See my alternative suggestion below.}
-
-
 \begin{gather*}
   \begin{array}{@{}l@{}l}
     \typeExpr{} &(({\mtypeEnvironment} ; \overline{\fieldAssumption};
                   \overline{\localVarAssumption}), \texttt{e}.\texttt{f}) = \\
                 & \begin{array}{ll}
                     \textbf{let} 
-                    & ({R}, \consSet_e) = \typeExpr(({\mtypeEnvironment} ; \overline{\fieldAssumption};
+                    & ({R}, \consSet_R) = \typeExpr(({\mtypeEnvironment} ; \overline{\fieldAssumption};
                       \overline{\localVarAssumption}), \texttt{e})\\
                     & \tv{a} \text{ fresh} \\
-                    & \consSet = \orCons\set{
+                    & \constraint = \orCons\set{
                       \set{
                       {R} \lessdot \exptype{C}{\ol{\tv{a}}} , \tv{a} \doteq
                       [\overline{\tv{a}}/\ol{X}]\type{T}
@@ -373,30 +361,11 @@ $
                       }\\
                       % & \constraints = \orCons(\constraints_{m})\\
                     {\mathbf{in}} & {
-                    (\tv{a}, (\consSet_e \cup \constraints))}
+                    (\tv{a}, (\consSet_R \cup \set{\constraint}))}
                   \end{array} 
   \end{array}
 \end{gather*}
 
-\todo[inline]{Original version follows}
-\noindent
-$\begin{array}{@{}l@{}l}
-\typeExpr{} &(\typeAssumptions, \texttt{e}.\texttt{f}) = \\
-& \begin{array}{ll}
-\textbf{let} 
-& ({R}, \consSet_e) = \typeExpr(\typeAssumptions, \texttt{e}),\\
-& \consSet_f = \orCons{}(\set{[\textbf{fresh}(\ol{X})/\ol{X}]\set{\type{R} \lessdot \exptype{C}{\ol{X}},\ \tv{a} \doteq \type{T}} \ |\ \exptype{C}{\ol{X}}.\texttt{f} : \type{T} \in \ol{\fieldAssumption}})\\
-\multicolumn{2}{l}{\mathbf{in}
-(\tv{a}, (\consSet_e \cup \consSet_f))}\\
-& \text{where\ } \tv{a} \text{\ is\ a\ fresh\
-  type\ variable}\\ 
-\end{array} \\
-\end{array}
-$
-
-\smallskip
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\todo[inline]{20220216: alternative suggestion for method calls}
 \noindent
 $\begin{array}{@{}l@{}l}
 \typeExpr{} & (({\mtypeEnvironment} ; \overline{\fieldAssumption};
@@ -404,45 +373,22 @@ $\begin{array}{@{}l@{}l}
 & \begin{array}{ll}
 \textbf{let}& % \\
 % &
-({R}, \constraints_R) = \typeExpr(({\mtypeEnvironment} ; \overline{\fieldAssumption};
+({R}, \consSet_R) = \typeExpr(({\mtypeEnvironment} ; \overline{\fieldAssumption};
   \overline{\localVarAssumption}), \texttt{e})\\
-& \forall \texttt{e}_i \in \ol{e} : (R_i, \constraints_i) = \typeExpr(({\mtypeEnvironment} ; \overline{\fieldAssumption};
+& \forall \texttt{e}_i \in \ol{e} : (R_i, \consSet_i) = \typeExpr(({\mtypeEnvironment} ; \overline{\fieldAssumption};
   \overline{\localVarAssumption}), \texttt{e}_i)  \\
                     & \tv{a} \text{ fresh} \\
 & \begin{array}{@{}l@{}l}
-  \constraints = \orCons\set{ & \set{{R} \lessdot \exptype{C}{\ol{\tv{a}}}, \tv{a} \doteq {T}, \overline{R} \lessdot \overline{T} , \ol{Y} \lessdot [\ol{\tv{a}}/\ol{X}]\ol{P} \mid \overline{\tv{a}} \text{ fresh}}\\
+  \constraint = \orCons\set{ & \set{{R} \lessdot \exptype{C}{\ol{\tv{a}}}, \tv{a} \doteq {T},
+                                \overline{R} \lessdot \overline{T} , \ol{\tv{b}} \lessdot
+                                [\ol{\tv{b}}/\ol{Y}][\ol{\tv{a}}/\ol{X}]\ol{P} \mid \overline{\tv{a}}, \overline{\tv{b}} \text{ fresh}}\\
   & \ |\ (\exptype{C}{\ol{X}}.\texttt{m} : \exptype{}{\ol{Y} \triangleleft \ol{P}} \ \overline{T} \to {T}) \in {\mtypeEnvironment} }
 \end{array}\\
-\multicolumn{2}{l}{\mathbf{in} (\tv{a},(\constraints_R \cup \bigcup_i \constraints_i \cup \constraints))}
+\multicolumn{2}{l}{\mathbf{in} (\tv{a},(\consSet_R \cup \bigcup_i \consSet_i \cup \set{\constraint}))}
 \end{array}
 \end{array}
 $
 
-\todo[inline]{Original version follows}
-\noindent
-$\begin{array}{@{}l@{}l}
-\typeExpr{} & (\typeAssumptions, \texttt{e}.\mathtt{m}(\overline{\texttt{e}}) ) = \\
-& \begin{array}{ll}
-\textbf{let}& % \\
-% &
-(\type{R}, \constraints_R) = \typeExpr(\typeAssumptions, \texttt{e}),\\
-& \forall \texttt{e}_i \in \overline{e} : (\type{pt}_i, \constraints_i) = \typeExpr(\texttt{e}_i)  ,\\
-& \begin{array}{@{}l@{}l}
-  \constraints_{m} = \set{ & [\textbf{fresh}(\ol{Y})/\ol{Y}]\set{\type{R} \lessdot \exptype{C}{\ol{X}}, \tv{a} \doteq \type{T}, \bigcup_{\type{T}_i \in \overline{T}} (\type{pt}_i \lessdot \type{T}_i) , \ol{Y} \lessdot \ol{P}}\\
-  & \ |\ (\exptype{C}{\ol{X}}.\texttt{m} : \exptype{}{\ol{Y} \triangleleft \ol{P}} \ \ol{T} \to \type{T}) \in \overline{\methodAssumption} }
-\end{array}\\
-& \constraints = \orCons(\constraints_{m})\\
-\multicolumn{2}{l}{\mathbf{in} (\tv{a}, [\textbf{fresh}(\ol{X})/\ol{X}](\constraints_R \cup \bigcup_i \constraints_i \cup \constraints))}\\
-& \text{where\ } \tv{a} \text{\ is\ a\ fresh\
-  type\ variable}\\ 
-\end{array}
-\end{array}
-$
-
-%\{\ & \set{ \type{R} \lessdot \exptype{C}{\ol{X}}, \tv{a} \doteq \type{T}, \overline{\type{pt}} \lessdot \overline{\type{T}} }
-%        , \ol{Y} \lessdot \ol{P} } }} \ |\ \exptype{}{\ol{Y} \triangleleft \ol{P}} T\ \texttt{m}(\ol{T}\  \ol{p}) \}
-
-\smallskip
 
 The \texttt{new}-statement comes without the generic variables
 (\texttt{new Classname(...)} instead of \texttt{new Classname<Class>(...)}).
@@ -460,33 +406,17 @@ $\ol{X}$ can occur in the bound $\ol{N}$ aswell as in the types of the construct
                 \overline{\localVarAssumption}), \mathtt{new }\ \texttt{C}(\ol{e}) ) = \\
               &\begin{array}{ll}
                  \textbf{let} % \\
-                 & \forall \texttt{e}_i \in \overline{\texttt{e}} : (R_i, \constraints_i) = \typeExpr(({\mtypeEnvironment} ; \overline{\fieldAssumption};
+                 & \forall \texttt{e}_i \in \overline{\texttt{e}} : (R_i, \consSet_i) = \typeExpr(({\mtypeEnvironment} ; \overline{\fieldAssumption};
                    \overline{\localVarAssumption}), \texttt{e}_i)  \\
                  & \overline{\tv{a}} \text{ fresh} \\
                  & \textit{fields} (\exptype{C}{\overline{\tv{a}}}) = \overline{T}\ \ol{f} \\
-                 & \constraints = \overline{R} \lessdot \overline{T} , \overline{\tv{a}} \lessdot [\overline{\tv{a}}/\ol{X}]\ol{N} \\
-                 \multicolumn{2}{l}{\mathbf{in}\ (\exptype{C}{\ol{\tv{a}}}, \constraints \cup \bigcup_i \constraints_i) }\\
+                 & \consSet = \set{\overline{R} \lessdot \overline{T}}  \cup \set{\overline{\tv{a}} \lessdot [\overline{\tv{a}}/\ol{X}]\ol{N}}  \\
+                 \multicolumn{2}{l}{\mathbf{in}\ (\exptype{C}{\ol{\tv{a}}}, \consSet \cup \bigcup_i \consSet_i) }\\
                  & \text{where}\ \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \set{\ldots} \\
                \end{array}
   \end{array}
 \end{gather*}
 
-
-\todo[inline]{Original version follows}
-%TODO: Hier noch Konstruktor Assumptions einführen und den TypeAssumptions hinzufügen
-\noindent
-$\begin{array}{@{}l@{}l}
-\typeExpr &(\typeAssumptions, \mathtt{new }\ \texttt{C}(\overline{\texttt{e}}) ) = \\
-&\begin{array}{ll}
-\textbf{let} % \\
-& \forall \texttt{e}_i \in \overline{\texttt{e}} : (\type{P}_i, \constraints_i) = \typeExpr(\typeAssumptions, \texttt{e}_i)  ,\\
-%& \constraints = \{ \bigcup_{T_i \in \overline{T}} (pt_i \lessdot \type{T}_i) \ | \ \mathtt{class }\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\{ \ldots, \texttt{C}(\overline{T} \overline{x}), \ldots \} \}\\
-& \constraints = \{ \type{P}_i \lessdot \type{T}_i \ | \ \exptype{C}{\ol{X}}.\texttt{f}_i : \type{T}_i \in \ol{\fieldAssumption} \}\\
-\multicolumn{2}{l}{\mathbf{in}\ [\textbf{fresh}(\ol{X})/\ol{X}](\exptype{C}{\ol{X}}, \constraints \cup \bigcup_i \constraints_i \cup \set{\ol{X} \lessdot \ol{N}}) }\\
-& \text{taken } \ol{\type{N}}\ \text{from the class definition}\ \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \set{\ldots} \\
-\end{array}
-\end{array}
-$
 
 We do not generate constraints for casts.
 \todo[inline]{PJT 20220216: more precisely, we ignore the return type and pass on the constraints}
@@ -496,9 +426,9 @@ We do not generate constraints for casts.
                 \overline{\localVarAssumption}), (\texttt{N})\mv{e} ) = \\
               &\begin{array}{ll}
                  \textbf{let} % \\
-                 & (R, \constraints) = \typeExpr(({\mtypeEnvironment} ; \overline{\fieldAssumption};
+                 & (R, \consSet) = \typeExpr(({\mtypeEnvironment} ; \overline{\fieldAssumption};
                    \overline{\localVarAssumption}), \texttt{e})  \\
-                 \multicolumn{2}{l}{\mathbf{in}\ (\mv{N}, \constraints) }
+                 \multicolumn{2}{l}{\mathbf{in}\ (\mv{N}, \consSet) }
                \end{array}
   \end{array}
 \end{gather*}
