@@ -105,7 +105,7 @@ The algorithm is split into several parts, which are executed on a single class 
 \item Create assumptions and subtype relation
 \item Constraint generation % with \textbf{FJTYPE}
 \item Constraint solving % Unification of those constraints
-\item Substitute principal type solution
+\item Substitute \commentarymargintext{principal type}{gibt es nicht mehr} solution
 \end{enumerate}
 
 The solver returns a set of all possible type solutions.
@@ -113,10 +113,10 @@ This set inherits the principal type solution.
 The last step simplifies the calculated solutions and only inserts the principal typing.
 %The last step chooses the principal type out of those possibilities.
 
-\subsection{Type inference for a program}
+\subsection{Type inference for a program }
 \label{sec:proc-mult-class}
 
-Type inference processes a program one class at a time.
+\commentarymargintext{Type inference processes a program one class at a time.
 To do so, it must be possible to order the classes such that early
 classes never call methods in later classes.
 As an example, Figure~\ref{fig:invalidinput} shows a program that is
@@ -129,7 +129,8 @@ acceptable to both \TFGJ and FGJ because the mutual recursion of
 methods \mv{m1} and \mv{m2} is taking place inside class \mv{D2}. As
 \mv{D2} invokes method \mv{m} of \mv{D1}, type inference must process
 \mv{D1} before \mv{D2}, which corresponds to the constraints imposed
-by the typing of \TFGJ in Section~\ref{chapter:type-rules}.
+by the typing of \TFGJ in Section~\ref{chapter:type-rules}.}
+{Das gehört doch zu den Typregeln oder willst Du es hier nochals wiederholen?}
 
 % Only the first step creating the type assumptions is able to consider other classes as well.
 
@@ -391,13 +392,13 @@ $
 
 
 The \texttt{new}-statement comes without the generic variables
-(\texttt{new Classname(...)} instead of \texttt{new Classname<Class>(...)}).
+(\texttt{new Classname(...)} instead of \texttt{new Classname<}\replaced{Class}{$\overline{R}$}\texttt{>(...)}).
 The correct type will be inferred by our type inference algorithm.
 We generate new type variables for the generic variables of the class \texttt{C},
 so the \unify{} algorithm can later set in the correct types for these variables.
 He has to comply to the bounds given by $\ol{N}$, which is why we add $\ol{X} \lessdot \ol{N}$ to the constraints.
 It is important to change every occurence of $\ol{X}$ with the fresh type variables $\textbf{fresh}(\ol{X})$ in the generated constraints.
-$\ol{X}$ can occur in the bound $\ol{N}$ aswell as in the types of the constructor parameters $\ol{T}$.
+$\ol{X}$ can occur in the bound $\ol{N}$ as well as in the types of the constructor parameters $\ol{T}$.
 
 
 \begin{gather*}
@@ -542,12 +543,49 @@ So every possible type of cast is allowed in \TFGJ, therefore no restrictions in
 
 \section{Unify}
 \label{sec:unify-1}
-\input{Unify}
+\input{unify}
 
 \input{unifyProof}
 
 \section{Insert intersection type}
 \label{sec:insert-inters-type}
+Flatten the constraints returned from \unify{}:
+\begin{align*}
+  \ddfrac{
+    Uni \cup \set{ a \lessdot b}
+  }{
+    [b/a]Uni
+  }
+  \quad \texttt{flatten}
+\end{align*}
+We remove $a \lessdot b$ constraints. They cannot be used in method types.
+
+Determine generics for method:\\
+$\begin{array}{l}
+  \textbf{genericinsert}(Uni , \ol{\tv{a}}) = 
+  \set{ \type{A} \triangleleft \type{Object}\ |\ (\tv{a} \lessdot N) \notin Uni', (\tv{a} \doteq N) \notin Uni',\ \tv{a} \in \ol{\tv{a}}}  \cup \\
+  \set{ \set{A \triangleleft \exptype{C}{\ol{X}}} \cup \textbf{genericinsert}(Uni, \set{\tv{x} \ |\ \tv{x} \in \ol{X}, \tv{x}\ \text{is type variable}}) \ |\ (a \lessdot \exptype{C}{\ol{X}}) \in Uni',\ a \in \ol{\tv{a}}}\\
+  \end{array}$
+
+Generate unifiers: \\
+  $\begin{array}{l}
+    \textbf{TypeSubstitutions}(Uni , \ol{\tv{a}}) = \\
+    \set{ \sigma(\tv{a}) = \type{A}\ |\ (\tv{x} \doteq N) \notin Uni,\ \tv{a} \in \ol{\tv{a}}}
+    \cup \set{ \sigma(\tv{a}) = N \ |\ (\tv{x} \doteq N) \in Uni,\ \tv{x} \in \ol{\tv{a}}}
+ \end{array}$
+
+Equip method assumption with types: \\
+$\begin{array}{l}
+  \textbf{typeInsert}(\type{N}.\texttt{m} : \ol{\tv{a}} \to \tv{a}, \sigma) = \\
+  \textbf{let}\ \sigma = \textbf{TypeSubstitutions}(Uni, \set{\tv{a}} \cup \ol{\tv{a}})\\
+  \quad \ol{X} = \textbf{genericinsert}(Uni, \set{\tv{a}} \cup \ol{\tv{a}})\\
+  \textbf{in}\ \type{N}.\texttt{m} : \exptype{}{\ol{X}}\ \sigma(\ol{\type{T}}) \to \sigma(\type{T})
+\end{array}$
+
+$\begin{array}{l}
+  \textbf{typeInsert} : \ol{\methodAssumption} \times Uni \to \ol{\methodAssumption}\\
+  \textbf{typeInsert} (\ol{\methodAssumption}, Uni) = \set{ \textbf{typeInsert}(\methodAssumption, Uni) \ |\ \methodAssumption \in \ol{\methodAssumption}}
+\end{array}$
 
 The outcome of the \unify{} algorithm is a set of type solutions $Uni_{set}$.
 The following function sets in all type solutions by generating overloaded methods:

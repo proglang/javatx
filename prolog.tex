@@ -34,8 +34,17 @@
 \definecolor{red}{rgb}{1,0,0}
 \newcommand{\red}[1]{\textcolor{red}{#1}}
 
-\newcommand{\commentarymargin}[1]{\red{\({}^*\)}\marginpar[\tiny \red{\({}^*\)#1}]{\tiny \red{\({}^*\)#1}}}
-\newcommand{\erased}[1]{\commentarymargin{\sout{#1}}}
+\newcommand{\commentarystar}[1]{\red{\({}^*\)}\marginpar[\tiny
+  \red{\({}^*\)#1}]{\tiny \red{\({}^*\)#1}}}
+\newcommand{\commentary}[1]{\marginpar[\tiny
+  \red{#1}]{\tiny \red{#1}}}
+\newcommand{\commentarymark}[1]{\color{red} #1\ensuremath{^*}\color{black}}
+\newcommand{\commentarymargintext}[2]{\color{red} #1$^*$
+  \color{black}\marginpar[\tiny \red{\({}^*\)#2}]{\tiny \red{\({}^*\)#2}}}
+\newcommand{\commentaryintext}[2]{\color{red} #1\textrm{$^*${\tiny #2}}\color{black}}
+\newcommand{\commentarymath}[2]{\color{red} #1^*\color{black}\)\marginpar[\tiny \red{\({}^*\)#2}]{\tiny \red{\({}^*\)#2}}\(}
+\newcommand{\replaced}[2]{\erased{#1}\color{red}#2\color{black}}
+\newcommand{\erased}[1]{\commentary{\sout{#1}}}
 
 \newcommand\Erase[1]{|#1|}
 \newcommand\Angle[1]{\langle#1\rangle}
