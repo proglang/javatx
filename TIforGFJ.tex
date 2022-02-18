@@ -249,36 +249,31 @@ variables for the argument and result types.
     % \fjtype : \typeAssumptionsSymbol \times \texttt{L} \rightarrow \ol{\constraint}\\
     \begin{array}{@{}l@{}l}
       \fjtype & ({(\mv{\Pi} ; \overline{\fieldAssumption})}, \mathtt{class } \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \ \mathtt{ extends } \ \mathtt{N \{ \overline{T} \ \overline{f}; \, K \, \overline{M} \}}) =\\
-              & \begin{array}{l@{}l@{}l}
-                  \textbf{let} &\ \overline{\tv{a}}_{\mv m} \text{ be fresh type variables
+              & \begin{array}{ll@{}l}
+                  \textbf{let} & \overline{\tv{a}}_{\mv m} \text{ be fresh type variables
                                  for each }\mv{m}\in\ol{M} \\
-                               &\ \ol{\methodAssumption}_o = \set{\exptype{C}{\ol{X}}.\mv{m} :
+                               & \ol{\methodAssumption}_o = \set{\exptype{C}{\ol{X}}.\mv{m} :
                                  \exptype{}{\ol{Y} \triangleleft \ol{P}}\ \ol{T} \to \tv{a}_{\mv m} \mid \mv{m} \in \ol{M},
                                  \textit{mtype}(\mv{m}, \type{N}, \mv\Pi) = \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{\type{T}} \to \type{T}}\\
-                               &\ \consSet_o = \set{\tv{a}_{\mv m} \lessdot \type{T} \ |\ \texttt{m} \in \ol{M}, 
+                               & \consSet_o = \set{\tv{a}_{\mv m} \lessdot \type{T} \ |\ \texttt{m} \in \ol{M}, 
                                  \textit{mtype}(\mv{m}, \mv{N}, \mv\Pi) = \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{\type{T}} \to \type{T}}\\
-                               % \textbf{let} &\ m_{cons},
-                               % m_{override}
-                               % =
-                               % \set{\overridesFunc(\typeAssumptions,
-                               % \exptype{C}{\ol{X}}.\mathtt{m}) \ |\
-                               % m
-                               % \in \ol{M}} \\
-                               &\ \ol{\methodAssumption}' = 
+                               & \ol{\methodAssumption}' = 
                                  \set{ (\exptype{C}{\ol{X}}.\mv{m} : \ol{\tv{a}} \to \tv{a}_{\mv
                                  m}) \mid \mv{m} \in \ol{M},
                                  \textit{mtype} (\mv m, \mv N,
                                  \mv\Pi) \text{ not defined}, \ol{\tv{a}}\ \text{fresh} } \\
+                               & \Pi = \mv{\Pi} \cup
+                                 \ol{\methodAssumption}' \cup
+                                 \ol{\methodAssumption}_o \\
                                % \cup \\
                                % \typeAssumptions \cup m_{override}
-                  \textbf{in} \\
-                               &\ \displaystyle{ \left(
+                  \textbf{in} 
+                               & { ( \Pi, 
+                                 \consSet_o \cup
                                  \bigcup_{\texttt{m} \in \ol{M}}
-                                 \typeMethod( (\mv{\Pi} \cup
-                                 \ol{\methodAssumption}' \cup
-                                 \ol{\methodAssumption}_o ;
-                                 \ol{\fieldAssumption}), \exptype{C}{\ol{X}},  \mathtt{m}) \right)
-                                 \cup \consSet_o } \\ 
+                                 \typeMethod( (\Pi;
+                                 \ol{\fieldAssumption}), \exptype{C}{\ol{X}},  \mathtt{m}))
+                                 } 
                 \end{array}
     \end{array}
   \end{gather*}
@@ -323,8 +318,8 @@ environment.  Otherwise, we backtrack to check the next candidate.
 \end{array}
 \end{gather*}
 
-The \typeMethod{} function for methods just calls the \typeExpr{} function with the
-return expression. It is significant to note that it adds the assumptions for the method parameters to the global assumptions before passing them to \typeExpr.
+The \typeMethod{} function for methods calls the \typeExpr{} function with the
+return expression. It adds the assumptions for \texttt{this} and for the method parameters to the global assumptions before passing them to \typeExpr.
 %and the global assumptions plus the assumptions for the method parameters.
 
 \smallskip
@@ -342,7 +337,11 @@ $
   \overline{\localVarAssumption}), \mathtt{x}) =
   (\overline{\localVarAssumption} (\mv x) , \emptyset)
 \end{gather*}
-
+When we encounter a field $\mv e.\mv f$, we consider all classes
+$\mv C$
+that define field $\mv f$ and impose an or-constraint that covers all
+alternatives: the type $R$ of the expression $\mv e$ must be a subtype of a generic instance
+of $\mv C$ and the return type must be the corresponding field type. 
 \begin{gather*}
   \begin{array}{@{}l@{}l}
     \typeExpr{} &(({\mtypeEnvironment} ; \overline{\fieldAssumption};
@@ -360,21 +359,26 @@ $
                       }
                       \mid \exptype{C}{\ol{X}}.\mv{f} : \mv{T} \in \ol{\fieldAssumption}
                       }\\
-                      % & \constraints = \orCons(\constraints_{m})\\
                     {\mathbf{in}} & {
                     (\tv{a}, (\consSet_R \cup \set{\constraint}))}
                   \end{array} 
   \end{array}
 \end{gather*}
+We treat method calls in a similar way. We impose an or-constraint
+that considers a generic instance of a method type in a class
+providing that method (with the same number of parameters). Each
+choice imposes a subtyping constraint on the receiver type  $R$ as
+well as subtyping constraints on the argument types
+$\overline{R}$. Moreover, we need to check that the subtyping
+constraints of the method type are obeyed by instantiating them
+accordingly.
 
 \noindent
 $\begin{array}{@{}l@{}l}
 \typeExpr{} & (({\mtypeEnvironment} ; \overline{\fieldAssumption};
   \overline{\localVarAssumption}), \texttt{e}.\mathtt{m}(\overline{\texttt{e}}) ) = \\
 & \begin{array}{ll}
-\textbf{let}& % \\
-% &
-({R}, \consSet_R) = \typeExpr(({\mtypeEnvironment} ; \overline{\fieldAssumption};
+\textbf{let}& ({R}, \consSet_R) = \typeExpr(({\mtypeEnvironment} ; \overline{\fieldAssumption};
   \overline{\localVarAssumption}), \texttt{e})\\
 & \forall \texttt{e}_i \in \ol{e} : (R_i, \consSet_i) = \typeExpr(({\mtypeEnvironment} ; \overline{\fieldAssumption};
   \overline{\localVarAssumption}), \texttt{e}_i)  \\
@@ -384,23 +388,17 @@ $\begin{array}{@{}l@{}l}
                                 \overline{R} \lessdot \overline{T} , \ol{\tv{b}} \lessdot
                                 [\ol{\tv{b}}/\ol{Y}][\ol{\tv{a}}/\ol{X}]\ol{P} \mid \overline{\tv{a}}, \overline{\tv{b}} \text{ fresh}}\\
   & \ |\ (\exptype{C}{\ol{X}}.\texttt{m} : \exptype{}{\ol{Y} \triangleleft \ol{P}} \ \overline{T} \to {T}) \in {\mtypeEnvironment} }
-\end{array}\\
-\multicolumn{2}{l}{\mathbf{in} (\tv{a},(\consSet_R \cup \bigcup_i \consSet_i \cup \set{\constraint}))}
+  \end{array}\\
+\mathbf{in} & (\tv{a},(\consSet_R \cup \bigcup_i \consSet_i \cup \set{\constraint}))
 \end{array}
 \end{array}
 $
 
 
-The \texttt{new}-statement comes without the generic variables
-(\texttt{new Classname(...)} instead of \texttt{new Classname<}\replaced{Class}{$\overline{R}$}\texttt{>(...)}).
-The correct type will be inferred by our type inference algorithm.
-We generate new type variables for the generic variables of the class \texttt{C},
-so the \unify{} algorithm can later set in the correct types for these variables.
-He has to comply to the bounds given by $\ol{N}$, which is why we add $\ol{X} \lessdot \ol{N}$ to the constraints.
-It is important to change every occurence of $\ol{X}$ with the fresh type variables $\textbf{fresh}(\ol{X})$ in the generated constraints.
-$\ol{X}$ can occur in the bound $\ol{N}$ as well as in the types of the constructor parameters $\ol{T}$.
-
-
+The \texttt{new}-expression is comparatively simple. Starting from a
+generic instance of the class type, we calculate the types $\overline
+T$ of the fields, impose subtyping constraints on the constructor
+argument $\overline R$, and check the subtyping  constraints of the class.
 \begin{gather*}
   \begin{array}{@{}l@{}l}
     \typeExpr &(({\mtypeEnvironment} ; \overline{\fieldAssumption};
@@ -411,16 +409,17 @@ $\ol{X}$ can occur in the bound $\ol{N}$ as well as in the types of the construc
                    \overline{\localVarAssumption}), \texttt{e}_i)  \\
                  & \overline{\tv{a}} \text{ fresh} \\
                  & \textit{fields} (\exptype{C}{\overline{\tv{a}}}) = \overline{T}\ \ol{f} \\
-                 & \consSet = \set{\overline{R} \lessdot \overline{T}}  \cup \set{\overline{\tv{a}} \lessdot [\overline{\tv{a}}/\ol{X}]\ol{N}}  \\
-                 \multicolumn{2}{l}{\mathbf{in}\ (\exptype{C}{\ol{\tv{a}}}, \consSet \cup \bigcup_i \consSet_i) }\\
-                 & \text{where}\ \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \set{\ldots} \\
+                 & \consSet = \set{\overline{R} \lessdot \overline{T}}
+                   \cup \set{\overline{\tv{a}} \lessdot
+                   [\overline{\tv{a}}/\ol{X}]\ol{N}} 
+                   \qquad\text{where}\ \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \set{\ldots} \\
+                 \mathbf{in}& (\exptype{C}{\ol{\tv{a}}}, \consSet \cup \bigcup_i \consSet_i)
                \end{array}
   \end{array}
 \end{gather*}
 
-
-We do not generate constraints for casts.
-\todo[inline]{PJT 20220216: more precisely, we ignore the return type and pass on the constraints}
+For cast expressions, we ignore the return type and pass on the
+constraints for the subexpression. We return the target type of the cast.
 \begin{gather*}
   \begin{array}{@{}l@{}l}
     \typeExpr &(({\mtypeEnvironment} ; \overline{\fieldAssumption};
@@ -429,7 +428,7 @@ We do not generate constraints for casts.
                  \textbf{let} % \\
                  & (R, \consSet) = \typeExpr(({\mtypeEnvironment} ; \overline{\fieldAssumption};
                    \overline{\localVarAssumption}), \texttt{e})  \\
-                 \multicolumn{2}{l}{\mathbf{in}\ (\mv{N}, \consSet) }
+                 \mathbf{in} & (\mv{N}, \consSet)
                \end{array}
   \end{array}
 \end{gather*}
