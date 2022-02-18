@@ -56,9 +56,14 @@ simply assumes a suitable instantiation by some $\ol U$.
 
 Finally, \rulename{GT-CAST} replaces the three rules
 \rulename{GT-UCAST'}, \rulename{GT-DCAST'}, and \rulename{GT-SCAST'}
-of FGJ. The three original rules are exhaustive and cover disjoint use
-cases for the cast operation. This distinction is not needed for
-characterizing type inference. 
+of FGJ. This is a slight simplification with respect to FGJ. While
+the three original rules cover disjoint use cases (upcast, downcast,
+and stupid cast that is sure to fail) of the cast
+operation, they are not exhaustive! The rule \rulename{GT-DCAST'} only
+admits downcasts that work the same in a type-passing semantics as in
+a type erasure semantics. We elide this distinction for simplicity,
+though it could be handled by introducing constraints analogous to the
+\textit{dcast} function from FGJ. 
 
 % The input for our type inference algorithm is based on Featherweight Generic Java (FGJ).
 % FGJ is defined by syntax and typing rules.
