@@ -1,12 +1,12 @@
 
 \subsection{Unify proof}
 
-\begin{theoremAndi}
+\begin{theorem}
   \label{theo:unifySoundness}
   \textbf{(Soundness):}
   If the \unify{} algorithm finds a solution it does not contradict any of the input constraints:
   $\nexists (a \lessdot b) \in {Cons}_{in}$ where $\sigma(a) \nless : \sigma(b)$
-\end{theoremAndi}
+\end{theorem}
 
 \textit{Proof:}
 We show theorem \ref{theo:unifySoundness} by going backwards over every step of the algorithm.
@@ -115,11 +115,11 @@ No constraint is altered, deleted or modified during this step.
 \hfill $\square$
 
 
-\begin{theoremAndi}\label{theo:unifyCompleteness}
+\begin{theorem}\label{theo:unifyCompleteness}
   \textbf{(Completeness):} The \unify{} algorithm calculates a general unifier for the input set of constraints ($Cons_{in}$).
   A unifier $\sigma$ is a general unifier for $Cons_{in}$ if it unifies $Cons_{in}$
   and for every other unifier $\omega$ there is a substitution $\lambda$ so that $\omega(x) = \lambda(\sigma(x))$.
-\end{theoremAndi}
+\end{theorem}
 \textit{Proof:}
 %The \unify{} calculates multiple solutions.
 
@@ -266,9 +266,9 @@ then the result \unify{} contains the principal type solution.
 \hfill $\square$
 \end{description}
 
-\begin{theoremAndi}\label{theo:unifyTermination}
+\begin{theorem}\label{theo:unifyTermination}
   \textbf{(Termination):} The \unify{} algorithm terminates on every finite input set.
-\end{theoremAndi}
+\end{theorem}
 The \unify{} algorithm gets called with a set of input constraints.
 After resolving the \textbf{OrConstraints} we end up with multiple $Eq$ sets.
 Afterwards the algorithm iterates over each of those sets (see Chapter \ref{sec:unify}).

@@ -1,9 +1,9 @@
 
-\begin{theoremAndi}
+\begin{theorem}
   \label{theo:np-hardness}
   \textbf{(NP-Hard):}
   The type inference algorithm for typeless Featherweight Java is NP-hard.
-\end{theoremAndi}
+\end{theorem}
 
 \textit{Proof:} This section will show this by reducing the boolean satisfiability problem (SAT) to the \texttt{FJTYPE} algorithm.
 
@@ -54,11 +54,11 @@ Any SAT problem can be transferred in polynomial time to a typeless FJ program.
 This reduction of SAT to our type inference algorithm proofs that its complexity is atleast NP-Hard.
 \hfill $\square$
 
-\begin{theoremAndi}
+\begin{theorem}
   \label{theo:np-completeness}
   \textbf{(NP-Complete):}
   The type inference algorithm for typeless Featherweight Java is NP-Complete.
-\end{theoremAndi}
+\end{theorem}
 
 \textit{Proof:} We know the algorithm is NP-hard (see \ref{theo:np-completeness}).
 To proof NP-Completeness we have to show that it is possible to verify a solution in polynomial time.
