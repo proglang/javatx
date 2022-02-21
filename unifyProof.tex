@@ -5,14 +5,14 @@
   \label{theo:unifySoundness}
   \textbf{(Soundness):}
   If the \unify{} algorithm finds a solution it does not contradict any of the input constraints:
-  $\nexists (a \lessdot b) \in {Cons}_{in}$ where $\sigma(a) \nless : \sigma(b)$
+  $\nexists (a \lessdot b) \in \consSet_{in}$ where $\sigma(a) \nless : \sigma(b)$
 \end{theorem}
 
 \textit{Proof:}
 We show theorem \ref{theo:unifySoundness} by going backwards over every step of the algorithm.
 We assume there exists a unifier $\sigma = \set {a_1 \mapsto \theta_1, \ldots , a_n \mapsto \theta_n}$ for the input constraints,
 which is the result of the \unify{} algorithm.
-This means for every constraint in the input set $(a \lessdot b) \in {Cons}_{in}$ and $(c \doteq d) \in {Cons}_{in}$
+This means for every constraint in the input set $(a \lessdot b) \in \consSet_{in}$ and $(c \doteq d) \in \consSet_{in}$
 this unifier will substitute all variables in a way that all constraints are satisfied:
 $\sigma(a) \leq \sigma(b)$, $\sigma(c) = \sigma(d)$\\
 
@@ -107,17 +107,17 @@ which is correct under the \texttt{S-CLASS} rule.
 
 \item[OrConstraints]
 If $\sigma$ is a correct unifier for one of the constraint sets in $Eq_{set}$
-then it is also a correct unifier for the input set $Cons_{in}$.
+then it is also a correct unifier for the input set $\consSet_{in}$.
 When building the cartesian product of the \textbf{OrConstraints} every possible
-combination for $Cons_{in}$ is build.
+combination for $\consSet_{in}$ is build.
 No constraint is altered, deleted or modified during this step.
 \end{description}
 \hfill $\square$
 
 
 \begin{theorem}\label{theo:unifyCompleteness}
-  \textbf{(Completeness):} The \unify{} algorithm calculates a general unifier for the input set of constraints ($Cons_{in}$).
-  A unifier $\sigma$ is a general unifier for $Cons_{in}$ if it unifies $Cons_{in}$
+  \textbf{(Completeness):} The \unify{} algorithm calculates a general unifier for the input set of constraints ($\consSet_{in}$).
+  A unifier $\sigma$ is a general unifier for $\consSet_{in}$ if it unifies $\consSet_{in}$
   and for every other unifier $\omega$ there is a substitution $\lambda$ so that $\omega(x) = \lambda(\sigma(x))$.
 \end{theorem}
 \textit{Proof:}
@@ -260,7 +260,7 @@ Also we showed that after we reach step 5 only constraint sets with a correct un
 By removing all constraint sets which are not in solved form the algorithm does not
 remove a possible correct unifier.
 
-If we assume that there is a possible principal type solution $\sigma$ for the input set $Cons_{in}$
+If we assume that there is a possible principal type solution $\sigma$ for the input set $\consSet_{in}$
 and the \unify{} algorithm does not exclude any of the possible unifiers,
 then the result \unify{} contains the principal type solution.
 \hfill $\square$
