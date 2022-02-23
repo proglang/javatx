@@ -13,18 +13,6 @@ reads off a solution in the form of a substitution.
 %   An isolated type variable does only occur in constraints together with another isolated type variable.
 % \end{definition}
   
-\todo[inline]{20220223 PT: what about items (3) and (4)? are they correct}
-\begin{definition}[Solved form]\label{def:solved-form}
-  A set $C$ of constraints is in solved form if it only contains
-  constraints of the following form:
-  \begin{enumerate}
-  \item $\tv{a} \lessdot \tv{b}$ %, with $a$ and $b$ both isolated type variables
-  \item $\tv{a} \doteq \tv{b}$
-  \item $\tv{a} \lessdot \exptype{C}{\ol{X}}$, with $\tv{a} \notin \ol{X}$ %, with $a$ not appearing in any other constraints of type 2 or 3.
-  \item $\tv{a} \doteq \exptype{C}{\ol{X}}$, with $\tv{a} \notin \ol{X}$
-  \end{enumerate}
-\end{definition}  
-  
 \begin{description}
 \item[input] A set of type constraints $\consSet{in}$ %and a set of subtype relationships $S_\leq$
 \item[output] A set of type unifiers $Uni$
