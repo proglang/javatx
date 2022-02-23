@@ -94,14 +94,14 @@ Eq_{set}
   \item Filter all constraint sets which are in solved
   form:\\
 $Eq_{solved} = \set{ Eq \ | \ Eq \in Eq_{set}, Eq \ \text{is in solved form}}$
-%\item We apply the following rule to every constraint set in $Eq_{solved}$:
-%\begin{align*}
-%\ddfrac{
-%  Eq \cup \set{ \tv{a} \lessdot \tv{b} } %There are only Type variables left at this point
-%}{
-%  [\tv{a}/\tv{b}]Eq \cup \set{ \tv{a} \doteq \tv{b} }
-%}
-%\end{align*}
+\item We apply the following rule to every constraint set in $Eq_{solved}$:
+\begin{align*}
+\ddfrac{
+  Eq \cup \set{ \tv{a} \lessdot \tv{b} } %There are only Type variables left at this point
+}{
+  [\tv{a}/\tv{b}]Eq
+}
+\end{align*}
 %TODO: Do not return unifiers. return the simplified constraint set:
 \item Finally we generate the unifiers:
 \begin{align*}
