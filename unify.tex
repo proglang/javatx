@@ -33,7 +33,7 @@ $\tv{a} \lessdot \tv{c}, \ldots, \tv{m} \lessdot \tv{n}, \tv{n} \lessdot \tv{b}$
     \textrm
     A set of constraints $Eq$ has reached solved form if it contains only the following kind of constraints:
     \begin{enumerate}
-      \item $\tv{a} \lessdot \tv{b}$ %, with $a$ and $b$ both isolated type variables
+      %\item $\tv{a} \lessdot \tv{b}$ %, with $a$ and $b$ both isolated type variables
       \item $\tv{a} \doteq \tv{b}$
       \item $\tv{a} \lessdot \exptype{C}{\ol{\itype{T}}}$ %, with $a$ not appearing in any other constraints of type 2 or 3.
       \item $\tv{a} \doteq \exptype{C}{\ol{\itype{T}}}$, with $\tv{a} \notin \ol{\itype{T}}$
@@ -101,21 +101,27 @@ Eq_{set}
   \item Filter all constraint sets which are in solved
   form:\\
 $Eq_{solved} = \set{ Eq \ | \ Eq \in Eq_{set}, Eq \ \text{is in solved form}}$
-\item We apply the following rule to every constraint set in $Eq_{solved}$:
+%\item We apply the following rule to every constraint set in $Eq_{solved}$:
+%\begin{align*}
+%\ddfrac{
+%  Eq \cup \set{ \tv{a} \lessdot \tv{b} } %There are only Type variables left at this point
+%}{
+%  [\tv{a}/\tv{b}]Eq
+%}
+%\end{align*}
+%%TODO: Do not return unifiers. return the simplified constraint set:
+\item Finally we generate the unifiers and generic variable declarations:
 \begin{align*}
-\ddfrac{
-  Eq \cup \set{ \tv{a} \lessdot \tv{b} } %There are only Type variables left at this point
-}{
-  [\tv{a}/\tv{b}]Eq
-}
+  \set{ 
+    (\sigma = &
+    \set{\tv{a} \mapsto \type{N} \ | \ (\tv{a} \doteq \type{N}) \in Eq} \ \cup \ 
+    \set{\tv{a} \mapsto \type{A} \ | \ (\tv{a} \lessdot \type{N}) \in Eq }, \\
+   \unifyGenerics{} = &
+  \set{\type{A} \triangleleft \type{N} \ | \ (\tv{a} \lessdot \type{N}) \in Eq}) 
+   \ | \ Eq \in Eq_{set}  }
 \end{align*}
-%TODO: Do not return unifiers. return the simplified constraint set:
-\item Finally we generate the unifiers:
-\begin{align*}
-    \emph{Uni} = &
-   \set{\sigma \ | \ Eq \in Eq_{solved},\ \sigma = \set{\tv{a} \mapsto \type{N} \ | \ (\tv{a} \doteq \type{N}) \in Eq} } \ \cup \\
-   & \set{\sigma \ | \ Eq \in Eq_{solved},\ \sigma = \set{\tv{a} \mapsto (\type{X} \triangleleft \type{N}) \ | \ (\tv{a} \lessdot \type{N}) \in Eq} }
-\end{align*}
+The \unify{} algorithm returns all possible solutions.
+Each solution consists out of a pair of unifiers $\sigma$ and generic bounds \unifyGenerics{}.
 \end{enumerate}
 \end{enumerate}
 
