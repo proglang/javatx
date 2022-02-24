@@ -33,7 +33,7 @@ $\tv{a} \lessdot \tv{c}, \ldots, \tv{m} \lessdot \tv{n}, \tv{n} \lessdot \tv{b}$
     \textrm
     A set of constraints $Eq$ has reached solved form if it contains only the following kind of constraints:
     \begin{enumerate}
-      %\item $\tv{a} \lessdot \tv{b}$ %, with $a$ and $b$ both isolated type variables
+      \item $\tv{a} \lessdot \tv{b}$ %, with $a$ and $b$ both isolated type variables
       \item $\tv{a} \doteq \tv{b}$
       \item $\tv{a} \lessdot \exptype{C}{\ol{\itype{T}}}$ %, with $a$ not appearing in any other constraints of type 2 or 3.
       \item $\tv{a} \doteq \exptype{C}{\ol{\itype{T}}}$, with $\tv{a} \notin \ol{\itype{T}}$
@@ -101,20 +101,20 @@ Eq_{set}
   \item Filter all constraint sets which are in solved
   form:\\
 $Eq_{solved} = \set{ Eq \ | \ Eq \in Eq_{set}, Eq \ \text{is in solved form}}$
-%\item We apply the following rule to every constraint set in $Eq_{solved}$:
-%\begin{align*}
-%\ddfrac{
-%  Eq \cup \set{ \tv{a} \lessdot \tv{b} } %There are only Type variables left at this point
-%}{
-%  [\tv{a}/\tv{b}]Eq
-%}
-%\end{align*}
-%%TODO: Do not return unifiers. return the simplified constraint set:
+\item We apply the following rule to every constraint set in $Eq_{solved}$:
+\begin{align*}
+\ddfrac{
+  Eq \cup \set{ \tv{a} \lessdot \tv{b} } %There are only Type variables left at this point
+}{
+  [\tv{a}/\tv{b}]Eq \cup \set{ \tv{b} \doteq \tv{a} }
+}
+\end{align*}
+%TODO: Do not return unifiers. return the simplified constraint set:
 \item Finally we generate the unifiers and generic variable declarations:
 \begin{align*}
   \set{ 
     (\sigma = &
-    \set{\tv{a} \mapsto \type{N} \ | \ (\tv{a} \doteq \type{N}) \in Eq} \ \cup \ 
+    \set{\tv{a} \mapsto \type{N} \ | \ (\tv{a} \doteq \type{N}) \in Eq} \ \cup \  \set{\tv{b} \mapsto \type{A} \ | \ (\tv{b} \doteq \tv{a}) \in Eq} \ \cup \ 
     \set{\tv{a} \mapsto \type{A} \ | \ (\tv{a} \lessdot \type{N}) \in Eq }, \\
    \unifyGenerics{} = &
   \set{\type{A} \triangleleft \type{N} \ | \ (\tv{a} \lessdot \type{N}) \in Eq}) 
@@ -148,27 +148,27 @@ Each solution consists out of a pair of unifiers $\sigma$ and generic bounds \un
       \end{array}
       $
     \\\\
-    (adopt)
-    & $
-    \begin{array}[c]{ll}
-    \begin{array}[c]{l}
-       Eq \cup \, \set{\tv{a} \lessdot
-       \exptype{C}{\ol{X}},
-       \tv{b} \lessdot^* \tv{a}, \tv{b} \lessdot \exptype{D}{\ol{Y}}} \\ 
-      \hline
-      \vspace*{-0.4cm}\\
-      Eq \cup \set{
-        \tv{a} \lessdot
-       \exptype{C}{\ol{X}},
-       \tv{b} \lessdot^* \tv{a}
-      , \tv{b} \lessdot  \exptype{D}{\ol{Y}}
-      , \tv{b} \lessdot \exptype{C}{\ol{X}}
-       }
-    %Eq \cup \set{\theta_1 \doteq \lambda'_1 \ldo \theta_n \doteq \lambda'_n}
-    \end{array}
-    \end{array}
-    $
-  \\\\
+%    (adopt)
+%    & $
+%    \begin{array}[c]{ll}
+%    \begin{array}[c]{l}
+%       Eq \cup \, \set{\tv{a} \lessdot
+%       \exptype{C}{\ol{X}},
+%       \tv{b} \lessdot^* \tv{a}, \tv{b} \lessdot \exptype{D}{\ol{Y}}} \\ 
+%      \hline
+%      \vspace*{-0.4cm}\\
+%      Eq \cup \set{
+%        \tv{a} \lessdot
+%       \exptype{C}{\ol{X}},
+%       \tv{b} \lessdot^* \tv{a}
+%      , \tv{b} \lessdot  \exptype{D}{\ol{Y}}
+%      , \tv{b} \lessdot \exptype{C}{\ol{X}}
+%       }
+%    %Eq \cup \set{\theta_1 \doteq \lambda'_1 \ldo \theta_n \doteq \lambda'_n}
+%    \end{array}
+%    \end{array}
+%    $
+%  \\\\
       (adapt)
       & $
       \begin{array}[c]{ll}
