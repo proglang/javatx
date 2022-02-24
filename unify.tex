@@ -13,15 +13,14 @@ reads off a solution in the form of a substitution.
 %   An isolated type variable does only occur in constraints together with another isolated type variable.
 % \end{definition}
   
-\todo[inline]{20220223 PT: what about items (3) and (4)? are they correct}
 \begin{definition}[Solved form]\label{def:solved-form}
   A set $C$ of constraints is in solved form if it only contains
   constraints of the following form:
   \begin{enumerate}
   \item $\tv{a} \lessdot \tv{b}$ %, with $a$ and $b$ both isolated type variables
   \item $\tv{a} \doteq \tv{b}$
-  \item $\tv{a} \lessdot \exptype{C}{\ol{X}}$, with $\tv{a} \notin \ol{X}$ %, with $a$ not appearing in any other constraints of type 2 or 3.
-  \item $\tv{a} \doteq \exptype{C}{\ol{X}}$, with $\tv{a} \notin \ol{X}$
+  \item $\tv{a} \lessdot \exptype{C}{\ol{\itype{T}}}$ %, with $a$ not appearing in any other constraints of type 2 or 3.
+  \item $\tv{a} \doteq \exptype{C}{\ol{\itype{T}}}$, with $\tv{a} \notin \ol{\itype{T}}$
   \end{enumerate}
 \end{definition}  
   
@@ -45,16 +44,6 @@ $\tv{a} \lessdot \tv{c}, \ldots, \tv{m} \lessdot \tv{n}, \tv{n} \lessdot \tv{b}$
   An isolated type variable does only occur in constraints together with another isolated type variable.
   \end{definition}
   
-  \begin{definition}[Solved form]\label{def:solved-form}
-    \textrm
-    A set of constraints $Eq$ has reached solved form if it contains only the following kind of constraints:
-    \begin{enumerate}
-      \item $\tv{a} \lessdot \tv{b}$ %, with $a$ and $b$ both isolated type variables
-      \item $\tv{a} \doteq \tv{b}$
-      \item $\tv{a} \lessdot \exptype{C}{\ol{\itype{T}}}$ %, with $a$ not appearing in any other constraints of type 2 or 3.
-      \item $\tv{a} \doteq \exptype{C}{\ol{\itype{T}}}$, with $\tv{a} \notin \ol{\itype{T}}$
-    \end{enumerate}
-  \end{definition}  
 
 The unify algorithm first has to build the cartesian product of all the \textbf{OrConstraint}s and the remaining normal constraints:
 \begin{align*}
