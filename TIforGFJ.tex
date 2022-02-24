@@ -191,11 +191,12 @@ whole program and backtracks if that fails.
 \begin{figure}[tp]
   \begin{align*}
     % Type
-    \itype{T} &::= \tv{a} \mid \mv{T} && \text{type variable or type}\\
+    \itype{T}, \itype{U} &::= \tv{a} \mid \mv{T} && \text{type variable or type}\\
+    \itype{N} &::= \exptype{C}{\il{T}} && \text{class type with type variables} \\
     % Constraints
-    \simpleCons &::= \itype{T} \lessdot \itype{T} \mid \itype{T} \doteq \itype{T} && \text{simple constraint: subtype or equality}\\
+    \simpleCons &::= \itype{T} \lessdot \itype{U} \mid \itype{T} \doteq \itype{U} && \text{simple constraint: subtype or equality}\\
     \orCons{} &::= \set{\set{\overline{\simpleCons_1}}, \ldots, \set{\overline{\simpleCons_n}}} && \text{or-constraint}\\
-    \constraint &::= \simpleCons\mid \orCons && \text{constraint}\\
+    \constraint &::= \simpleCons \mid \orCons && \text{constraint}\\
     \consSet &::= \set{\constraints} && \text{constraint set}\\
     % Method assumptions:
     \methodAssumption &::= \exptype{C}{\ol X}.\texttt{m} : \exptype{}{\ol{Y}

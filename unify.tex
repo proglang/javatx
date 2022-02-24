@@ -13,16 +13,25 @@ reads off a solution in the form of a substitution.
 %   An isolated type variable does only occur in constraints together with another isolated type variable.
 % \end{definition}
 \begin{definition}[Solved form]\label{def:solved-form}
-    A set $C$ of constraints is in solved form if it only contains
-    constraints of  the following form:
-    \begin{enumerate}
-      %\item $\tv{a} \lessdot \tv{b}$ %, with $a$ and $b$ both isolated type variables
-      \item $\tv{a} \doteq \tv{b}$
-      \item $\tv{a} \lessdot \exptype{C}{\ol{\itype{T}}}$ %, with $a$ not appearing in any other constraints of type 2 or 3.
-      \item $\tv{a} \doteq \exptype{C}{\ol{\itype{T}}}$, with $\tv{a} \notin \ol{\itype{T}}$
-    \end{enumerate}
-  \end{definition}  
+  A set $C$ of constraints is in solved form if it only contains
+  constraints of  the following form:
+  \begin{enumerate}
+    % \item $\tv{a} \lessdot \tv{b}$ %, with $a$ and $b$ both isolated type variables
+  \item $\tv{a} \doteq \tv{b}$,
+  \item $\tv{a} \lessdot \exptype{C}{\ol{\itype{T}}}$, %, with $a$ not appearing in any other constraints of type 2 or 3.
+  \item $\tv{a} \doteq \exptype{C}{\ol{\itype{T}}}$, with $\tv{a} \notin \ol{\itype{T}}$.
+  \end{enumerate}
+\end{definition}  
+
+The first step of the algorithm eliminates or-constraints from constraint set $C$. To do so,
+we consider all combinations of selecting simple constraints from
+or-constraints in $C$. In general, we have that $C =
+\set{\overline{\simpleCons}, \orCons_1, \dots, \orCons_n}$ and we
+execute the remaining steps for all $C' = \set{\overline{\simpleCons}}
+\cup \set{\overline{\simpleCons}_1} \cup \dots \cup
+\set{\overline{\simpleCons}_n}$ where $\overline{\simpleCons}_i \in \orCons_i$. 
   
+\if0 
 \begin{description}
 \item[input] A set of type constraints $\consSet{in}$ %and a set of subtype relationships $S_\leq$
 \item[output] A set of type unifiers $Uni$
@@ -53,6 +62,7 @@ Afterwards the following steps are repeatedly executed on $Eq_{set}$ until the a
 %The resulting unifiers $\sigma$ from each $Eq$ merged together form the result of the \unify{} algorithm.
 
 %$\textbf{SubUnify} :: [Constraint] \to [Unifier]$
+\fi
 \begin{enumerate}
 \item Repeated application of the rules depicted in figure \ref{fig:fgjreduce-rules} and \ref{fig:fgjerase-rules},
 starting with the \texttt{equals} rule.
@@ -129,77 +139,80 @@ Each solution consists out of a pair of unifiers $\sigma$ and generic bounds \un
 \begin{center}
     \leavevmode
     \fbox{
-    \begin{tabular}[t]{ll}
+    \begin{tabular}[t]{l@{~}l}
       (match)
       & $
-      \begin{array}[c]{ll}
+      \begin{array}[c]{@{}ll}
       \begin{array}[c]{l}
-         Eq \cup \, \set{\tv{a} \lessdot
-         \exptype{C}{\ol{X}},
+         C \cup \, \set{\tv{a} \lessdot
+         \exptype{C}{\il{T}},
          \tv{a} \lessdot
-          \exptype{D}{\ol{Y}}} \\ 
+          \exptype{D}{\il{V}}} \\ 
         \hline
         \vspace*{-0.4cm}\\
-        Eq \cup \set{\tv{a} \lessdot \exptype{C}{\ol{X}}
-        , \exptype{C}{\ol{X}} \lessdot \exptype{D}{\ol{Y}}}
-      %Eq \cup \set{\theta_1 \doteq \lambda'_1 \ldo \theta_n \doteq \lambda'_n}
+        C \cup \set{\tv{a} \lessdot \exptype{C}{\il{T}}
+        , \exptype{C}{\il{T}} \lessdot \exptype{D}{\il{V}}}
+      %C \cup \set{\theta_1 \doteq \lambda'_1 \ldo \theta_n \doteq \lambda'_n}
       \end{array}
-      & \exptype{C}{\ol{Z}} <: \exptype{D}{\ol{N}} 
+      & %\exists\ol{X},\ol{N}.\ 
+        \emptyset \vdash \exptype{C}{\ol{X}} <: \exptype{D}{\ol{N}} 
       \end{array}
       $
     \\\\
     (adopt)
     & $
-    \begin{array}[c]{ll}
+    \begin{array}[c]{@{}ll}
     \begin{array}[c]{l}
-       Eq \cup \, \set{\tv{a} \lessdot
-       \exptype{C}{\ol{X}},
-       \tv{b} \lessdot^* \tv{a}, \tv{b} \lessdot \exptype{D}{\ol{Y}}} \\ 
+       C \cup \, \set{\tv{a} \lessdot
+       \exptype{C}{\il{T}},
+       \tv{b} \lessdot^* \tv{a}, \tv{b} \lessdot \exptype{D}{\il{U}}} \\ 
       \hline
       \vspace*{-0.4cm}\\
-      Eq \cup \set{
+      C \cup \set{
         \tv{a} \lessdot
-       \exptype{C}{\ol{X}},
+       \exptype{C}{\il{T}},
        \tv{b} \lessdot^* \tv{a}
-      , \tv{b} \lessdot  \exptype{D}{\ol{Y}}
-      , \tv{b} \lessdot \exptype{C}{\ol{X}}
+      , \tv{b} \lessdot  \exptype{D}{\il{U}}
+      , \tv{b} \lessdot \exptype{C}{\il{T}}
        }
-    %Eq \cup \set{\theta_1 \doteq \lambda'_1 \ldo \theta_n \doteq \lambda'_n}
+    %C \cup \set{\theta_1 \doteq \lambda'_1 \ldo \theta_n \doteq \lambda'_n}
     \end{array}
     \end{array}
     $
   \\\\
       (adapt)
       & $
-      \begin{array}[c]{ll}
+      \begin{array}[c]{@{}ll}
       \begin{array}[c]{l}
-         Eq \cup \, \set{\exptype{C}{\ol{A}} \lessdot
-          \exptype{D}{\ol{B}}} \\ 
+         C \cup \, \set{\exptype{C}{\il{T}} \lessdot
+          \exptype{D}{\il{U}}} \\ 
         \hline
         \vspace*{-0.4cm}\\
-        Eq \cup \set{\exptype{D}{[ \ol{A} / \ol{X} ]\ol{Y}}
-        \doteq \exptype{D}{\ol{B}}}
-      %Eq \cup \set{\theta_1 \doteq \lambda'_1 \ldo \theta_n \doteq \lambda'_n}
+        C \cup \set{\exptype{D}{[ \il{T} / \ol{X} ]\ol{N}}
+        \doteq \exptype{D}{\il{U}}}
+      %C \cup \set{\theta_1 \doteq \lambda'_1 \ldo \theta_n \doteq \lambda'_n}
       \end{array}
-      & \exptype{C}{\ol{X}} <:\ \exptype{D}{\ol{Y}}
+        & %\exists\ol{X},\ol{N}.\
+          \emptyset \vdash \exptype{C}{\ol{X}} <: \exptype{D}{\ol{N}} 
+        % \exptype{C}{\ol{X}} <:\ \exptype{D}{\ol{Y}}
       \end{array}
       $
     \\\\
 (reduce) & $
 \begin{array}[c]{l}
-  Eq \cup \set{\exptype{D}{\ol{A}} \doteq
-    \exptype{D}{\ol{B}}}\\
+  C \cup \set{\exptype{D}{\il{T}} \doteq
+    \exptype{D}{\il{U}}}\\
   \hline
-  Eq \cup \set{\ol{A} \doteq \ol{B}}
+  C \cup \set{\il{T} \doteq \il{U}}
 \end{array}
       $ \\\\
 (equals) & $
 \begin{array}[c]{l}
-  Eq \cup \set{\tv{a} \lessdot
-  \tv{b}, \tv{b} \lessdot \tv{c}, \ldots, \tv{m} \lessdot \tv{n}, \tv{n} \lessdot \tv{a}}\\
+  C \cup \set{\tv{a}_1 \lessdot
+  \tv{a}_2, \tv{a}_2 \lessdot \tv{a}_3, \dots, \tv{a}_n \lessdot \tv{a}_1}\\
   \hline
-  Eq \cup \set{\tv{a} \doteq \tv{b}, \tv{a} \doteq \tv{c}, \ldots}
-\end{array}
+  C \cup \set{\tv{a}_1 \doteq \tv{a}_2, \tv{a}_2 \doteq \tv{a}_3, \dots}
+\end{array} \quad n>0
       $ \\\\
     \end{tabular}}
   \end{center}
@@ -208,39 +221,37 @@ Each solution consists out of a pair of unifiers $\sigma$ and generic bounds \un
 
 
 \begin{figure}
-\begin{align*}
-&\begin{tabular}[t]{ll}
+\begin{center}
+\fbox{\begin{tabular}[t]{ll}
       (erase1)  & $ 
-      \begin{array}[c]{ll}
+      \begin{array}[c]{@{}ll}
         \begin{array}[c]{l}
-          Eq \cup \set{\type{C} \lessdot \type{D}}\\
+          C \cup \set{\exptype{C}{\il{T}} \lessdot \exptype{D}{\il{U}}}\\
           \hline
-          Eq
+          C
         \end{array}
-        & \type{C} <: \type{D}
-      \end{array}$\\
-          \end{tabular}\\
-&\begin{tabular}[t]{ll}
+        & \exptype{C}{\il{T}} <: \exptype{D}{\il{U}}
+      \end{array}$
+  \\
       (erase2)  & $ 
-      \begin{array}[c]{ll}
+      \begin{array}[c]{@{}ll}
         \begin{array}[c]{l}
-          Eq \cup \set{\tv{a} \doteq \tv{a}}\\
+          C \cup \set{\tv{a} \doteq \tv{a}}\\
           \hline
-          Eq
+          C
         \end{array}
-      \end{array}$\\
-          \end{tabular}\\
-    &      \begin{tabular}[t]{ll}
+      \end{array}$
+  \\
        (swap) & $
-            \begin{array}[c]{ll}
+            \begin{array}[c]{@{}ll}
               \begin{array}[c]{l}
-                Eq \cup \set{\type{C} \doteq \tv{a}}\\
+                C \cup \set{\itype{N} \doteq \tv{a}}\\
                 \hline
-                Eq \cup \set{\tv{a} \doteq \type{C}}
+                C \cup \set{\tv{a} \doteq \itype{N}}
               \end{array}
             \end{array}$
-          \end{tabular}
-\end{align*}
+          \end{tabular}}
+        \end{center}
 \caption{Erase and swap rules}\label{fig:fgjerase-rules}
 \end{figure}
 
