@@ -384,7 +384,21 @@ We see that with each iteration over the steps 1-3 at least one type variable is
 Due to the fact that there is never added a fresh type variable during the \unify{} algorithm,
 the algorithm will terminate for any given finite set of constraints. \hfill $\square$
 
+\begin{theorem}
+  \label{theo:unifyTypeSolution}
+  %TODO
+  %Here we can do some assumptions over the type solution, needed to insert the type solution
+\end{theorem}
+
 \section{Elimination Matrix}
+What is needed to set in types correctly
+
+We can remove all $a \lessdot b$ constraints, because there are no circles.
+
+No $a \lessdot b$ constraints.
+Only one $a \lessdot N$ constraint.
+
+
 \begin{table}[]
   \begin{tabular}{lllll}
   Constraints    & Step 2 & Reduce rule & Adapt rule & swap rule \\

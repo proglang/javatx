@@ -102,16 +102,27 @@ This section presents our type inference algorithm.
 The algorithm is split into several parts, which are executed on a single class at a time:
 
 \begin{enumerate}
-\item Create assumptions and subtype relation
-\item Constraint generation % with \textbf{FJTYPE}
-\item Constraint solving % Unification of those constraints
-\item Substitute \commentarymargintext{principal type}{gibt es nicht mehr} solution
+\item Constraint generation with \fjtype{}
+\item Constraint solving with \unify{}
+\item \fjtypeInsert{}
 \end{enumerate}
 
-The solver returns a set of all possible type solutions.
-This set inherits the principal type solution.
-The last step simplifies the calculated solutions and only inserts the principal typing.
+%This set inherits the principal type solution.
+%The last step simplifies the calculated solutions and only inserts the principal typing.
 %The last step chooses the principal type out of those possibilities.
+
+The solver \unify{} returns a set of all possible type solutions for the currently processed class.
+We generate the $\mv{\Pi}$ environment used in the next iteration of the \fjtype{} algorithm as follows:
+\begin{align*}
+  \fjtypeInsert{}(\overline{\methodAssumption}, (\sigma, \unifyGenerics{}) = \begin{array}{l}
+    \set{(\exptype{C}{\ol{X}}.\mv{m} : \exptype{}{\unifyGenerics{}}\ \ol{\sigma(\tv{a})} \to \sigma(\tv{a})) \ |\ (\exptype{C}{\ol{X}}.\mv{m} : \ol{\tv{a}} \to \tv{a}) \in \overline{\methodAssumption}}
+  \end{array} 
+\end{align*}
+Here $\overline{\methodAssumption}$ are the newly generated method assumptions of the \fjtype{} function.
+$(\sigma, \unifyGenerics{})$ is one of the solutions returned by \unify{}.
+We try out one solution at a time.
+It is possible that subsequent classes resolve some of the solutions as incorrect.
+We solve this problem by backtracking and trying out every possible solution one by one if needed.
 
 \subsection{Type inference for a program }
 \label{sec:proc-mult-class}
@@ -262,6 +273,8 @@ variables for the argument and result types.
                                  m}) \mid \mv{m} \in \ol{M},
                                  \textit{mtype} (\mv m, \mv N,
                                  \mv\Pi) \text{ not defined}, \ol{\tv{a}}\ \text{fresh} } \\
+                               & \consSet_m = \set{ \set{\tv{a}_{\mv m} \lessdot \type{Object}, \, \ol{\tv{a}} \lessdot \ol{\type{Object}}}
+                                \ |\ (\exptype{C}{\ol{X}}.\mv{m} : \ol{\tv{a}} \to \tv{a}_{\mv m}) \in \ol{\methodAssumption}'} \\
                                & \Pi = \mv{\Pi} \cup
                                  \ol{\methodAssumption}' \cup
                                  \ol{\methodAssumption}_o \\
@@ -269,7 +282,7 @@ variables for the argument and result types.
                                % \typeAssumptions \cup m_{override}
                   \textbf{in} 
                                & { ( \Pi, 
-                                 \consSet_o \cup
+                                 \consSet_o \cup \consSet_m \cup
                                  \bigcup_{\texttt{m} \in \ol{M}}
                                  \typeMethod( (\Pi;
                                  \ol{\fieldAssumption}), \exptype{C}{\ol{X}},  \mathtt{m}))
@@ -433,7 +446,6 @@ constraints for the subexpression. We return the target type of the cast.
   \end{array}
 \end{gather*}
 
-
 \subsubsection{Completeness of the type inference algorithm}
 \todo[inline]{The following theorem talks about soundness of type inference and it lacks a formal
   statement! Before it can be stated, we need to say what is a solution of a constraint. Moreover,
@@ -470,7 +482,10 @@ then $\sigma(\mtypeEnvironment); \sigma(\triangle) ; \sigma(\Gamma) \vdash $
 Every type variable $\tv{a}$ in $\mv{\Pi}$ is replaced by $\sigma(\tv{a})$.
 We show soundness by a case analysis over the type rules given by \TFGJ using theorem \label{theo:unifySoundness}.
 
+
 \begin{description}
+  \item[Well-formed types] We assume all types given in the input class $\texttt{L}$ to be well-formed.
+  Only types added by the algorithm have to be checked for well-formedness.
   \item[GT-CLASS]
   $\ol{P}\ \texttt{ok}$
 \end{description}
@@ -572,7 +587,7 @@ The constraint $\type{R} \lessdot \exptype{C}{\ol{X}}$ assures that the type of 
 \end{tabularx}
 \end{small}
 
-\textit{Note}: The \typeExpr function only generates constraints which apply to our assumption.
+\textit{Note}: The \typeExpr{} function only generates constraints which apply to our assumption.
 \item[Method invocation (\texttt{GT-L-INVK})]
 The \texttt{GT-INVK} rule is for local method calls.
 The called method does not have a type yet and comes with type variables for the return and parameter types.
@@ -616,409 +631,6 @@ So every possible type of cast is allowed in \TFGJ, therefore no restrictions in
 \input{unify}
 
 \input{unifyProof}
-
-\section{Insert intersection type}
-\label{sec:insert-inters-type}
-Flatten the constraints returned from \unify{}:
-\begin{align*}
-  \ddfrac{
-    Uni \cup \set{ a \lessdot b}
-  }{
-    [b/a]Uni
-  }
-  \quad \texttt{flatten}
-\end{align*}
-We remove $a \lessdot b$ constraints. They cannot be used in method types.
-
-Determine generics for method:\\
-$\begin{array}{l}
-  \textbf{genericinsert}(Uni , \ol{\tv{a}}) = 
-  \set{ \type{A} \triangleleft \type{Object}\ |\ (\tv{a} \lessdot N) \notin Uni', (\tv{a} \doteq N) \notin Uni',\ \tv{a} \in \ol{\tv{a}}}  \cup \\
-  \set{ \set{A \triangleleft \exptype{C}{\ol{X}}} \cup \textbf{genericinsert}(Uni, \set{\tv{x} \ |\ \tv{x} \in \ol{X}, \tv{x}\ \text{is type variable}}) \ |\ (a \lessdot \exptype{C}{\ol{X}}) \in Uni',\ a \in \ol{\tv{a}}}\\
-  \end{array}$
-
-Generate unifiers: \\
-  $\begin{array}{l}
-    \textbf{TypeSubstitutions}(Uni , \ol{\tv{a}}) = \\
-    \set{ \sigma(\tv{a}) = \type{A}\ |\ (\tv{x} \doteq N) \notin Uni,\ \tv{a} \in \ol{\tv{a}}}
-    \cup \set{ \sigma(\tv{a}) = N \ |\ (\tv{x} \doteq N) \in Uni,\ \tv{x} \in \ol{\tv{a}}}
- \end{array}$
-
-Equip method assumption with types: \\
-$\begin{array}{l}
-  \textbf{typeInsert}(\type{N}.\texttt{m} : \ol{\tv{a}} \to \tv{a}, \sigma) = \\
-  \textbf{let}\ \sigma = \textbf{TypeSubstitutions}(Uni, \set{\tv{a}} \cup \ol{\tv{a}})\\
-  \quad \ol{X} = \textbf{genericinsert}(Uni, \set{\tv{a}} \cup \ol{\tv{a}})\\
-  \textbf{in}\ \type{N}.\texttt{m} : \exptype{}{\ol{X}}\ \sigma(\ol{\type{T}}) \to \sigma(\type{T})
-\end{array}$
-
-$\begin{array}{l}
-  \textbf{typeInsert} : \ol{\methodAssumption} \times Uni \to \ol{\methodAssumption}\\
-  \textbf{typeInsert} (\ol{\methodAssumption}, Uni) = \set{ \textbf{typeInsert}(\methodAssumption, Uni) \ |\ \methodAssumption \in \ol{\methodAssumption}}
-\end{array}$
-
-The outcome of the \unify{} algorithm is a set of type solutions $Uni_{set}$.
-The following function sets in all type solutions by generating overloaded methods:
-
-
-The \unify{} algorithm can return multiple solutions.
-It is possible that subsequent classes resolve some of the solutions as incorrect.
-We solve this problem by backtracking and trying out every possible solution one by one if needed.
-
-We generate the $\mv{\Pi}$ environment used in the next iteration of the \fjtype{} algorithm as follows:
-
-
-$\begin{array}{c}
-\mv{\Pi}' = \mv{\Pi} \cup \set{ \exptype{C}{\ol{X}}.\texttt{m} \mapsto \exptype{}{\ol{Y} \triangleleft \ol{P}}\ \ol{T} \to \type{T}
- \ |\ \exptype{C}{\ol{X}}.\texttt{m} \mapsto \overline{\itype{T}} \to \itype{T} \in \overline{\methodAssumption} } \\
-\text{with}\ \ol{Y} = \textbf{TODO}%TODO: What is needed here? Maybe start with the proof first
-\end{array}$
-
-\textbf{Proof:}
-Theorem: Every solution of the \unify{} algorithm is correct (Soundness)
-% A solution of a constraint is in solved form. Does not contradict any of the constraints generated by \fjtype{}
-
-\begin{description}
-\item[Input] is a class with methods of the form%$\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ol{M}\}$
-$\mathtt{A\ m(\ol{A}\ \ol{p})\ldots}$, where $\mathtt{A}$ and $\mathtt{\ol{A}}$ are type variables.
-And the set of possible type unifiers $Uni_{set}$.
-\item[Output] is a type FJ class, where each method has the form
-$\mathtt{\exptype{}{\ol{X} \triangleleft \ol{N}}\ T\ m(\ol{T}\ \ol{p})\ldots}$
-\end{description}
-
-
-For every $Uni \in Uni_{set}$ and every method \texttt{m} in the input class we apply the following steps:
-
-\begin{enumerate}
-\item In the first step we apply the \texttt{flatten} rule to remove all $a \lessdot b$ constraints. by setting them to $a \doteq b$ and substituting $[a/b]Uni$.
-\begin{align*}
-  \ddfrac{
-    Uni \cup \set{ a \lessdot b}
-  }{
-    [b/a]Uni \cup \set{ a \doteq b }
-  }
-  \quad \texttt{flatten}
-\end{align*}
-\item 
-Afterwards we determine which constraints belong to each method.
-At this point, the method is still untyped and has type variables as return and parameter types.
-After the type-insert step every type variable should either be replaced by a generic type variable or a regular type.
-
-First we look for constraints of the form $a \lessdot N$, where $a \in T$ or $a \in \ol{T}$.
-These constraints will be converted to the generic type variables of the method.
-The whole set of generic type variable declarations $G_{tvs}$ consists out of:
-\begin{itemize}
-\item All the type variables, which are used by the method type, but do not have a bound given by the result set $Uni$,
-will be assigned \texttt{Object} as bound:\\
-$\set{A \triangleleft \texttt{Object} \ |\ (a \lessdot N) \notin Uni', (a \doteq N) \notin Uni',\ a \in T \cup \ol{T}}$
-\item All type variables, which get another type variable assigned have to be declared also:
-$\set{B \triangleleft \texttt{Object} \ |\ (a \doteq b) \in Uni', a \in T \cup \ol{T}}$
-\item Additionally all type variables of the method, which are given a direct bound by a constraint in $Uni$: \\
-$\set{A \triangleleft \exptype{C}{\ol{X}} \ |\ (a \lessdot \exptype{C}{\ol{x}}) \in Uni',\ a \in T \cup \ol{T}}$
-\item At last we have to add a bound of every type variable added in the last two steps:\\
-$G_{tvs} = \set{A \triangleleft \texttt{Object} \ |\ a \in G_{tvs},\ (a \lessdot N) \notin Uni'}$ and \\
-$G_{tvs} = \set{A \triangleleft \exptype{C}{\ol{X}}  \ |\ a \in G_{tvs},\ (a \lessdot \exptype{C}{\ol{x}} ) \in Uni'}$
-\end{itemize}
-\item With the resulting $G_{tvs}$ we can finally create the typed method:
-\begin{align*}
-\mathtt{\exptype{}{G_{tvs}}\ \sigma(T)\ m(\sigma(\ol{T})\ \ol{p}))\{ \ldots \}}
-\end{align*}
-\textbf{Hint:}
-$\sigma$ is given as:
-\begin{align*}
-\sigma(a) &= 
-\begin{cases}
-  \texttt{N}       & \quad \text{if } (a \doteq \texttt{N}) \in Uni \\
-  \texttt{B}       & \quad \text{if } (a \doteq b) \in Uni \\
-  \texttt{A}       & \quad \text{else}
-\end{cases}
-\end{align*}
-\end{enumerate}
-
-\subsection{Filter principal type}
-We want to filter out the most principal type out of all the type solutions for a method.
-If there exist two method typings:
-$\exptype{}{\triangle_1}\ T_1\ m(\ol{T_1}\ p)\{ \ldots \} \in M$\\
-$\exptype{}{\triangle_2}\ T_2\ m(\ol{T_2}\ p)\{ \ldots \} \in M$
-
-with $\triangle \vdash \triangle_1(T_1) <: \triangle_2(T_2)$
-and $\triangle \vdash \triangle_2(\ol{T_2}) <: \triangle_1(\ol{T_1})$
-then remove the typing 
-$\exptype{}{\triangle_2}\ T_2\ m(\ol{T_2}\ p)\{ \ldots \}$
-
-We introduce a subtyping rule for overloaded methods:
-\begin{align*}
-\ddfrac{
-  \begin{array}{c}\mathtt{
-  \triangle_1 = \triangle, \ol{X} \triangleleft \ol{N}, \ol{Y} \triangleleft \ol{M} \quad \quad
-  \triangle_2 = \triangle, \ol{X} \triangleleft \ol{N}, \ol{Z} \triangleleft \ol{P}
-  }\\
-  \mathtt{
-  \triangle \vdash \triangle_1(T_1) <: \triangle_2(T_2) \quad \quad
-  \triangle \vdash \triangle_2(\ol{T_2}) <: \triangle_1(\ol{T_1})
-  }\\
-  %\mathtt{\ol{\triangle}(T_1) \leq \ol{\triangle}(T_2) \quad \quad \ol{\triangle}(\ol{T_1}) \leq \ol{\triangle}(\ol{T_2})}
-  \mathtt{T_1 \trianglelefteq T_2 \quad \quad \ol{T_1} \trianglelefteq \ol{T_2}}
-  \end{array}
-  }{
-    \mathtt{
-  \exptype{}{\ol{Y} \triangleleft \ol{P}}\ T_1\ m(\ol{T_1}\ p)\{ \texttt{return}\ e; \} <: \exptype{}{\ol{Y} \triangleleft \ol{Q}}\ T_2\ m(\ol{T_2}\ p)\{ \texttt{return}\ e; \}
-  \ \texttt{IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}
-  }
-}
-\end{align*}
-%Notes: Parameter type is always the super type. Generic variables don't matter
-
-
-We have to define our own typing rules for generic type variables:
-\begin{align*}
-\ddfrac{\mathtt{
-  T \triangleleft N \in \triangle \quad \quad U \triangleleft M \in \triangle \quad \quad 
-  N <: M
-  }
-}{\mathtt{\triangle \vdash T \trianglelefteq U}}
-\end{align*}
-\begin{align*}
-\ddfrac{\mathtt{
-  \triangle \vdash Z <: U
-  }
-}{\mathtt{\triangle \vdash T \trianglelefteq U}}
-\end{align*}
-
-\emph{A type-scheme for a declaration is a \emph{principal type-scheme}, if any
-    other type-scheme for the 
-declaration is a generic instance of it.}\cite{DM82}
-
-When setting in the type solution generated by the \unify{} algorithm,
-overloaded method can arise.
-Overloaded methods always have the same method body and only differ in their typing.
-In the last step of the type inference algorithm we want to filter out obsolete method typings.
-We want to keep the method with the most principal type.
-
-In the following example we only keep the method
-\texttt{Overload m(Object a)}.
-It has the most specific return type and the most general parameter type.
-\begin{lstlisting}
-class Overload extends Object {
- Object m(Overload a){
-   return ...;
- }
- Overload m(Object a){
-  return ...;
- }
- Object m(Object a){
-  return ...;
- }
-}
-\end{lstlisting}
-
-Type rules for parameter types:
-\begin{align*}
-  \ddfrac{\mathtt{    
-    \texttt{class}\ \exptype{C}{\ol{A}}\ \texttt{extends}\ \exptype{D}{\ol{N}}
-    }
-  }{\mathtt{\triangle \vdash \exptype{C}{\ol{X}} \trianglelefteq \exptype{D}{\ol{Y}}}}
-\end{align*}
-
-%Frage an Martin: Ist das hier in FJ möglich?
-% class C<A extends Object> {
-%   m(C<Object> x){ return this.m(this);} 
-%}
-
-%TODO:
-% Man muss noch dinge wie
-% <A extends Object> A m(A o)
-% Object m(Object o)
-% filtern. Hier kann man sagen, wenn es eine generische Instanz ist, dann kann es weg
-
-
-\subsection{Simplification}
-\emph{As another example, the type of a function which uses its argument as an int but never terminates,
-$\texttt{int} \to \alpha$, can be simplified to $\texttt{int} \to \bot$}
-\cite{10.1145/3409006}
-\textbf{Example:}
-\begin{lstlisting}
-<B extends Object, C extends Object> B a1(C x) {
-  return this.a2(x);
-}
-<C extends Object, B extends Object> B a2(C y) {
-  return this.a1(y);
-}
-\end{lstlisting}
-
-\subsection{Example}
-
-\begin{lstlisting}
-class OverloadedMethods extends Object {
-  <A extends Object> A m1(Object b)... 
-  <B extends Object> Object m1(B b)...
-
-  <A extends String> Object m(A a)... //<- obsolete
-                     Object m(Object a)... //<- principal type
-
-
-  <B extends List<Object>> Object m3(B b)...
-  <A, B extends List<A>>   Object m3(B b)...
-
-  //List<A> !<: List<Object>
-  <A extends String> List<A> m4()
-                List<Object> m4() 
-
-  //List<A> !<: List<Object>
-  <A extends Object> List<A> m4()
-                List<Object> m4() // this should be deleted 
-  // if the return type is a subtype or a generic instantiation -> it is obsolete
-
-  <A extends String> _ m5(List<A> a)
-                     _ m5(List<Object> b)
-
-  // ArrayList<A> <: List<A>
-  <A extends String> _ m5(List<A> a)
-  <A extends String> _ m5(ArrayList<A> b) // this is obsolete
-
-  <A, B extends List<A>> _ m5(B a)
-  <A extends String> _ m5(ArrayList<A> b) // this is obsolete
-
-  <A, B extends List<A>> _ m5(Map<A,B> a) // this is obsolete
-  <A extends Object> _ m5(Map<A,A> b) 
-                                      
-  // here it doesn't matter which method to keep
-  <A extends Object> _ m5(A a)
-                     _ m5(Object b)
-
-  //List<A> <: ArrayList<A>
-  <A extends Object> List<A> m2(ArrayList<A> b)...
-  <A extends Object> ArrayList<A> m2(List<Object> b)...
-
-  <A extends Object> A mImpossible() ...
-}
-\end{lstlisting}
-
-
-
-
-\subsection{Proof}
-\begin{theorem}
-  If a \TFGJ program is correct under its typing rules,
-  then the same program is also correct under Featherweight Generic Java's typing rules.
-  %If there is a valid type annotation for a \TFGJ program
-\end{theorem}
-\textbf{Proof:}
-We show this by comparing every \TFGJ type rule with the corresponding type rule from FGJ.
-Most of the type rules stay the same.
-The differnce lies in the \texttt{GT-METHOD}, \texttt{GT-CLASS}
-and the \texttt{GT-INVK} rules.
-
-\TFGJ allows the same method to have multiple types.
-This is not real overloading, because the method body always stays the same.
-
-When having two types for a method \texttt{m} this method would not be type correct under FGJ typing rules.
-\begin{align*}
-  \mathtt{
-  \exptype{}{\ol{Y} \triangleleft \ol{P}} \ T\ \texttt{m}(\ol{T}\ \ol{x})\set{\ldots} } \\
-  \mathtt{
-    \exptype{}{\ol{Z} \triangleleft \ol{Q}} \ U\ \texttt{m}(\ol{U}\ \ol{x})\set{\ldots}
-  }
-\end{align*}
-It is still possible to transform this program into a valid FGJ program.
-
-At first we split every overloaded method into multiple methods with only one type.
-
-\begin{small}
-\begin{tabularx}{\textwidth}{cXcXc}
-  $\begin{array}{rl}
-    \textit{mtype}(m, N) = \set{ & \exptype{}{\ol{X_1}\triangleleft \ol{P_1}} \ol{T_1} \to T_1  \\
-    & , \ldots , \\
-    & \exptype{}{\ol{X_n}\triangleleft \ol{P_n}} \ol{T_n} \to T_n}
-  \end{array}
-  $ & & $\implies$ & & $\begin{array}{l}
-    \textit{mtype}(m1, N) = \set{  \exptype{}{\ol{X_1}\triangleleft \ol{P_1}} \ol{T_1} \to T_1}\\
-    \ldots \\
-    \textit{mtype}(mN, N) = \set{  \exptype{}{\ol{X_n}\triangleleft \ol{P_n}} \ol{T_n} \to T_n}\\
-  \end{array}$
-\end{tabularx}
-\end{small}
-
-Every type solution computed by \unify{} is a correct solution.
-%TODO Link to the Lemma proofing this
-We can generate a new set of methods from every type solution and then merge those together.
-This will result in a correct FGJ program.
-
-FGJ \texttt{GT-METHOD}
-\begin{align*}
-\ddfrac{
-  \begin{array}{c}
-    \mathtt{\triangle = \ol{X} <: \ol{N}, \ol{Y} <: \ol{P} \quad \quad \triangle \vdash \ol{T}, T, \ol{P}\ \texttt{ok}}\\
-    \mathtt{\triangle; \ol{x}:\ol{T}, \texttt{this}: \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad \triangle \vdash S <: T} \\
-    \mathtt{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \set{\ldots} \quad \quad \textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{T} \to T)}
-  \end{array}
-}{
-  \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T\ \texttt{m}(\ol{T}\ \ol{x})\set{\ \texttt{return}\ e_0;\ } \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
-}
-\end{align*}
-
-%Proof that we insert the principle type:
-Only constraints of the form $a \lessdot \texttt{N}$ can be inserted as generic variables infront of a method.
-After the \unify{} algorithm the following constraints remain.
-\begin{itemize}
-  \item $a \lessdot b$, this is removed by replacing every $b$ with $a$ in the result set
-  \item $a \lessdot N$, this is used as generic type variables
-  \item $a \doteq N$
-  \item $a \doteq b$
-\end{itemize}
-
-At first remove the $a \lessdot b$ constraints with the \texttt{flatten} rule.
-\begin{align*}
-  \ddfrac{
-    Eq \cup \set{ a \lessdot b}
-  }{
-    [b/a]Eq \cup \set{ a \doteq b }
-  }
-  \quad \text{flatten}
-\end{align*}
-
-
-The \unify{} algorithm returns a set of unifiers ${Uni}$.
-Each element of that set is a correct solution.
-The unifiers $\sigma$ map type placeholders to types.
-When generating the intersection types for the methods we have to make sure that the
-type placeholders for the return type as well as for the parameter types get replaced by the same unifier $\sigma$.
-It can happen that two unifiers $\sigma_1$ and $\sigma_2$ lead to the same method type ($\sigma_1(A) = \sigma_2(A), \sigma_1(\ol A) = \sigma_2(\ol A)$).
-The set of all the distinct combinations then builds the intersection type for the method.
-
-\textbf{Example:}
-\begin{lstlisting}
-class Global{
-  method1(a){
-    a.add(this);
-    return a.get();
-  }
-}
-class List<A> {
-  add(A item){...}
-  A get() ...
-}
-\end{lstlisting}
-
-The method \texttt{method1} would get the type $\set{ \exptype{List}{Object} \to \texttt{Object}
-\ || \ \exptype{List}{Global} \to \texttt{Global}}$.
-If FGJ would support overloaded methods this could be written as:
-\begin{lstlisting}
-class Global{
-  Object method1(List<Object> a){
-    a.add(this);
-    return a.get();
-  }
-  String method1(List<Global> a){
-    a.add(this);
-    return a.get();
-  }
-}
-class List<A> {
-  add(A item){...}
-  A get() ...
-}
-\end{lstlisting}
 
 \section{Complexity}
 \label{sec:complexity}
