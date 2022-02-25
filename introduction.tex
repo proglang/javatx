@@ -11,7 +11,7 @@ has been around since 1995 and progressed through 16 versions.
 
 Swarms of programmers have taken their first steps in Java. Many more
 have been introduced to object-oriented programming through Java, as
-it is among the first mainsteam languages supporting
+it is among the first mainstream languages supporting
 object-orientation. Java is a class-based language with static single inheritance among
 classes, hence it has nominal types with a specified subtyping
 hierarchy. Besides classes there are interfaces to characterize common 
@@ -183,8 +183,8 @@ applies to FGJ programs that specify the full class header and all field types,
 but omit all method signatures. 
 Given this input, our algorithm
 infers a set of most general method signatures (parameter types and return types).
-Inferred types are generic as much as possible, but do not include
-bounds.
+Inferred types are generic as much as possible, \commentarymargintext{but do not include
+bounds.}{Das ja wohl nicht mehr aktuell}
 
 The inferred signatures have the following round-trip property
 (relative completeness). If we
@@ -202,12 +202,30 @@ general than the types in the original FGJ program.
 \subsection{Contributions}
 \label{sec:contributions}
 
-\begin{itemize}
+\commentary{\begin{itemize}
 \item Algorithm for global type inference for FGJ. This algorithm is
   sound and relatively complete for programs without polymorphic recursion.
 \item Global type inference for FGJ is NP complete.
 \item Implementation of global type inference for (full?) Java.
-\end{itemize}
+\end{itemize}}
+Our contributions in this paper are an algorithm for global type inference for
+FGJ. Therefore we redraft the typing rules of FGJ such that the programs without
+type annotations could be correct and in this case polymorphic recursion is
+excluded. We prove soundness and completeness of the algorithm about the rules.
+
+The type inference algorithm is reduced to a constraint solving type unification
+algorithm. We improved our type unification algorithm such that constraints
+of the form $a \lessdot ty$, where $a$ is type variable and $ty$ is is a
+non-type variable type,
+are not resolved rather converted to bounded type parameters \texttt{a extends
+  ty}. This implicates an enormes reduction of solutions of the type
+unification algorithm without restricting the generality of typings of
+FGJ-programs.
+
+We show that Global type inference for FGJ is NP complete.
+
+Finally we have done an implementation of  global type inference for  a reduced
+set of full Java.
 
 
 %%% Local Variables:

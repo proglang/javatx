@@ -1,0 +1,15 @@
+We reduced the global type inference algorithm to a type unification algorithm
+which resolves the generated constraints. The type unification algorithm is not
+unitary but finitary. This means that the algorithm terminates but in general
+there is more than one solution. The multiplicity of solutions are induced
+either by overloading and on the over hand by constraints of the form $a
+\lessdot ty$ and $ty \lessdot a$ where $a$ is a type variable und $ty$ is a non
+type variable type. In this paper we improved the type unification algorithm
+such that constraints of the form $a \lessdot ty$ are not longer resolved but
+transferred to bounded type parameters \texttt{a extends ty}. This reduced the
+number of solutions enormously, without restricting the generality of the typing
+of the FGJ programs. Unfortunately constraints of the form $ty \lessdot a$ have
+to resolved as Java allows no lower bounds of type parameters. If we would
+transfer our type inference algorithm to Scala then the solution of these
+constraints could be disclaimed as Scala allows lower bounds of type
+parameters. This would speed-up our type inference algorithm.
