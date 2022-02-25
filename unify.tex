@@ -18,10 +18,16 @@ reads off a solution in the form of a substitution.
   \begin{enumerate}
   \item $\tv{a} \lessdot \tv{b}$ %, with $a$ and $b$ both isolated type variables
   \item $\tv{a} \doteq \tv{b}$,
-  \item $\tv{a} \lessdot \exptype{C}{\ol{\itype{T}}}$, %, with $a$ not appearing in any other constraints of type 2 or 3.
-  \item $\tv{a} \doteq \exptype{C}{\ol{\itype{T}}}$, with $\tv{a} \notin \ol{\itype{T}}$.
+  \item\label{item:1} $\tv{a} \lessdot \exptype{C}{\ol{\itype{T}}}$, 
+  \item\label{item:2} $\tv{a} \doteq \exptype{C}{\ol{\itype{T}}}$, with $\tv{a} \notin \ol{\itype{T}}$.
   \end{enumerate}
+  In case~\ref{item:1} and~\ref{item:2} the type variable $\tv{a}$ does not appear on the left of another constraint of the
+  form~\ref{item:1} or~\ref{item:2}.
 \end{definition}  
+
+For brevity, we write $\tv{a}_0 \lessdot^* \tv{a}_n$ for a non-empty chain of subtyping constraints between type variables $\tv{a}_0 \lessdot
+\tv{a}_1, \tv{a}_1 \lessdot \tv{a}_2, \dots, \tv{a}_{n-1} \lessdot \tv{a}_n$ where $n>0$.
+
 
 The first step of the algorithm eliminates or-constraints from constraint set $C$. To do so,
 we consider all combinations of selecting simple constraints from
@@ -41,9 +47,6 @@ or fail $Uni = \emptyset$.
 
 \textit{Hints:}
 \begin{itemize}
-\item The $\lessdot^*$ used in this chapter means,
-that $\tv{a} \lessdot^* \tv{b}$ can either be a single constraint $\tv{a} \lessdot b$ or a transitive series of constraints
-$\tv{a} \lessdot \tv{c}, \ldots, \tv{m} \lessdot \tv{n}, \tv{n} \lessdot \tv{b}$.
 %\item $[\tv{a}/\tv{b}]T$ means replacing all type variables $\tv{b}$ with $\tv{a}$ in the type $\itype{T}$.
 %\item The function $\textbf{fresh}(i)$ returns an array of $i$ fresh type variables.
 \end{itemize}
@@ -63,6 +66,94 @@ Afterwards the following steps are repeatedly executed on $Eq_{set}$ until the a
 
 %$\textbf{SubUnify} :: [Constraint] \to [Unifier]$
 \fi
+
+\textbf{Step 1.} We apply the rules in Figures~\ref{fig:fgjreduce-rules}
+and~\ref{fig:fgjerase-rules} exhaustively to $C'$.
+
+\textbf{Step 2.} At this point, all
+constraints $ \simpleCons \in C'$ are either in solved form or one of the following
+cases applies:
+\begin{enumerate}
+\item $\set{\exptype{C}{\il{T}} \lessdot \exptype{D}{\il{U}}}
+  \subseteq C'$ where $\forall\ol{X},\ol{N}\colon \emptyset \not\vdash \exptype{C}{\ol{X}} <:
+  \exptype{D}{\ol{N}}$ (roughly, $\mv C$ cannot be a subtype of $\mv D$) --- in this case $C'$ has no solution;
+\item $\set{\tv{a} \lessdot \exptype{C}{\il{T}}, \tv{a} \lessdot
+    \exptype{D}{\il{V}}} \subseteq C'$ where
+  $\forall\ol{X},\ol{N}\colon \emptyset \not\vdash \exptype{C}{\ol{X}} <:
+  \exptype{D}{\ol{N}} $ and $\forall\ol{X},\ol{N}\colon \emptyset \not\vdash \exptype{D}{\ol{X}} <:
+  \exptype{C}{\ol{N}}$ (roughly, $\mv C$ and $\mv D$ are not
+  subtype-related) --- in this case $C'$ has no solution; or
+\item $\set{\exptype{C}{\il{T}} \lessdot \tv{b}} \subseteq C'$.
+\end{enumerate}
+The last case is a lower bound constraint which is embraced by Scala,
+but which is not legal in FGJ (nor in Java). As we insist on inferring
+a type, we have to find a concrete instance for
+$\exptype{C}{\il{T}}$. To do so, we generate an or-constraint from
+each lower bound constraint and its corresponding upper bound constraint (using upper bound \mv{Object} if no such constraint exists) as follows:
+\begin{align*}
+  \expandLB (\exptype{C}{\il{T}} \lessdot \tv{b}, \tv{b} \lessdot \exptype{D}{\il{U}})
+  & = \set{ \set{ \tv{b} \doteq [\overline{\itype{T}}/\ol{X}]\type{N} } \mid
+    \emptyset \vdash \exptype{C}{\overline{\type{X}}} <: \type{N},
+    \emptyset \vdash \type{N} <:  \exptype{D}{\overline{P}}}
+  \\ \text{where }&\ol{P}\text{ is determined by }\emptyset \vdash \exptype{C}{\overline{\type{X}}} <: \exptype{D}{\ol{P}} \text{ and
+  } [\itype{T}/\ol{X}]\ol{P} = \il{U}
+\end{align*}
+This constraint replaces the lower and upper bound constraint from which it was generated.
+
+A lower bound may also be implied by a constraint set with constraints of the form
+$C_{ab} = \tv{a} \lessdot \exptype{C}{\il{T}}, \tv{a} \lessdot^* \tv{b}$. In this case, $\exptype{C}{\il{T}} $ can serve as a lower bound for
+$\tv{b}$. We implement it by $\expandLB$, which replaces the upper bound constraint for $\tv{b}$, while $C_{ab}$ remains in the constraint
+set.
+
+Now we are in a similar situation as before. Our current constraint set $C'$ is a mix of simple constraints and or-constraints and, again, we
+consider all (simple) constraint sets $C''$ that arise as combinations of selecting simple constraints from $C'$.
+
+\textbf{Step 3.} We apply the rule (subst) exhaustively to $C''$:
+\begin{gather*}
+  \begin{array}[c]{lll}
+    \text{(subst)} &
+                     \begin{array}[c]{l}
+                       C \cup \set{\tv{a} \doteq \itype{T}}\\
+                       \hline
+                       [\itype{T}/\tv{a}]C \cup \set{\tv{a} \doteq \itype{T}}
+                     \end{array}
+                   & \tv{a} \text{ occurs in } C \text{ but not in } \itype{T}
+  \end{array}
+\end{gather*}
+We fail if we find any $\tv{a} \doteq \itype{T}$ such that $\tv{a}$ occurs in $\itype{T}$.
+
+\textbf{Step 4.} If $C''$ has changed from applying (subst), we continue with $C''$ from step~1.
+
+\textbf{Step 5.} Otherwise, $C''$ is in solved form and it remains to eliminate subtyping constraints between variables by exhaustive application of rule
+(sub-elim) and (erase) (see Figure~\ref{fig:fgjerase-rules}). Applying this rule does not affect the solve form property.
+\begin{gather*}
+  \begin{array}[c]{lll}
+    \text{(sub-elim)} &
+                     \begin{array}[c]{l}
+                       C \cup \set{\tv{a} \lessdot \tv{b}}\\
+                       \hline
+                       [\tv{a}/\tv{b}]C \cup \set{\tv{b} \doteq \tv{a}}
+                     \end{array}
+  \end{array}
+\end{gather*}
+\textbf{Step 6.} We finish by generating a solving substitution from the remaining $\doteq$-constraints
+and generic variable declarations from the remaining $\lessdot$-constraints. Let $C'' = C_{\doteq} \cup C_{\lessdot}$ such that $C_{\doteq}$
+contains only $\doteq$-constraints and $C_{\lessdot}$ contains only $\lessdot$-constraints. Now $C_{\lessdot} = \set{ \il{\tv{a}} \lessdot
+  \il{N}}$ and choose some fresh generic variables $\ol{Y}$ of the same length as $\il{\tv{a}}$. We can read off the substitution $\sigma$
+from $C_{\doteq}$ where we need to substitute the generic variables for the type variables. We obtain the generic variable declarations
+directly from $C_{\lessdot}$ using the same generic variable substitution. We need not apply $\sigma$ here because
+we applied (subst) exhaustively in Step~3.
+\begin{align*}
+  \sigma &=
+           \set{\tv{b} \mapsto [\ol{Y}/\ol{a}]\itype{T} \mid (\tv{b} \doteq \itype{T}) \in C_{\doteq}} \ \cup \ 
+           \set{\il{\tv{a}} \mapsto \ol{Y} }, \\
+  \unifyGenerics{} & =
+                     \set{\type{Y} \triangleleft [\ol{Y}/\ol{a}]\itype{N} \mid (\tv{a} \lessdot \itype{N}) \in C_{\lessdot}}
+\end{align*}
+We return the pair $(\sigma, \gamma)$.
+
+\todo[inline]{PT: checkpoint}
+
 \begin{enumerate}
 \item Repeated application of the rules depicted in figure \ref{fig:fgjreduce-rules} and \ref{fig:fgjerase-rules},
 starting with the \texttt{equals} rule.
@@ -223,17 +314,17 @@ Each solution consists out of a pair of unifiers $\sigma$ and generic bounds \un
 \begin{figure}
 \begin{center}
 \fbox{\begin{tabular}[t]{ll}
-      (erase1)  & $ 
-      \begin{array}[c]{@{}ll}
-        \begin{array}[c]{l}
-          C \cup \set{\exptype{C}{\il{T}} \lessdot \exptype{D}{\il{U}}}\\
-          \hline
-          C
-        \end{array}
-        & \exptype{C}{\il{T}} <: \exptype{D}{\il{U}}
-      \end{array}$
-  \\
-      (erase2)  & $ 
+  %     (erase1)  & $ 
+  %     \begin{array}[c]{@{}ll}
+  %       \begin{array}[c]{l}
+  %         C \cup \set{\exptype{C}{\il{T}} \lessdot \exptype{D}{\il{U}}}\\
+  %         \hline
+  %         C
+  %       \end{array}
+  %       & \exptype{C}{\il{T}} <: \exptype{D}{\il{U}}
+  %     \end{array}$
+  % \\
+      (erase)  & $ 
       \begin{array}[c]{@{}ll}
         \begin{array}[c]{l}
           C \cup \set{\tv{a} \doteq \tv{a}}\\
