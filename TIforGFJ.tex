@@ -107,6 +107,19 @@ The algorithm is split into several parts, which are executed on a single class 
 \item \fjtypeInsert{}
 \end{enumerate}
 
+$\textbf{FJTypeInference} : \mv{\Pi} \times \texttt{L} \to \mv{\Pi}$\\
+$\begin{array}{l}
+\textbf{FJTypeInference}(\mv{\Pi}, \texttt{L}) = \\
+\quad \quad \begin{array}[t]{rl}
+  \textbf{let}\ 
+  (\mtypeEnvironment, \consSet) &= \fjtype{}(\mv{\Pi}, \ol{\fieldAssumption}, \texttt{L})\\
+  {Uni} &= \unify{}(\consSet)\\
+  (\sigma, \unifyGenerics{}) &= \text{choose a solution from}\ {Uni}\\
+  %TODO: Describe whole algorithm (Insert types, try out every unify solution by backtracking (describe it as Non Deterministic algorithm))
+\end{array}\\
+\textbf{in}\ \fjtypeInsert(\mv{\Pi}, (\sigma, \unifyGenerics{}) )
+\end{array}$
+
 %This set inherits the principal type solution.
 %The last step simplifies the calculated solutions and only inserts the principal typing.
 %The last step chooses the principal type out of those possibilities.
