@@ -112,7 +112,7 @@ $\begin{array}{l}
 \textbf{FJTypeInference}(\mv{\Pi}, \texttt{L}) = \\
 \quad \quad \begin{array}[t]{rl}
   \textbf{let}\ 
-  (\mtypeEnvironment, \consSet) &= \fjtype{}(\mv{\Pi}, \ol{\fieldAssumption}, \texttt{L})\\
+  (\mtypeEnvironment, \consSet) &= \fjtype{}(\mv{\Pi}, \texttt{L})\\
   {Uni} &= \unify{}(\consSet)\\
   (\sigma, \unifyGenerics{}) &= \text{choose a solution from}\ {Uni}\\
   %TODO: Describe whole algorithm (Insert types, try out every unify solution by backtracking (describe it as Non Deterministic algorithm))
@@ -216,12 +216,11 @@ whole program and backtracks if that fails.
                         \triangleleft \ol{P}}\ \ol{\itype{T}} \to \itype{T}  &&
                                                                 \text{method
                                                                 type assumption}\\
-    \fieldAssumption &::= \exptype{C}{\ol X}.\texttt{f} : \type{T} && \text{field type assumption}\\
     \localVarAssumption &::= \texttt{x} : \itype{T} && \text{parameter
                                                        assumption}\\
     \mtypeEnvironment & ::= \mv\Pi \cup \overline{\methodAssumption} &
                 & \text{method type environment} \\
-    \typeAssumptionsSymbol &::= ({\mtypeEnvironment} ; \overline{\fieldAssumption}; \overline{\localVarAssumption}) 
+    \typeAssumptionsSymbol &::= ({\mtypeEnvironment} ; \overline{\localVarAssumption}) 
   \end{align*}
   \caption{Syntax of constraints and type assumptions}
   \label{fig:syntax-constraints}
@@ -259,8 +258,7 @@ constraints $\consSet$, which can hold simple constraints as well as or-constrai
 Figure~\ref{fig:constraints-for-classes} contains the algorithm
 {\fjtype} to generate constraints for classes. Its input
 consists of the method type environment $\mv\Pi$ of the previously
-checked classes and their field type assumptions
-$\ol{\fieldAssumption{}}$. It distinguishes between overriding and
+checked classes. It distinguishes between overriding and
 non-overriding method definitions. The former are recognized by
 successful lookup of their type using \textit{mtype}. We set up the
 method type assumptions accordingly and generate a constraint between
@@ -273,7 +271,7 @@ variables for the argument and result types.
   \begin{gather*}
     % \fjtype : \typeAssumptionsSymbol \times \texttt{L} \rightarrow \ol{\constraint}\\
     \begin{array}{@{}l@{}l}
-      \fjtype & ({(\mv{\Pi} ; \overline{\fieldAssumption})}, \mathtt{class } \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \ \mathtt{ extends } \ \mathtt{N \{ \overline{T} \ \overline{f}; \, K \, \overline{M} \}}) =\\
+      \fjtype & ({\mv{\Pi}}, \mathtt{class } \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \ \mathtt{ extends } \ \mathtt{N \{ \overline{T} \ \overline{f}; \, K \, \overline{M} \}}) =\\
               & \begin{array}{ll@{}l}
                   \textbf{let} & \overline{\tv{a}}_{\mv m} \text{ be fresh type variables
                                  for each }\mv{m}\in\ol{M} \\
@@ -298,8 +296,7 @@ variables for the argument and result types.
                                & { ( \Pi, 
                                  \consSet_o \cup \consSet_m \cup
                                  \bigcup_{\texttt{m} \in \ol{M}}
-                                 \typeMethod( (\Pi;
-                                 \ol{\fieldAssumption}), \exptype{C}{\ol{X}},  \mathtt{m}))
+                                 \typeMethod(\Pi, \exptype{C}{\ol{X}},  \mathtt{m}))
                                  } 
                 \end{array}
     \end{array}
@@ -332,13 +329,12 @@ environment.  Otherwise, we backtrack to check the next candidate.
 \begin{gather*}
 %%%%%   \typeMethod: \typeAssumptionsSymbol \times \texttt{M} \rightarrow \ol{\constraint}\\
 \begin{array}{@{}l@{}l@{}l}
-  \typeMethod & (\ensuremath{(\mv{\Pi} ; \overline{\fieldAssumption})}, \exptype{C}{\ol{X}},\ &\  \mathtt{m}(\ol{x})\{ \mathtt{ return }\ \texttt{e}; \}) =\\
+  \typeMethod & (\ensuremath{\mv{\Pi} }, \exptype{C}{\ol{X}},\ &\  \mathtt{m}(\ol{x})\{ \mathtt{ return }\ \texttt{e}; \}) =\\
               & \textbf{let} & \exptype{}{\ol{Y} \triangleleft \ol{P}}\ \overline{T} \to T  = \mv{\Pi} (\exptype{C}{\ol{X}}.\mv{m})
   \\
               & %\textbf{let}
                                                                                               & ({R}, \consSet) =
-                                                                                                \typeExpr((\mv\Pi ;
-                                                                                                \overline{\fieldAssumption}; \set{\mv{this} :
+                                                                                                \typeExpr(\mv\Pi ; \set{\mv{this} :
                                                                                                 \exptype{C}{\ol{X}} } \cup \set{ \ol{x} : \overline{{T}} }), \texttt{e})\\
               & \mathbf{in}
                                                                                               & \consSet \cup \set{{R} \lessdot {T}}\\
@@ -360,7 +356,7 @@ $\typeExpr: \typeAssumptionsSymbol \times
 \texttt{Expression} \rightarrow {T} \times \consSet
 $
 \begin{gather*}
-  \typeExpr (({\mtypeEnvironment} ; \overline{\fieldAssumption};
+  \typeExpr (({\mtypeEnvironment} ; 
   \overline{\localVarAssumption}), \mathtt{x}) =
   (\overline{\localVarAssumption} (\mv x) , \emptyset)
 \end{gather*}
@@ -371,21 +367,22 @@ alternatives: the type $R$ of the expression $\mv e$ must be a subtype of a gene
 of $\mv C$ and the return type must be the corresponding field type. 
 \begin{gather*}
   \begin{array}{@{}l@{}l}
-    \typeExpr{} &(({\mtypeEnvironment} ; \overline{\fieldAssumption};
+    \typeExpr{} &(({\mtypeEnvironment} ;
                   \overline{\localVarAssumption}), \texttt{e}.\texttt{f}) = \\
                 & \begin{array}{ll}
                     \textbf{let} 
-                    & ({R}, \consSet_R) = \typeExpr(({\mtypeEnvironment} ; \overline{\fieldAssumption};
+                    & ({R}, \consSet_R) = \typeExpr(({\mtypeEnvironment} ;
                       \overline{\localVarAssumption}), \texttt{e})\\
                     & \tv{a} \text{ fresh} \\
-                    & \constraint = \orCons\set{
-                      \set{
+                    & \constraint = \begin{array}[t]{@{}l@{}l}
+                      \orCons\set{
+                      \set{ &
                       {R} \lessdot \exptype{C}{\ol{\tv{a}}} , \tv{a} \doteq
-                      [\overline{\tv{a}}/\ol{X}]\type{T}
+                      [\overline{\tv{a}}/\ol{X}]\type{T} , \ol{\tv{a}} \lessdot [\overline{\tv{a}}/\ol{X}]\ol{N}
                       \mid \overline{\tv{a}} \text{ fresh}
-                      }
-                      \mid \exptype{C}{\ol{X}}.\mv{f} : \mv{T} \in \ol{\fieldAssumption}
-                      }\\
+                      } \\
+                      & \quad \mid \mv{T}\ \mv{f} \in \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \set{ \ol{T}\ \ol{f}; \ldots}
+                      }\end{array}\\
                     {\mathbf{in}} & {
                     (\tv{a}, (\consSet_R \cup \set{\constraint}))}
                   \end{array} 
@@ -402,12 +399,12 @@ accordingly.
 
 \noindent
 $\begin{array}{@{}l@{}l}
-\typeExpr{} & (({\mtypeEnvironment} ; \overline{\fieldAssumption};
+\typeExpr{} & (({\mtypeEnvironment} ;
   \overline{\localVarAssumption}), \texttt{e}.\mathtt{m}(\overline{\texttt{e}}) ) = \\
 & \begin{array}{ll}
-\textbf{let}& ({R}, \consSet_R) = \typeExpr(({\mtypeEnvironment} ; \overline{\fieldAssumption};
+\textbf{let}& ({R}, \consSet_R) = \typeExpr(({\mtypeEnvironment} ;
   \overline{\localVarAssumption}), \texttt{e})\\
-& \forall \texttt{e}_i \in \ol{e} : (R_i, \consSet_i) = \typeExpr(({\mtypeEnvironment} ; \overline{\fieldAssumption};
+& \forall \texttt{e}_i \in \ol{e} : (R_i, \consSet_i) = \typeExpr(({\mtypeEnvironment} ;
   \overline{\localVarAssumption}), \texttt{e}_i)  \\
                     & \tv{a} \text{ fresh} \\
 & \begin{array}{@{}l@{}l}
@@ -428,11 +425,11 @@ T$ of the fields, impose subtyping constraints on the constructor
 argument $\overline R$, and check the subtyping  constraints of the class.
 \begin{gather*}
   \begin{array}{@{}l@{}l}
-    \typeExpr &(({\mtypeEnvironment} ; \overline{\fieldAssumption};
+    \typeExpr &(({\mtypeEnvironment} ; 
                 \overline{\localVarAssumption}), \mathtt{new }\ \texttt{C}(\ol{e}) ) = \\
               &\begin{array}{ll}
                  \textbf{let} % \\
-                 & \forall \texttt{e}_i \in \overline{\texttt{e}} : (R_i, \consSet_i) = \typeExpr(({\mtypeEnvironment} ; \overline{\fieldAssumption};
+                 & \forall \texttt{e}_i \in \overline{\texttt{e}} : (R_i, \consSet_i) = \typeExpr(({\mtypeEnvironment} ;
                    \overline{\localVarAssumption}), \texttt{e}_i)  \\
                  & \overline{\tv{a}} \text{ fresh} \\
                  & \textit{fields} (\exptype{C}{\overline{\tv{a}}}) = \overline{T}\ \ol{f} \\
@@ -449,11 +446,11 @@ For cast expressions, we ignore the return type and pass on the
 constraints for the subexpression. We return the target type of the cast.
 \begin{gather*}
   \begin{array}{@{}l@{}l}
-    \typeExpr &(({\mtypeEnvironment} ; \overline{\fieldAssumption};
+    \typeExpr &(({\mtypeEnvironment} ;
                 \overline{\localVarAssumption}), (\texttt{N})\mv{e} ) = \\
               &\begin{array}{ll}
                  \textbf{let} % \\
-                 & (R, \consSet) = \typeExpr(({\mtypeEnvironment} ; \overline{\fieldAssumption};
+                 & (R, \consSet) = \typeExpr(({\mtypeEnvironment} ;
                    \overline{\localVarAssumption}), \texttt{e})  \\
                  \mathbf{in} & (\mv{N}, \consSet)
                \end{array}
@@ -490,7 +487,10 @@ then $\sigma(\mtypeEnvironment); \sigma(\triangle) ; \sigma(\Gamma) \vdash $
 \textbf{Proof:}
 
 \begin{theorem}\textbf{Soundness:}
-  If $\fjtype{}(\mv{\Pi},\texttt{L}) = \mv{\Pi}'$, then there exists a $\mv{\Pi}''$ with $\mv{\Pi} \vdash \texttt{L} : \mv{\Pi}''$
+  $\textbf{FJTypeInference}(\mv{\Pi},\texttt{L}) = \mv{\Pi}'$ implies $\mv{\Pi} \vdash \texttt{L} : \mv{\Pi}'$
+\end{theorem}
+\begin{theorem}\textbf{Completeness:}
+  $\textbf{FJTypeInference}(\mv{\Pi},\texttt{L}) = \mv{\Pi}'$ implies $\mv{\Pi} \vdash \texttt{L} : \mv{\Pi}'$
 \end{theorem}
 \textbf{Proof:}
 Every type variable $\tv{a}$ in $\mv{\Pi}$ is replaced by $\sigma(\tv{a})$.
