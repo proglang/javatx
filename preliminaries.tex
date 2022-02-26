@@ -113,7 +113,7 @@ completion, that is, a well-typed FGJ program with the same structure.
   are defined analogously.
 \end{definition}
 \begin{theorem}
-  Suppose that $\mathtt{\vdash \ol L : \Pi}$ such that $|\mathtt{\Pi (\exptype{C}{\ol{X}}.m)}| = 1$, for all $\mv{C.m}$ defined in $\ol L$. Then there is a completion $\ol{L}'$ of $\ol L$ such that
+  Suppose that $\mathtt{\vdash \ol L : \Pi}$ such that $|\mathtt{\Pi (\exptype{C}{\ol{X} \triangleleft \ol{N}}.m)}| = 1$, for all $\mv{C.m}$ defined in $\ol L$. Then there is a completion $\ol{L}'$ of $\ol L$ such that
   $\ol{L}'\ \mathtt{OK}$ is derivable in FGJ. 
 \end{theorem}
 \begin{proof}
@@ -125,7 +125,7 @@ completion, that is, a well-typed FGJ program with the same structure.
     L$.
 
     We assume that all classes before $\mv{L}$ are completed according to the incoming $\mathtt{\Pi}$:
-    If $\mathtt{\Pi (\exptype{D}{\ol{X}}.n)} = \mathtt{\exptype{}{\ol{Y} \triangleleft  \ol{P}}
+    If $\mathtt{\Pi (\exptype{D}{\ol{X} \triangleleft \ol{N}}.n)} = \mathtt{\exptype{}{\ol{Y} \triangleleft  \ol{P}}
       \ol{T} \to T}$, then $\mathtt{\exptype{}{\ol{Y} \triangleleft  \ol{P}}\ T\ \mv{n}(\ol{T}\
       \ol{x}) \dots}$ is in the completion of $\mv{D}$.
 
@@ -136,8 +136,8 @@ completion, that is, a well-typed FGJ program with the same structure.
     Inversion of \rulename{GT-CLASS} yields
     \begin{gather}
       \label{eq:3}
-      \mathtt{\Pi' = \Pi \cup \set{\exptype{C}{\ol{X}}.m \mapsto \exptype{}{} \ol{T_m} \to T_m \mid m \in \ol{M}} } \\
-      \mathtt{\Pi'' = \Pi \cup \set{\exptype{C}{\ol{X}}.m \mapsto
+      \mathtt{\Pi' = \Pi \cup \set{\exptype{C}{\ol{X} \triangleleft \ol{N}}.m \mapsto \exptype{}{} \ol{T_m} \to T_m \mid m \in \ol{M}} } \\
+      \mathtt{\Pi'' = \Pi \cup \set{\exptype{C}{\ol{X} \triangleleft \ol{N}}.m \mapsto
           \exptype{}{\ol{Y} \triangleleft  \ol{P}} \ol{T_m} \to T_m \mid m \in \ol{M}} } \\
       \label{eq:5}
       \mathtt{\Pi', \Delta \vdash \ol{M} \ \texttt{OK IN}\

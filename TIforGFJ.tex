@@ -128,7 +128,7 @@ The solver \unify{} returns a set of all possible type solutions for the current
 We generate the $\mv{\Pi}$ environment used in the next iteration of the \fjtype{} algorithm as follows:
 \begin{align*}
   \fjtypeInsert{}(\overline{\methodAssumption}, (\sigma, \unifyGenerics{}) = \begin{array}{l}
-    \set{(\exptype{C}{\ol{X}}.\mv{m} : \exptype{}{\unifyGenerics{}}\ \ol{\sigma(\tv{a})} \to \sigma(\tv{a})) \ |\ (\exptype{C}{\ol{X}}.\mv{m} : \ol{\tv{a}} \to \tv{a}) \in \overline{\methodAssumption}}
+    \set{(\exptype{C}{\ol{X} \triangleleft \ol{N}}.\mv{m} : \exptype{}{\unifyGenerics{}}\ \ol{\sigma(\tv{a})} \to \sigma(\tv{a})) \ |\ (\exptype{C}{\ol{X} \triangleleft \ol{N}}.\mv{m} : \ol{\tv{a}} \to \tv{a}) \in \overline{\methodAssumption}}
   \end{array} 
 \end{align*}
 Here $\overline{\methodAssumption}$ are the newly generated method assumptions of the \fjtype{} function.
@@ -212,7 +212,7 @@ whole program and backtracks if that fails.
     \constraint &::= \simpleCons \mid \orCons && \text{constraint}\\
     \consSet &::= \set{\constraints} && \text{constraint set}\\
     % Method assumptions:
-    \methodAssumption &::= \exptype{C}{\ol X}.\texttt{m} : \exptype{}{\ol{Y}
+    \methodAssumption &::= \exptype{C}{\ol{X} \triangleleft \ol{N}}.\texttt{m} : \exptype{}{\ol{Y}
                         \triangleleft \ol{P}}\ \ol{\itype{T}} \to \itype{T}  &&
                                                                 \text{method
                                                                 type assumption}\\
@@ -275,18 +275,18 @@ variables for the argument and result types.
               & \begin{array}{ll@{}l}
                   \textbf{let} & \overline{\tv{a}}_{\mv m} \text{ be fresh type variables
                                  for each }\mv{m}\in\ol{M} \\
-                               & \ol{\methodAssumption}_o = \set{\exptype{C}{\ol{X}}.\mv{m} :
+                               & \ol{\methodAssumption}_o = \set{\exptype{C}{\ol{X} \triangleleft \ol{N}}.\mv{m} :
                                  \exptype{}{\ol{Y} \triangleleft \ol{P}}\ \ol{T} \to \tv{a}_{\mv m} \mid \mv{m} \in \ol{M},
                                  \textit{mtype}(\mv{m}, \type{N}, \mv\Pi) = \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{\type{T}} \to \type{T}}\\
                                & \consSet_o = \set{\tv{a}_{\mv m} \lessdot \type{T} \ |\ \texttt{m} \in \ol{M}, 
                                  \textit{mtype}(\mv{m}, \mv{N}, \mv\Pi) = \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{\type{T}} \to \type{T}}\\
                                & \ol{\methodAssumption}' = 
-                                 \set{ (\exptype{C}{\ol{X}}.\mv{m} : \ol{\tv{a}} \to \tv{a}_{\mv
+                                 \set{ (\exptype{C}{\ol{X} \triangleleft \ol{N}}.\mv{m} : \ol{\tv{a}} \to \tv{a}_{\mv
                                  m}) \mid \mv{m} \in \ol{M},
                                  \textit{mtype} (\mv m, \mv N,
                                  \mv\Pi) \text{ not defined}, \ol{\tv{a}}\ \text{fresh} } \\
                                & \consSet_m = \set{ \set{\tv{a}_{\mv m} \lessdot \type{Object}, \, \ol{\tv{a}} \lessdot \ol{\type{Object}}}
-                                \ |\ (\exptype{C}{\ol{X}}.\mv{m} : \ol{\tv{a}} \to \tv{a}_{\mv m}) \in \ol{\methodAssumption}'} \\
+                                \ |\ (\exptype{C}{\ol{X} \triangleleft \ol{N}}.\mv{m} : \ol{\tv{a}} \to \tv{a}_{\mv m}) \in \ol{\methodAssumption}'} \\
                                & \Pi = \mv{\Pi} \cup
                                  \ol{\methodAssumption}' \cup
                                  \ol{\methodAssumption}_o \\
@@ -330,7 +330,7 @@ environment.  Otherwise, we backtrack to check the next candidate.
 %%%%%   \typeMethod: \typeAssumptionsSymbol \times \texttt{M} \rightarrow \ol{\constraint}\\
 \begin{array}{@{}l@{}l@{}l}
   \typeMethod & (\ensuremath{\mv{\Pi} }, \exptype{C}{\ol{X}},\ &\  \mathtt{m}(\ol{x})\{ \mathtt{ return }\ \texttt{e}; \}) =\\
-              & \textbf{let} & \exptype{}{\ol{Y} \triangleleft \ol{P}}\ \overline{T} \to T  = \mv{\Pi} (\exptype{C}{\ol{X}}.\mv{m})
+              & \textbf{let} & \exptype{}{\ol{Y} \triangleleft \ol{P}}\ \overline{T} \to T  = \mv{\Pi} (\exptype{C}{\ol{X \triangleleft \ol{N}}}.\mv{m})
   \\
               & %\textbf{let}
                                                                                               & ({R}, \consSet) =
@@ -410,8 +410,10 @@ $\begin{array}{@{}l@{}l}
 & \begin{array}{@{}l@{}l}
   \constraint = \orCons\set{ & \set{{R} \lessdot \exptype{C}{\ol{\tv{a}}}, \tv{a} \doteq {T},
                                 \overline{R} \lessdot \overline{T} , \ol{\tv{b}} \lessdot
-                                [\ol{\tv{b}}/\ol{Y}][\ol{\tv{a}}/\ol{X}]\ol{P} \mid \overline{\tv{a}}, \overline{\tv{b}} \text{ fresh}}\\
-  & \ |\ (\exptype{C}{\ol{X}}.\texttt{m} : \exptype{}{\ol{Y} \triangleleft \ol{P}} \ \overline{T} \to {T}) \in {\mtypeEnvironment} }
+                                [\ol{\tv{b}}/\ol{Y}][\ol{\tv{a}}/\ol{X}]\ol{P} ,
+                                \ol{\tv{a}} \lessdot [\ol{\tv{a}}/\ol{X}]\ol{N}
+                                \mid \overline{\tv{a}}, \overline{\tv{b}} \text{ fresh}}\\
+  & \ |\ (\exptype{C}{\ol{X} \triangleleft \ol{N}}.\texttt{m} : \exptype{}{\ol{Y} \triangleleft \ol{P}} \ \overline{T} \to {T}) \in {\mtypeEnvironment} }
   \end{array}\\
 \mathbf{in} & (\tv{a},(\consSet_R \cup \bigcup_i \consSet_i \cup \set{\constraint}))
 \end{array}

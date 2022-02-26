@@ -264,13 +264,14 @@ $ & & \rulename{GT-CAST} \\
   $\ddfrac{
     \begin{array}{c}
       \mathtt{\forall  \ol{T}, T: \exptype{}{} \ol{T} \to T \in
-      \Pi(\exptype{C}{\ol{X}}.m) }
-      \quad
+      \Pi(\exptype{C}{\ol{X} \triangleleft \ol{N}}.m) } \quad \quad
+      \mathtt{\Delta \vdash S \subeq  T }
+      \\
+      \mathtt{\Pi; \Delta ; \ol{x}:\ol{T},\ this : \exptype{C}{\ol{X}} \vdash e_0 : S} 
+      \\
       \mathtt{
       \textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft
-      \ol{P}}\ol{T} \to T, \Pi) } \\
-      \mathtt{\Pi; \Delta ; \ol{x}:\ol{T},\ this : \exptype{C}{\ol{X}} \vdash e_0 : S} \quad \quad
-      \mathtt{\Delta \vdash S \subeq  T } \\
+      \ol{P}}\ol{T} \to T, \Pi) } 
     \end{array}} {
     \mathtt{\Pi, \Delta \vdash  \texttt{m}(\ol{\mathtt{x}}) \{\texttt{return}\ \mathtt{e}_0;\}
       \texttt{ OK in }\exptype{C}{\ol{X} \triangleleft \ol{N}} \extends N \texttt{
@@ -282,8 +283,8 @@ $ & & \rulename{GT-CAST} \\
   %GT-CLASS: - This rule is modified by us
   & $\ddfrac{
     \begin{array}{c}
-      \mathtt{\Pi' = \Pi \cup \set{\exptype{C}{\ol{X}}.m \mapsto \exptype{}{} \ol{T_m} \to T_m \mid m \in \ol{M}} } \\
-      \mathtt{\Pi'' = \Pi \cup \set{\exptype{C}{\ol{X}}.m \mapsto
+      \mathtt{\Pi' = \Pi \cup \set{\exptype{C}{\ol{X} \triangleleft \ol{N}}.m \mapsto \exptype{}{} \ol{T_m} \to T_m \mid m \in \ol{M}} } \\
+      \mathtt{\Pi'' = \Pi \cup \set{\exptype{C}{\ol{X}\triangleleft \ol{N}}.m \mapsto
       \exptype{}{\ol{Y} \triangleleft  \ol{P}} \ol{T_m} \to T_m \mid m \in \ol{M}} } \\
       \mathtt{\Delta = \ol{X} \subeq  \ol{N}, \ol{Y} \subeq  \ol{P}}
       \qquad \mathtt{\Delta \vdash\ol{P} \
@@ -353,7 +354,7 @@ $ & & \rulename{GT-CAST} \\
   %     \texttt{m}(\ol{\mathtt{x}}) \{\texttt{return}\ \mathtt{e}_0;\} \in \ol{M}
   %     } \\
       \mathtt{
-      \exptype{}{\ol{Y} \triangleleft  \ol{P}} \ol{U} \to U \in \Pi (\exptype{C}{\ol{X}}.m) }
+      \exptype{}{\ol{Y} \triangleleft  \ol{P}} \ol{U} \to U \in \Pi (\exptype{C}{\ol{X} \triangleleft \ol{N}}.m) }
 \end{array}
    } {\mathtt{
      \textit{mtype}(m, \exptype{C}{\ol{T}}, \Pi) = [\ol{T}/\ol{X}]\exptype{}{\ol{Y} \triangleleft \ol{P}}\ol{U} \to U
