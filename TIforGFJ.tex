@@ -104,12 +104,13 @@ The algorithm is split into several parts, which are executed on a single class 
 \begin{enumerate}
 \item Constraint generation with \fjtype{}
 \item Constraint solving with \unify{}
-\item \fjtypeInsert{}
+\item Setting in one of the type solutions with \fjtypeInsert{}
 \end{enumerate}
 
-$\textbf{FJTypeInference} : \mv{\Pi} \times \texttt{L} \to \mv{\Pi}$\\
+The complete $\fjtypeinference{}$ algorithm for a single class can be given as follows:
+$\fjtypeinference : \mv{\Pi} \times \texttt{L} \to \mv{\Pi}$\\
 $\begin{array}{l}
-\textbf{FJTypeInference}(\mv{\Pi}, \texttt{L}) = \\
+\fjtypeinference(\mv{\Pi}, \texttt{L}) = \\
 \quad \quad \begin{array}[t]{rl}
   \textbf{let}\ 
   (\mtypeEnvironment, \consSet) &= \fjtype{}(\mv{\Pi}, \texttt{L})\\
@@ -119,6 +120,11 @@ $\begin{array}{l}
 \end{array}\\
 \textbf{in}\ \fjtypeInsert(\mv{\Pi}, (\sigma, \unifyGenerics{}) )
 \end{array}$
+
+In the third step of the algorithm we set in one solution at a time.
+Here we describe the third step as a nondeterministic function, which picks the right solution.
+It is possible that subsequent classes resolve some of the solutions as incorrect.
+In praxis we can solve this problem by backtracking and trying out every possible solution one by one if needed.
 
 %This set inherits the principal type solution.
 %The last step simplifies the calculated solutions and only inserts the principal typing.
@@ -133,9 +139,6 @@ We generate the $\mv{\Pi}$ environment used in the next iteration of the \fjtype
 \end{align*}
 Here $\overline{\methodAssumption}$ are the newly generated method assumptions of the \fjtype{} function.
 $(\sigma, \unifyGenerics{})$ is one of the solutions returned by \unify{}.
-We try out one solution at a time.
-It is possible that subsequent classes resolve some of the solutions as incorrect.
-We solve this problem by backtracking and trying out every possible solution one by one if needed.
 
 \subsection{Type inference for a program }
 \label{sec:proc-mult-class}
