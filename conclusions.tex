@@ -1,3 +1,10 @@
+We presented in this paper a global type infrerence algorithm for Featherweight
+Generic Java (FGJ).  The extended language we called  TFGJ. FGJ is formal calculus of Java which reduces the method
+declarating block to a single expression. In
+\cite{DBLP:journals/toplas/IgarashiPW01} syntax, including typing rules, and semantics of FGJ is
+declared. We replaced the typing rules which defines type correct TFGJ
+programs with method without any type declarations.
+%type unification
 We reduced the global type inference algorithm to a type unification algorithm
 which resolves the generated constraints. The type unification algorithm is not
 unitary but finitary. This means that the algorithm terminates but in general
