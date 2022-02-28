@@ -22,7 +22,8 @@
 
 \newcommand{\sarray}[2]{\begin{array}[t]{#1} #2 \end{array}}
 
-\newcommand{\olsub}{\textrm{$\, \leq^\ast \,$}\ }
+%\newcommand{\olsub}{\textrm{$\, \leq^\ast \,$}\ }
+\newcommand{\olsub}{\textrm{$<:$}\ }
 
 \newcommand{\sub}{\mbox{$<$}}
 
@@ -92,6 +93,8 @@
 \newcommand{\methodAssumption}{\ensuremath{\mathtt{\lambda}}}
 \newcommand{\localVarAssumption}{\ensuremath{\mathtt{\eta}}}
 \newcommand{\expandLB}{\textit{expandLB}}
+
+\def\exptypett#1#2{\texttt{#1}\textrm{{\tt <#2}}\textrm{{\tt >}}\xspace}
 
 
 %%% Local Variables:

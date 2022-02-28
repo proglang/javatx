@@ -18,36 +18,40 @@ formal models for Java, why based on FGJ
 OOlong: an extensible concurrent object calculus. SAC 2018: 1022-1029
 \end{itemize}
 
-Type inference
+\subsubsection*{Type inference}
 
-In sone object-oriented languages like Scala, C\# and also Java type inference
+In some object-oriented languages like Scala, C\#, and Java type inference
 is included. But it is only local type inference \cite{PT98,OZZ01}. Local type
 inference means that missing type annotations are recovered using only
 information from adjacent nodes in the syntax tree without long distance
-constraints such as unification variables. E.g. the types of variables which
-a non-functional expression is assgned to or a return type of a method can bei
+constraints such as unifying variables. E.g. the types of variables which
+a non-functional expression is assigned to or a return type of a method can bei
 inferred. But the argument types of arbitrary especially recursive methods
 cannot be inferred by local type inference.
 
 The base of many global type inference algorithms is the algorithm $\mathcal{W}$
-that was presented by Damas and Milner \cite{DM82}. The fundamental idea
+which was presented by Damas and Milner \cite{DM82}. The fundamental idea
 of the algorithm is to determine types by many-sorted type term
 unification \cite{Rob65,MM82} where the unification is called for any
 application in the functional program. This is an efficient way to infer the types
 as many-sorted unification is unitary which means that there is at most one
 most general result.  In \cite{Plue07_3} the Milner's approach is adopted
 directly to Java. This means that at any method application in the Java program
-the finitary unfication is called which means that the result sets are multiplied in
+the finitary unification is called which means that the result sets are multiplied in
 many cases. In \cite{plue15_2} Pl\"umicke changes the approach. There 
 type constraints are collected by parsing the abstract syntax tree. After that the
 constraints are unified. The used Java-calculus in \cite{plue15_2} has
 indeed lambda expressions but there are no methods. Functions are realized by
-lambda expressions assingnd to class fields. This means that there is no
-overloading, as fields in Java cannot be overloaded.
+lambda expressions assigned to class fields. This means that there is no
+overloading, as fields in Java cannot be overloaded. In \cite{plue17_2} the
+language is extended by scala-like function types and the type inference
+algorithm is adapted.
 
 
 
-Martin: unification
+\subsubsection*{Unification}
+The type inference problem is reduced to a constraint solving type unification
+problem. 
 The type unification problem which is addressed in Section \ref{sec:unify} is
 well-known from polymorphic order-sorted unification which is used in logic
 programming languages with polymorphically order-sorted types
@@ -69,8 +73,7 @@ $\,\leq\,$ \texttt{myLi(a,b)} holds:
 Caused by the invariance of Java--Types this problem arises only if wildcards
 are allowed. This means in FGJ this problem is not present.
 
-\medskip
-Nevertheless, the type unification 
+Nevertheless, this type unification algorithm
 fails in some cases without infinite chains, although there is a unifier. Let
 for example $\texttt{nat} 
 \sub \texttt{int}$, and the set of inequations $\set{\mathtt{nat} \lessdot \mathtt{a}, \mathtt{int}
@@ -117,13 +120,38 @@ inequations $\set{\mathtt{nat} \lessdot
 unifiers $\set{\mathtt{a} \mapsto \texttt{int}}$, $\set{\mathtt{a} \mapsto
   \mathtt{index}}$, and $\set{\mathtt{a} \mapsto \mathtt{expr}}$. 
 
-In \cite{plue09_1} the open problem of infinite chains from \cite{GS89} was
-solved. It is showed that in any infinite chain there is a finite number of elements such that
+In \cite{plue09_1} the type systems of \textsf{Tel} was transfered to Java. In
+contrast to \textsf{Tel}, where infinite chains have a lower bound, 
+in Java finite chain have an upper bound. E.g. for $\exptypett{myLi}{b,a} \olsub \exptypett{List}{a}$ holds:
+
+\smallskip
+\noindent
+$\ldots \olsub
+\exptypett{myLi}{\exptypett{?\,extends\,myLi}{\exptypett{\textrm{{\tt ?}}\,extends\,List}{a},a},a}
+\ \olsub \exptypett{myLi}{\exptypett{?\,extends\,List}{a},a}$\\
+\mbox{ } \hfill $\olsub
+\exptypett{List}{a}$\\
+
+In \cite{plue09_1} the open problem of infinite chains from \cite{GS89} was solved.
+It is showed that in any infinite chain there is a finite number of elements such that
 all other elements of the chain are instances of them which means that these
-elements are more more genaral than the other elements of the chain. This type
-unfication algorithm is used for the type inference algorithm for Java--5 with
-wildcards in \cite{Plue07_3}. As FGJ allows no wildcards we used in this paper
-a reduction  of the unification algorithm in \cite{plue09_1}.
+elements are more general than the other elements of the chain. This type
+unification algorithm is used for the type inference algorithm of Java--5 with
+wildcards in \cite{Plue07_3}. As FGJ allows no wildcards we used
+the type unification algorithm of \cite{Plue04_1}  as the basis.
+We improved the type unification algorithm such that constraints
+of the form $a \lessdot ty$, where $a$ is type variable and $ty$ is is a
+non-type variable type,
+are not resolved rather converted to bounded type parameters \texttt{a extends
+  ty}. This implicates an enormous reduction of solutions of the type
+unification algorithm without restricting the generality of typings of
+FGJ-programs. Unfortunately, constraints of the form $ty \lessdot a$ have
+to be resolved as Java allows no lower bounds of type parameters. If we would
+transfer our type inference algorithm to Scala then the solution of these
+constraints could be disclaimed as Scala allows lower bounds of type
+parameters. This would speed up our type inference algorithm again.
+
+
 
 
 
