@@ -2,24 +2,31 @@
 \label{sec:related-work}
 
 
-formal models for Java, why based on FGJ
+\subsection{Formal models for Java}
+\label{sec:formal-models-java}
 
-\begin{itemize}
-\item Welterweight Java
-  %\url{https://link.springer.com/chapter/10.1007/978-3-642-13953-6_6}
-\item Igarashi, A., Pierce, B.C., Wadler, P.: Featherweight Java: a
-  minimal core calculus for Java and GJ. ACM TOPLAS 23(3), 396–450
-  (2001)
-\item Flatt, M., Krishnamurthi, S., Felleisen, M.: A programmer’s
-  reduction semantics for classes and mixins. In: Alves-Foss, J. (ed.)
-  Formal Syntax and Semantics of Java. LNCS, vol. 1523,
-  p. 241. Springer, Heidelberg (1999)
-\item Bierman, G.M., Parkinson, M.J., Pitts, A.M.: MJ: An imperative
-  core calculus for Java and Java with effects. Technical report,
-  University of Cambridge (2003) 
-\item 	Elias Castegren, Tobias Wrigstad:
-OOlong: an extensible concurrent object calculus. SAC 2018: 1022-1029
-\end{itemize}
+There is a range of formal models for Java. Flatt et al
+\cite{DBLP:conf/java/FlattKF99} define an elaborate model with
+interfaces and classes and prove a type soundness result. They do not
+address generics. Igarashi et al
+\cite{DBLP:journals/toplas/IgarashiPW01} define Featherweight Java
+and its generic sibling, Featherweight Generic Java. Their language is
+a functional calculus reduced to the bare essentials, they develop the full metatheory, they
+support generics, and study the type erasing transformation used by
+the Java compiler. MJ \cite{UCAM-CL-TR-563} is a core calculus that
+embraces imperative programming as it is targeted towards reasoning
+about effects. It does not consider generics. Welterweight Java
+\cite{DBLP:conf/tools/OstlundW10} and OOlong
+\cite{DBLP:conf/sac/CastegrenW18} are different sketches for a core
+language that includes concurrency, which none of the other core
+languages considers. 
+
+We chose to base our development on FGJ because it embraces a relevant
+subset of Java without including too much complexity (e.g., no imperative
+features, no interfaces, no concurrency). It seems that results for
+FGJ are easily scalable to full Java. We leave the addition of these
+feature to future work, as we see our results on FGJ as a first step
+towards a formalized basis for global type inference for Java.
 
 \subsection{Type inference}
 
@@ -48,7 +55,15 @@ finite set of maximal types. Further work by the same author \cite{plue15_2,plue
 refines this approach by moving to a constraint-based algorithm and by
 considering lambda expressions and Scale-like function types.
 
-
+We rule out polymorphic recursion because its presence makes type
+inference (but not type checking: see FGJ) undecidable. Henglein
+\cite{DBLP:journals/toplas/Henglein93} as well as Kfoury et al
+\cite{DBLP:journals/toplas/KfouryTU93} investigate type inference in
+the presence of polymorphic recursion. They show that type inference
+is reducible to semi-unification, which is undecidable
+\cite{DBLP:journals/iandc/KfouryTU93}. However, the undecidability of
+this problem apparently does not matter much in practice
+\cite{DBLP:journals/tcs/EmmsL99}. 
 
 \subsection{Unification}
 
