@@ -108,13 +108,14 @@ single class $\mv L$ at a time:
   \textbf{let}\ 
   (\overline{\methodAssumption}, \consSet) &= \fjtype{}(\mv{\Pi}, \texttt{L}) &
                                                                      \text{// constraint generation}\\
-  (\sigma,  \ol{Y} \triangleleft \ol{P}) &= \unify{}(\consSet) & \text{// constraint solving}\\
+  \overline{(\sigma,  \ol{Y} \triangleleft \ol{P})}\commentarymark &= \unify{}(\consSet) & \text{// constraint solving}\\
   %TODO: Describe whole algorithm (Insert types, try out every unify solution by backtracking (describe it as Non Deterministic algorithm))
 \end{array}\\
 \textbf{in}\ \mtypeEnvironment \cup
 \set{(\exptype{C}{\ol{X} \triangleleft \ol{N}}.\mv{m} : \exptype{}{\ol{Y} \triangleleft \ol{P}}\ \ol{\sigma(\tv{a})} \to \sigma(\tv{a})) \ |\ (\exptype{C}{\ol{X} \triangleleft \ol{N}}.\mv{m} : \ol{\tv{a}} \to \tv{a}) \in \overline{\methodAssumption}}
 % \fjtypeInsert(\overline{\methodAssumption}, (\sigma, \unifyGenerics{}) )
 \end{gather*}
+\commentary{$^*$Hier muss doch overline stehen, weil Unify mehrere Loesungen hat}
 
 The overall algorithm is nondeterministic. There may be multiple solutions for a constraint set and a local solution for class $\mv L$ may not
 be compatible with the constraints generated for a subsequent class. In this case, we have to backtrack to $\mv L$ and proceed to the next
