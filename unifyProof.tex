@@ -211,7 +211,7 @@ remain in a constraint set that has a correct unifier after step 1.
 
 After step 2 there are no more $(C \lessdot a)$ constraints.
 
-After step 3 there are no $(a \doteq C)$ anymore.
+%After step 3 there are no $(a \doteq C)$ anymore.
 
 We only reach step 5 if the constraint set is not changed by the substitution (step 3).
 
@@ -383,6 +383,26 @@ The \texttt{subst} step can therefore only be executed once per type variable.
 We see that with each iteration over the steps 1-3 at least one type variable is removed from the constraint set.
 Due to the fact that there is never added a fresh type variable during the \unify{} algorithm,
 the algorithm will terminate for any given finite set of constraints. \hfill $\square$
+
+%The function $\textbf{TVs}$ returns a set of every type variable used as a singleton in the left or right side of a constraint in the given constraint set.
+
+\begin{lemma}\label{lemma:unify-exhaustive}
+  \textbf{Exhaustiveness:}
+  %Every type variable used in the input constraints will get an unifier assigned by \unify{}.
+  %Given a $\mv{\Pi}$ and $\texttt{L}$ with $\fjtype{}(\mv{\Pi}, \texttt{L}) = (\mtypeEnvironment, \consSet)$
+  Given $\unify{}(\consSet) = (\sigma, \unifyGenerics{})$ with $\sigma \neq \emptyset$,
+  then the following statements hold:
+  $\tv{a} \lessdot \itype{T} \in \consSet \implies \tv{a} \in \textit{dom}(\sigma)$ and
+  $\tv{a} \doteq \itype{T} \in \consSet \implies \tv{a} \in \textit{dom}(\sigma)$.
+  Here $\textit{dom}(\sigma)$ is the domain of $\sigma$.
+\end{lemma} %TODO:
+\textbf{Proof:}
+There is no step that removes a type variable on the left side of a constraint.
+The exception is the \texttt{subst} step,
+but here atleast one constraint with the type variable on the left side is kept.
+If the \unify{} algorithm is successful, then the constraint set is in solved form in step 5.
+Every type variable on the left side of a constraint set in solved form will get a substitution in $\sigma$.
+\hfill $\square$
 
 \begin{theorem}
   \label{theo:unifyTypeSolution}
