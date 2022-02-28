@@ -99,46 +99,41 @@
 \section{Type inference algorithm}
 \label{sec:type-infer-algor}
 This section presents our type inference algorithm.
-The algorithm is split into several parts, which are executed on a single class at a time:
-
-\begin{enumerate}
-\item Constraint generation with \fjtype{}
-\item Constraint solving with \unify{}
-\item Setting in one of the type solutions with \fjtypeInsert{}
-\end{enumerate}
-
-The complete $\fjtypeinference{}$ algorithm for a single class can be given as follows:
-$\fjtypeinference : \mv{\Pi} \times \texttt{L} \to \mv{\Pi}$\\
-$\begin{array}{l}
+The algorithm is given method assumptions $\mv\Pi$ and applied to a
+single class $\mv L$ at a time:
+\begin{gather*}
 \fjtypeinference(\mv{\Pi}, \texttt{L}) = \\
-\quad \quad \begin{array}[t]{rl}
+\quad \quad \begin{array}[t]{rll}
   \textbf{let}\ 
-  (\mtypeEnvironment, \consSet) &= \fjtype{}(\mv{\Pi}, \texttt{L})\\
-  {Uni} &= \unify{}(\consSet)\\
-  (\sigma, \unifyGenerics{}) &= \text{choose a solution from}\ {Uni}\\
+  (\overline{\methodAssumption}, \consSet) &= \fjtype{}(\mv{\Pi}, \texttt{L}) &
+                                                                     \text{// constraint generation}\\
+  (\sigma,  \ol{Y} \triangleleft \ol{P}) &= \unify{}(\consSet) & \text{// constraint solving}\\
   %TODO: Describe whole algorithm (Insert types, try out every unify solution by backtracking (describe it as Non Deterministic algorithm))
 \end{array}\\
-\textbf{in}\ \fjtypeInsert(\mv{\Pi}, (\sigma, \unifyGenerics{}) )
-\end{array}$
+\textbf{in}\ \mtypeEnvironment \cup
+\set{(\exptype{C}{\ol{X} \triangleleft \ol{N}}.\mv{m} : \exptype{}{\ol{Y} \triangleleft \ol{P}}\ \ol{\sigma(\tv{a})} \to \sigma(\tv{a})) \ |\ (\exptype{C}{\ol{X} \triangleleft \ol{N}}.\mv{m} : \ol{\tv{a}} \to \tv{a}) \in \overline{\methodAssumption}}
+% \fjtypeInsert(\overline{\methodAssumption}, (\sigma, \unifyGenerics{}) )
+\end{gather*}
 
-In the third step of the algorithm we set in one solution at a time.
-Here we describe the third step as a nondeterministic function, which picks the right solution.
-It is possible that subsequent classes resolve some of the solutions as incorrect.
-In praxis we can solve this problem by backtracking and trying out every possible solution one by one if needed.
+The overall algorithm is nondeterministic. There may be multiple solutions for a constraint set and a local solution for class $\mv L$ may not
+be compatible with the constraints generated for a subsequent class. In this case, we have to backtrack to $\mv L$ and proceed to the next
+local solution; if thats fail we have to backtrack further to an earlier class.
 
 %This set inherits the principal type solution.
 %The last step simplifies the calculated solutions and only inserts the principal typing.
 %The last step chooses the principal type out of those possibilities.
 
+\if0
 The solver \unify{} returns a set of all possible type solutions for the currently processed class.
 We generate the $\mv{\Pi}$ environment used in the next iteration of the \fjtype{} algorithm as follows:
 \begin{align*}
-  \fjtypeInsert{}(\overline{\methodAssumption}, (\sigma, \unifyGenerics{}) = \begin{array}{l}
+  \fjtypeInsert{}(\overline{\methodAssumption}, (\sigma, \unifyGenerics{})) & = \begin{array}{l}
     \set{(\exptype{C}{\ol{X} \triangleleft \ol{N}}.\mv{m} : \exptype{}{\unifyGenerics{}}\ \ol{\sigma(\tv{a})} \to \sigma(\tv{a})) \ |\ (\exptype{C}{\ol{X} \triangleleft \ol{N}}.\mv{m} : \ol{\tv{a}} \to \tv{a}) \in \overline{\methodAssumption}}
   \end{array} 
 \end{align*}
 Here $\overline{\methodAssumption}$ are the newly generated method assumptions of the \fjtype{} function.
 $(\sigma, \unifyGenerics{})$ is one of the solutions returned by \unify{}.
+\fi
 
 \subsection{Type inference for a program }
 \label{sec:proc-mult-class}
