@@ -74,8 +74,12 @@ or-constraints in $C$. In general, we have that $C =
 \set{\overline{\simpleCons}, \orCons_1, \dots, \orCons_n}$ and we
 execute the remaining steps for all $C' = \set{\overline{\simpleCons}}
 \cup \set{\overline{\simpleCons}_1} \cup \dots \cup
-\set{\overline{\simpleCons}_n}$ where $\overline{\simpleCons}_i \in \orCons_i$. 
-  
+\set{\overline{\simpleCons}_n}$ where $\overline{\simpleCons}_i \in
+\orCons_i$. 
+
+
+\subsection{\red{The \textbf{Unify} algorithm}}
+\commentarystar{Ist if0 hier richtig? Hier fehlt auf Fälle etwas!!!}
 \if0 
 \begin{description}
 \item[input] A set of type constraints $\consSet{in}$ %and a set of subtype relationships $S_\leq$
@@ -97,8 +101,6 @@ The unify algorithm first has to build the cartesian product of all the \textbf{
 C &= {Cons}_{in} \setminus \Omega \\
 Eq_{set} &= \orCons^1 \times \ldots \times \orCons^n \times C \quad \text{for all }\orCons^i \in \Omega
 \end{align*}
-
-\subsection{\red{The \textbf{Unify} algorithm}}
 
 %The algorithm starts by setting $Eq_{set} = \set{ Cons_{in} }$.
 Afterwards the following steps are repeatedly executed on $Eq_{set}$ until the algorithm terminates:
