@@ -775,68 +775,6 @@ class C2 extends Object {
 
 \end{lstlisting}
 
-\section{Assessment}
-\label{sec:assessment}
-
-\begin{itemize}
-\item NP-hard \todo[inline]{Show NP-completeness!}
-\item cannot infer all possible generic methods
-\item features that need to be addressed to make it practical (e.g.,
-  what's necessary to move from FGJ to full Java: overloading,
-  imperative, )
-\end{itemize}
-
-Java has some features which make global type inference hard:
-\begin{itemize}
-\item subtyping and overloading combined with a nominal type system;
-  we show NP-hardness even without overloading
-  \todo[inline]{correct?}
-\item mutable local variables and mutable object state,
-\item polymorphic recursion in method calls
-\item Inside a Java method it is possible to call every other declared Java method
-  \todo[inline]{meaning? The letrec-rule works on the fact that in a let statement:
-  \lstinline{let x = e in e2} the expression \texttt{e} is not able to use \texttt{x}}
-\item methods can have side effects.
-\end{itemize}
-
-
-For Featherweight Generic Java it is easier to decide because there is no state and therefore no wildcard types.
-Also we exclude polymorphic recursion.
-
-% Example for local type inference in Java:
-% \begin{lstlisting}[language=java]
-% // Java 8 code:
-% class Local {
-%   // type inference puts in "ArrayList<String>()"
-%   List<String> field = new ArrayList<>();
-% }
-% \end{lstlisting}
-% \todo[inline]{Is this a drawback for LVTI? Does GTI put
-%   \lstinline{List<String>} or \lstinline{Map} in the
-%   \lstinline{outerMap} example?}
-
-\section{Limitations of the algorithm}
-\label{sec:limits-algorithm}
-
-Java does not allow generic variables with lower bounds.
-The expression \texttt{<A super String>} is not a correct definition in FJ.
-
-Take the following input program as an example:
-\begin{lstlisting}{java}
-class Example{
-    method(list){
-        return list.add(this).get();
-    }
-}
-\end{lstlisting}
-Lets assume this yields the constraints:
-$p \lessdot \exptype{List}{b}, r \lessdot \exptype{List}{b}, \texttt{Example} \lessdot b$
-Now we cannot insert a generic type variable with super bounds like this:
-\texttt{B super Example}
-
-We have to still calculate every possible supe\type{R}pe of \texttt{Example} which will lead to an array of possible solutions.
-
-
 \section{Related Work}
 \label{sec:related-work}
 
