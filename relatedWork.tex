@@ -1,3 +1,6 @@
+\section{Related Work}
+\label{sec:related-work}
+
 
 formal models for Java, why based on FGJ
 
@@ -18,110 +21,107 @@ formal models for Java, why based on FGJ
 OOlong: an extensible concurrent object calculus. SAC 2018: 1022-1029
 \end{itemize}
 
-\subsubsection*{Type inference}
+\subsection{Type inference}
 
-In some object-oriented languages like Scala, C\#, and Java type inference
-is included. But it is only local type inference \cite{PT98,OZZ01}. Local type
+Some object-oriented languages like Scala, C\#, and Java perform
+\emph{local} type inference \cite{PT98,OZZ01}. Local type 
 inference means that missing type annotations are recovered using only
 information from adjacent nodes in the syntax tree without long distance
-constraints such as unifying variables. E.g. the types of variables which
-a non-functional expression is assigned to or a return type of a method can bei
-inferred. But the argument types of arbitrary especially recursive methods
-cannot be inferred by local type inference.
+constraints. For instance, the type of a variable initialized with a
+non-functional expression or the return type of a method can be
+inferred. However, method argument types, in particular for recursive
+methods, cannot be inferred by local type inference.
 
-The base of many global type inference algorithms is the algorithm $\mathcal{W}$
-which was presented by Damas and Milner \cite{DM82}. The fundamental idea
-of the algorithm is to determine types by many-sorted type term
-unification \cite{Rob65,MM82} where the unification is called for any
-application in the functional program. This is an efficient way to infer the types
-as many-sorted unification is unitary which means that there is at most one
-most general result.  In \cite{Plue07_3} the Milner's approach is adopted
-directly to Java. This means that at any method application in the Java program
-the finitary unification is called which means that the result sets are multiplied in
-many cases. In \cite{plue15_2} Pl\"umicke changes the approach. There 
-type constraints are collected by parsing the abstract syntax tree. After that the
-constraints are unified. The used Java-calculus in \cite{plue15_2} has
-indeed lambda expressions but there are no methods. Functions are realized by
-lambda expressions assigned to class fields. This means that there is no
-overloading, as fields in Java cannot be overloaded. In \cite{plue17_2} the
-language is extended by scala-like function types and the type inference
-algorithm is adapted.
+Milner's algorithm $\mathcal{W}$ \cite{DBLP:journals/jcss/Milner78} is
+the gold standard for global type inference for languages with 
+parametric polymorphism, which is used by ML-style languages. The fundamental idea
+of the algorithm is to enforce type equality by many-sorted type
+unification \cite{Rob65,MM82}. This approach is effective and results
+in so-called principal types because many-sorted unification is
+unitary, which means that there is at most one most general result.
+
+Pl\"umicke \cite{Plue07_3} presents a first attempt to adopt Milner's
+approach to Java. However, the presence of subtyping means that type
+unification is no longer unitary, but still finitary. Thus, there is
+no longer a single most general type, but any type is an instance of a
+finite set of maximal types. Further work by the same author \cite{plue15_2,plue17_2},
+refines this approach by moving to a constraint-based algorithm and by
+considering lambda expressions and Scale-like function types.
 
 
 
-\subsubsection*{Unification}
-The type inference problem is reduced to a constraint solving type unification
-problem. 
-The type unification problem which is addressed in Section \ref{sec:unify} is
-well-known from polymorphic order-sorted unification which is used in logic
-programming languages with polymorphically order-sorted types
+\subsection{Unification}
+
+We reduce the type inference problem to constraint solving with
+equality and subtype constraints.
+The procedure presented in Section~\ref{sec:unify} is inspired by
+polymorphic order-sorted unification which is used in logic 
+programming languages with polymorphic order-sorted types
 \cite{GS89,MH91,HiTo92,CB95}.
 
-In \cite{GS89} the type unification problem
-is mentioned as an open problem. For the logical language \textsf{TEL} in
-\cite{GS89} an incomplete type inference algorithm is given. The incompleteness
-is caused by the fact, that subtype relationships
-of polymorphic types which have different arities  (e.g. $\texttt{List(a)} \sub
-\texttt{myLi(a,b)}$) are allowed. This leads to the property that there are
-infinite chains in the type term ordering. In \textsf{TEL} for \texttt{List(a)}
-$\,\leq\,$ \texttt{myLi(a,b)} holds: 
+Smolka's thesis \cite{GS89} mentions the type unification problem
+as an open problem. He gives  an incomplete type inference algorithm
+for the logical language \textsf{TEL}. The reason for incompleteness
+is the admission of subtype relationships between polymorphic types of
+different arities as in  $\texttt{List(a)} \sub
+\texttt{myLi(a,b)}$. This liberal stance leads to infinite chains in
+the type ordering.
+Given  $\texttt{List(a)} \sub \texttt{myLi(a,b)}$, we obtain:
+\begin{gather*}
+  \texttt{List(a)} \sub \texttt{myLi(a,List(a))} \sub \texttt{myLi(a,myLi(a,List(a)))}  \sub \dots
+\end{gather*}
+However, this subtyping chain exploits covariant subtyping, which does
+not apply to FGJ (but it would apply in the presence of wildcards).
 
-\smallskip
-{\centering $\texttt{List(a)} \,\leq\, \texttt{myLi(a,List(a))} \,\leq\,
-\texttt{myLi(a,myLi(a,List(a)))}  \leq \ldots$\\}
-
-Caused by the invariance of Java--Types this problem arises only if wildcards
-are allowed. This means in FGJ this problem is not present.
-
-Nevertheless, this type unification algorithm
-fails in some cases without infinite chains, although there is a unifier. Let
-for example $\texttt{nat} 
-\sub \texttt{int}$, and the set of inequations $\set{\mathtt{nat} \lessdot \mathtt{a}, \mathtt{int}
-  \lessdot \mathtt{a}}$ be given, then $\set{\mathtt{a} \mapsto \mathtt{nat}}$
-is determined, such that 
-$\set{\mathtt{int} \lessdot \mathtt{nat}}$ fails, although $\set{\mathtt{a}\mapsto \mathtt{int}}$ is
-a unifier. For $\set{\mathtt{int} \lessdot \mathtt{a}, \mathtt{nat} \lessdot
-  \mathtt{a}}$ the algorithm determines the correct unifier
+Smolka's algorithm also fails sometimes in the absence of infinite
+chains, although there is a unifier. 
+For example, given $\texttt{nat} \sub \texttt{int}$ and the set
+of subtyping constraints $\set{\mathtt{nat} \lessdot \mathtt{a},
+  \mathtt{int} \lessdot \mathtt{a}}$, it returns the substitution
+$\set{\mathtt{a} \mapsto \mathtt{nat}}$ generated from the first
+constraint encountered. This substitution is not a solution
+because $\set{\mathtt{int} \lessdot \mathtt{nat}}$ fails.
+However, $\set{\mathtt{a}\mapsto \mathtt{int}}$ is a unifier, which
+can be obtained by processing the constraints in a different order: from $\set{\mathtt{int} \lessdot \mathtt{a}, \mathtt{nat} \lessdot
+  \mathtt{a}}$ the algorithm calculates the unifier 
 $\set{\mathtt{a}\mapsto \mathtt{int}}$.
 
-In the typed logic programs of \cite{HiTo92} subtype
-relationships of polymorphic types are allowed only between type
-constructors of the same arity which means that there are no infinite chains.
+Hill and Topor  \cite{HiTo92} propose a polymorphically typed logic
+programming language with subtyping. They restrict subtyping to type
+constructors of the same arity,  which guarantees that all subtyping
+chains are finite.
 In this approach a \emph{most general type unifier (mgtu)} is
-defined as an upper bound of different principal type unifiers. In general
-there are no upper bounds of two given type terms in the type term ordering,
-which means that there is in general no mgtu in the sense of \cite{HiTo92}.
+defined as an upper bound of different principal type unifiers. In
+general, two type terms need not have an upper bound in the subtype ordering,
+which means that there is no mgtu in the sense of Hill and Topor.
 For example for  $\texttt{nat} \sub \texttt{int}$, $\texttt{neg} 
 \sub \texttt{int}$, and the set of inequations $\set{\mathtt{nat} \lessdot
   \mathtt{a}$, $\mathtt{neg} \lessdot \mathtt{a}}$ the mgtu $\set{\mathtt{a} \mapsto \texttt{int}}$ is
-determined. If the type term ordering is extended by $\mathtt{int} \sub
+determined. If the subtype ordering is extended by $\mathtt{int} \sub
 \mathtt{index}$ and $\mathtt{int} \sub \mathtt{expr}$, then there are three
 unifiers $\set{\mathtt{a} \mapsto \texttt{int}}$, $\set{\mathtt{a} \mapsto
   \mathtt{index}}$, and $\set{\mathtt{a} \mapsto 
-\mathtt{expr}}$, but none of them is a mgtu in the sense of \cite{HiTo92}.
+\mathtt{expr}}$, but none of them is a mgtu \cite{HiTo92}.
 
 The type system of \textsf{PROTOS-L} \cite{CB95} was
 derived from \textsf{TEL} by disallowing any explicit subtype relationships
 between polymorphic type constructors. 
+Beierle \cite{CB95} gives a complete type unification algorithm, which can be extended to the
+type system of Hill and Topor.
+They also prove that the type unification problem is finitary.
 
-In \cite{CB95}
-a complete type unification algorithm is given, which can be extended to the
-type system of \cite{HiTo92}. They solved the type unification problem for type
-term orderings following the restrictions of \textsf{PROTOS-L} respectively the
-restrictions of \cite{HiTo92}. Additionally, the result of this paper is, that
-the type unification problem is not unitary, but finitary. This means in
-general that there is more than one general type unifier. 
-
-For the above example the algorithm determines, where $\texttt{nat} \sub
+Given the declarations  $\texttt{nat} \sub
 \texttt{int}$, $\texttt{neg} \sub \texttt{int}$, $\mathtt{int} \sub
-\mathtt{index}$, and $\mathtt{int} \sub \mathtt{expr}$ and the set of
+\mathtt{index}$, and $\mathtt{int} \sub \mathtt{expr}$, applying the
+type unification algorithm of \textsf{PROTOS-L} to the set of
 inequations $\set{\mathtt{nat} \lessdot
-  \mathtt{a}$, $\mathtt{neg} \lessdot \mathtt{a}}$ is given, the three general
+  \mathtt{a}$, $\mathtt{neg} \lessdot \mathtt{a}}$ yield three general
 unifiers $\set{\mathtt{a} \mapsto \texttt{int}}$, $\set{\mathtt{a} \mapsto
   \mathtt{index}}$, and $\set{\mathtt{a} \mapsto \mathtt{expr}}$. 
 
-In \cite{plue09_1} the type systems of \textsf{Tel} was transfered to Java. In
-contrast to \textsf{Tel}, where infinite chains have a lower bound, 
+Pl\"umicke \cite{plue09_1} realized that the type system of
+\textsf{TEL} is related to subtyping in Java.
+In contrast to \textsf{TEL}, where infinite chains have a lower bound, 
 in Java finite chain have an upper bound. E.g. for $\exptypett{myLi}{b,a} \olsub \exptypett{List}{a}$ holds:
 
 \smallskip
@@ -132,28 +132,25 @@ $\ldots \olsub
 \mbox{ } \hfill $\olsub
 \exptypett{List}{a}$\\
 
-In \cite{plue09_1} the open problem of infinite chains from \cite{GS89} was solved.
-It is showed that in any infinite chain there is a finite number of elements such that
-all other elements of the chain are instances of them which means that these
-elements are more general than the other elements of the chain. This type
-unification algorithm is used for the type inference algorithm of Java--5 with
-wildcards in \cite{Plue07_3}. As FGJ allows no wildcards we used
-the type unification algorithm of \cite{Plue04_1}  as the basis.
-We improved the type unification algorithm such that constraints
-of the form $a \lessdot ty$, where $a$ is type variable and $ty$ is is a
-non-type variable type,
-are not resolved rather converted to bounded type parameters \texttt{a extends
-  ty}. This implicates an enormous reduction of solutions of the type
+Pl\"umicke \cite{plue09_1} solved the open problem of infinite chains
+posed by Smolka \cite{GS89}.
+He showed that in any infinite chain there is a finite number of elements such that
+all other elements of the chain are instances of them. The resulting type
+unification algorithm can be used for type inference of Java~5 with
+wildcards \cite{Plue07_3}. As FGJ has no wildcards, we based our
+algorithm on an earlier work \cite{Plue04_1}.
+In contrast to that work, which only infers generic methods with
+unbounded types, our algorithm  infers bounded generics.
+To this end, we do not expand constraints
+of the form $\tv{a} \lessdot \itype{N}$, where $\ty{a}$ is type variable and $\itype{N}$ is is a
+non-variable type, but convert them to bounded type parameters of the form
+\texttt{X extends N}. This change results in a significant reduction
+of the number of solutions of the type
 unification algorithm without restricting the generality of typings of
-FGJ-programs. Unfortunately, constraints of the form $ty \lessdot a$ have
-to be resolved as Java allows no lower bounds of type parameters. If we would
-transfer our type inference algorithm to Scala then the solution of these
-constraints could be disclaimed as Scala allows lower bounds of type
-parameters. This would speed up our type inference algorithm again.
-
-
-
-
+FGJ-programs. Unfortunately, constraints of the form $\itype{N} \lessdot \tv{a}$ have
+to be expanded as FGJ (like Java) does not permit lower bounds for
+generic parameters. If lower bounds were permitted  (as in Scala), the
+number of solutions could be reduced even further.
 
 
 %%% Local Variables:
