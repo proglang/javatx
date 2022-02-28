@@ -183,8 +183,8 @@ applies to FGJ programs that specify the full class header and all field types,
 but omit all method signatures. 
 Given this input, our algorithm
 infers a set of most general method signatures (parameter types and return types).
-Inferred types are generic as much as possible, \commentarymargintext{but do not include
-bounds.}{Das ja wohl nicht mehr aktuell}
+Inferred types are generic as much as possible and may contain
+recursive upper bounds.
 
 The inferred signatures have the following round-trip property
 (relative completeness). If we
@@ -199,15 +199,27 @@ general than the types in the original FGJ program.
 
 
 
-\subsection{Contributions}
+\subsection*{Contributions}
 \label{sec:contributions}
 
-\commentary{\begin{itemize}
-\item Algorithm for global type inference for FGJ. This algorithm is
-  sound and relatively complete for programs without polymorphic recursion.
-\item Global type inference for FGJ is NP complete.
-\item Implementation of global type inference for (full?) Java.
-\end{itemize}}
+
+We specify syntax and type system of the language \FGJGT, which drops all method type
+annotations from FGJ and the typing of which rules out polymorphic
+recursion. This language is amenable to polymorphic type inference and
+each \FGJGT program can be completed to an FGJ program. 
+
+We define a constraint-based algorithm that performs global type
+inference for \FGJGT. This algorithm is sound and relatively complete
+for FGJ programs without polymorphic recursion.
+
+We investigate the complexity of global type inference and show its NP-completeness.
+
+We implemented a prototype of the type inference algorithm.
+\commentary{PT what else do you want to say? Do you want to point to
+  your implementation for full Java? Can we point to Andi's prototype
+  (check conditions in CFP)?
+  Submit as an artifact?}
+\if0
 Our contributions in this paper are an algorithm for global type inference for
 FGJ. Therefore we redraft the typing rules of FGJ such that the programs without
 type annotations could be correct and in this case polymorphic recursion is
@@ -226,7 +238,7 @@ We show that Global type inference for FGJ is NP complete.
 
 Finally we have done an implementation of  global type inference for  a reduced
 set of full Java.
-
+\fi
 
 %%% Local Variables:
 %%% mode: latex
