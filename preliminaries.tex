@@ -183,9 +183,10 @@ completion, that is, a well-typed FGJ program with the same structure.
 
     The rule \rulename{GT-CAST} splits into three rules
     \rulename{GT-UCAST'}, \rulename{GT-DCAST'}, and
-    \rulename{GT-SCAST'}. These rules are (designed to be) disjoint
-    and exhaustive, so that one of them applies to each occurrence of
-    a cast. 
+    \rulename{GT-SCAST'}. These rules are disjoint, so that at most one of
+    them applies to each occurrence of a cast. Here we assume a more
+    liberal version of \rulename{GT-DCAST'} that admits downcasts that
+    are not stable under type erasure semantics.
 
     For the rule \rulename{GT-INVK}, we first consider calls to methods not defined in the current
     class. By our assumption on previously checked classes $\mv{D}$ and their methods $\mv{n}$,
