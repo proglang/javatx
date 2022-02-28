@@ -460,12 +460,6 @@ constraints for the subexpression. We return the target type of the cast.
 \end{gather*}
 
 \subsubsection{Completeness of the type inference algorithm}
-\todo[inline]{The following theorem talks about soundness of type inference and it lacks a formal
-  statement! Before it can be stated, we need to say what is a solution of a constraint. Moreover,
-  the constraint generation for classes has to return the newly generated method type assumptions:
-  when we apply the solution to those, we obtain an updated method environment, which we can relate
-  to the output of the \TFGJ class typing.}
-
 \begin{theorem}\textbf{Soundness:}
   $\fjtypeinference(\mv{\Pi},\texttt{L}) = \mv{\Pi}'$ implies $\mv{\Pi} \vdash \texttt{L} : \mv{\Pi}'$
 \end{theorem}

@@ -138,31 +138,26 @@ We will show that the principal type is among them by proofing for every step of
 \begin{description}
 \item[Step 1:]
 The first step applies the three rules from figure \ref{fig:fgjerase-rules}.
-\textbf{erase-rules:} The erase2 rule from figure \ref{fig:fgjerase-rules} removes a
-$\{C \doteq D\}$ constraint from the constraint set.
-The erase1 rule removes a $\{C \doteq C\}$ constraint,
-but only if the two types $C$ and $D$ satisfy the constraint.
-Both rules do not change the set of possible solutions for the given constraint
-set.
+\textbf{erase-rule:} The constraint $\tv{a} \doteq \tv{a}$ is true for every unifier and can be removed.
 
 \textbf{swap-rule:} $\doteq$ is a symmetric operator and parameters can be swapped freely.
 This operation does not change the meaning of the constraint set.
 
 \textbf{match-rule:}
-If there is a solution for $a \lessdot \exptype{C}{\ol{X}}, a \lessdot \exptype{D}{\ol{Y}}$,
-this is also a solution for $a \lessdot \exptype{C}{\ol{X}}, \exptype{C}{\ol{X}} \lessdot \exptype{D}{\ol{Y}}$.
-A correct unifier $\sigma$ has to find a type for $a$, which complies with $a \lessdot \exptype{C}{\ol{X}}$ and $a \lessdot \exptype{D}{\ol{Y}}$.
-Due to the subtyping relation being transitive this means that $\sigma(a) \lessdot \exptype{C}{\ol{X}} \lessdot \exptype{D}{\ol{Y}}$.
+If there is a solution for $a \lessdot \exptype{C}{\ol{\itype{T}}}, a \lessdot \exptype{D}{\ol{\itype{U}}}$,
+this is also a solution for $a \lessdot \exptype{C}{\ol{\itype{T}}}, \exptype{C}{\ol{\itype{T}}} \lessdot \exptype{D}{\ol{\itype{U}}}$.
+A correct unifier $\sigma$ has to find a type for $a$, which complies with $a \lessdot \exptype{C}{\ol{\itype{T}}}$ and $a \lessdot \exptype{D}{\ol{\itype{U}}}$.
+Due to the subtyping relation being transitive this means that $\sigma(a) \lessdot \exptype{C}{\ol{\itype{T}}} \lessdot \exptype{D}{\ol{\itype{U}}}$.
 
 \textbf{adopt-rule:} Subtyping in FJ is transitive,
 which allows us to apply the adopt rule without excluding any possible unifier.
 
 \textbf{adapt-rule:} Every solution which is correct for the constraints
-$Eq \cup \set{ \exptype{C}{[\ol{A}/\ol{X}]\ol{Y}} \doteq \exptype{C}{\ol{B}}}$ is also
-a correct solution for the set $Eq \cup \set{ \exptype{D}{\ol{A}} \lessdot \exptype{C}{\ol{B}}}$.
+$Eq \cup \set{ \exptype{C}{[\ol{\itype{A}}/\ol{X}]\ol{\itype{T}}} \doteq \exptype{C}{\ol{\itype{U}}}}$ is also
+a correct solution for the set $Eq \cup \set{ \exptype{D}{\ol{\itype{A}}} \lessdot \exptype{C}{\ol{\itype{U}}}}$.
 According to the \texttt{S-CLASS} rule there can only be a possible solution for 
-$\exptype{C}{[\ol{A}/\ol{X}]\ol{Y}} \doteq \exptype{C}{\ol{B}}$
-if $\ol{B} = [\ol{A}/\ol{X}]\ol{Y}$.
+$\exptype{C}{[\ol{\itype{A}}/\ol{X}]\ol{\itype{T}}} \doteq \exptype{C}{\ol{\itype{U}}}$
+if $\ol{\itype{U}} = [\ol{\itype{A}}/\ol{X}]\ol{\itype{T}}$.
 Therefore this transformation does not remove any possible solution from the constraint set.
 
 \textbf{reduce-rule:}
@@ -171,7 +166,6 @@ For a constraint $\exptype{D}{\ol{A}} \lessdot \exptype{D}{\ol{A}}$ the FJ subty
 According to this rule the transformation to $\ol{A} \doteq \ol{B}$ is correct.
 Only $D$ gets removed, which is not a type variable.
 Therefore this step does not remove a possible solution.
-This applies for both reduce rules \textbf{reduce1} and \textbf{reduce2}.
 
 \textbf{equals-rule:}
 This rule removes a circle in the constraints.
@@ -186,10 +180,16 @@ possible supertype of $\exptype{C}{\ol{X}}$.
 So if there is a correct unifier $\sigma$ for the constraints before this conversion there will be at least one set of
 constraints for which $\sigma$ is a correct unifier.
 
+Additionally this step resolves constraints of the form $\tv{a} \lessdot \exptype{C}{\ol{\itype{T}}}, \tv{a} \lessdot \tv{b}$.
+We generate an Or-Constraint with every possible combination for $\tv{b}$.
+This includes every possible solution for $\tv{b}$ and therefore does not remove a possible solution.
+This is due to the fact that \TFGJ does not allow lower bounds for generic variables.
+%Every type variable left of a $\lessdot$-constraint will get a type assigned by \
+
 \item[Step 3:]
 In the third step the \textbf{substitution}-rule is applied.
-If there is a constraint $a \doteq N$ then there is no other way to fulfill the constraint set
-than replacing $a$ with $N$.
+If there is a constraint $\tv{a} \doteq \type{N}$ then there is no other way to fulfill the constraint set
+than replacing $\tv{a}$ with $\type{N}$.
 This does not remove a possible solution.
 
 \item[Step 4:]
@@ -199,16 +199,16 @@ None of the constraints get modified.
 The removed sets do not have a possible unifier, therefore no possible solution is
 omitted in this step.
 
-\textbf{Proof}:
+%\textbf{Proof}:
 In step 5.a all constraint sets that have a unifier are in solved form.
 All other possibilities are eliminated in steps 1-4.
 There are 8 different variations of constraints:\\
-$(a \doteq a), (a \doteq C), (C \doteq a), (C \doteq C), (a \lessdot a), (a \lessdot C), (C \lessdot a), (C \lessdot C)$
+$(\tv{a} \doteq \tv{a}), (\tv{a} \doteq C), (C \doteq \tv{a}), (C \doteq C), (\tv{a} \lessdot \tv{a}), (\tv{a} \lessdot C), (C \lessdot \tv{a}), (C \lessdot C)$
 
-After step 1 there are no $(C \doteq C)$, $(C \lessdot C)$ and $(C \doteq a)$ constraints anymore,
+After step 1 there are no $(C \doteq C)$, $(C \lessdot C)$ and $(C \doteq \tv{a})$ constraints anymore,
 as long as the constraint set has a correct unifier.
 Because a constraint set that has a correct unifier cannot contain constraints of the form $N_1 \doteq N_2$ with $N_1 \neq N_2$ and
-$(N_1 \lessdot N_2)$ with $(N_1 \nleq: N_2)$.
+$(N_1 \lessdot N_2)$ with $(N_1 \nless: N_2)$.
 By removing $(N \doteq N)$ and $(C \lessdot D)$ with $(C <: D)$ constraints
 no constraints of the form $(C \doteq C)$ and $(C \lessdot D)$
 remain in a constraint set that has a correct unifier after step 1.
@@ -395,15 +395,16 @@ the algorithm will terminate for any given finite set of constraints. \hfill $\s
   %Every type variable used in the input constraints will get an unifier assigned by \unify{}.
   %Given a $\mv{\Pi}$ and $\texttt{L}$ with $\fjtype{}(\mv{\Pi}, \texttt{L}) = (\mtypeEnvironment, \consSet)$
   Given $\unify{}(\consSet) = (\sigma, \unifyGenerics{})$ with $\sigma \neq \emptyset$,
-  then the following statements hold:
-  $\tv{a} \lessdot \itype{T} \in \consSet \implies \tv{a} \in \textit{dom}(\sigma)$ and
-  $\tv{a} \doteq \itype{T} \in \consSet \implies \tv{a} \in \textit{dom}(\sigma)$.
+  then the following statement holds:
+  $\tv{a} \lessdot \itype{T} \in \consSet \implies \tv{a} \in \textit{dom}(\sigma)$.
+  %and $\tv{a} \doteq \itype{T} \in \consSet \implies \tv{a} \in \textit{dom}(\sigma)$.
   Here $\textit{dom}(\sigma)$ is the domain of $\sigma$.
 \end{lemma} %TODO:
 \textbf{Proof:}
-There is no step that removes a type variable on the left side of a constraint.
-The exception is the \texttt{subst} step,
-but here atleast one constraint with the type variable on the left side is kept.
+There is no step that removes a type variable on the left side of a $\tv{a} \lessdot \itype{T}$ constraint.
+The exception is the \texttt{subst} step, which could replace a $\tv{a}$ in any constraint.
+%but here atleast one constraint with the type variable on the left side is kept.
+But the \texttt{subst} rule generates a $\tv{a} \doteq \itype{T}$ constraint, which will lead to a type unifier for $\tv{a}$.
 If the \unify{} algorithm is successful, then the constraint set is in solved form in step 5.
 Every type variable on the left side of a constraint set in solved form will get a substitution in $\sigma$.
 \hfill $\square$
