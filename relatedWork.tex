@@ -142,7 +142,7 @@ algorithm on an earlier work \cite{Plue04_1}.
 In contrast to that work, which only infers generic methods with
 unbounded types, our algorithm  infers bounded generics.
 To this end, we do not expand constraints
-of the form $\tv{a} \lessdot \itype{N}$, where $\ty{a}$ is type variable and $\itype{N}$ is is a
+of the form $\tv{a} \lessdot \itype{N}$, where $\tv{a}$ is type variable and $\itype{N}$ is is a
 non-variable type, but convert them to bounded type parameters of the form
 \texttt{X extends N}. This change results in a significant reduction
 of the number of solutions of the type

@@ -71,6 +71,8 @@ reads off a solution in the form of a substitution.
 For brevity, we write $\tv{a}_0 \lessdot^* \tv{a}_n$ for a non-empty chain of subtyping constraints between type variables $\tv{a}_0 \lessdot
 \tv{a}_1, \tv{a}_1 \lessdot \tv{a}_2, \dots, \tv{a}_{n-1} \lessdot \tv{a}_n$ where $n>0$.
 
+\subsection{{Algorithm \textbf{Unify}}}
+
 
 The first step of the algorithm eliminates or-constraints from constraint set $C$. To do so,
 we consider all combinations of selecting simple constraints from
@@ -82,37 +84,6 @@ execute the remaining steps for all $C' = \set{\overline{\simpleCons}}
 \orCons_i$. 
 
 
-\subsection{\red{The \textbf{Unify} algorithm}}
-\commentarystar{Ist if0 hier richtig? Hier fehlt auf Fälle etwas!!!}
-\if0 
-\begin{description}
-\item[input] A set of type constraints $\consSet{in}$ %and a set of subtype relationships $S_\leq$
-\item[output] A set of type unifiers $Uni$
-or fail $Uni = \emptyset$.
-%The unifiers have the form of $Uni = \{ \sigma_1, \ldots , \sigma_n \}$.
-\end{description}
-
-\textit{Hints:}
-\begin{itemize}
-%\item $[\tv{a}/\tv{b}]T$ means replacing all type variables $\tv{b}$ with $\tv{a}$ in the type $\itype{T}$.
-%\item The function $\textbf{fresh}(i)$ returns an array of $i$ fresh type variables.
-\end{itemize}
-  
-
-The unify algorithm first has to build the cartesian product of all the \textbf{OrConstraint}s and the remaining normal constraints:
-\begin{align*}
-\Omega &= \text{All }\mathbf{OrConstraints} \text{ in } \consSet{in}\\
-C &= {Cons}_{in} \setminus \Omega \\
-Eq_{set} &= \orCons^1 \times \ldots \times \orCons^n \times C \quad \text{for all }\orCons^i \in \Omega
-\end{align*}
-
-%The algorithm starts by setting $Eq_{set} = \set{ Cons_{in} }$.
-Afterwards the following steps are repeatedly executed on $Eq_{set}$ until the algorithm terminates:
-%For every $Eq \in Eq_{set}$ the following steps are applied.
-%The resulting unifiers $\sigma$ from each $Eq$ merged together form the result of the \unify{} algorithm.
-
-%$\textbf{SubUnify} :: [Constraint] \to [Unifier]$
-\fi
 
 \textbf{Step 1.} We apply the rules in Figures~\ref{fig:fgjreduce-rules}
 and~\ref{fig:fgjerase-rules} exhaustively to $C'$.
@@ -199,6 +170,7 @@ we applied (subst) exhaustively in Step~3.
 \end{align*}
 We return the pair $(\sigma, \gamma)$.
 
+\if0
 \todo[inline]{PT: checkpoint}
 
 \begin{enumerate}
@@ -272,6 +244,7 @@ The \unify{} algorithm returns all possible solutions.
 Each solution consists out of a pair of unifiers $\sigma$ and generic bounds \unifyGenerics{}.
 \end{enumerate}
 \end{enumerate}
+\fi
 
 \begin{figure}
 \begin{center}
