@@ -4,8 +4,12 @@
 \begin{theorem}
   \label{theo:unifySoundness}
   \textbf{(Soundness):}
-  If the \unify{} algorithm finds a solution it does not contradict any of the input constraints:
-  $\nexists (a \lessdot b) \in \consSet_{in}$ where $\sigma(a) \nless : \sigma(b)$
+  \replaced{If the \unify{} algorithm finds a solution it does not contradict any of the input constraints:
+  $\nexists (a \lessdot b) \in \consSet_{in}$ where $\sigma(a) \nless :
+  \sigma(b)$}{
+   For $\overline{(\sigma,  \ol{Y} \triangleleft \ol{P})} =
+   \unify{}(\consSet)}$ any $(\sigma, \Delta) \in \overline{(\sigma,
+   \ol{Y} \triangleleft \ol{P})}$ is unifier of $\consSet$ with $\Delta$.
 \end{theorem}
 
 \textit{Proof:}
@@ -116,7 +120,7 @@ No constraint is altered, deleted or modified during this step.
 
 
 \begin{theorem}\label{theo:unifyCompleteness}
-  \textbf{(Completeness):} The \unify{} algorithm calculates a general unifier for the input set of constraints ($\consSet_{in}$).
+  \textbf{(Completeness):} The \unify{} algorithm calculates \red{the set} of general unifier\red{s} for the input set of constraints ($\consSet_{in}$).
 \end{theorem}
 A unifier $\sigma$ is a general unifier for $\consSet_{in}$ if it unifies $\consSet_{in}$
 and for every other unifier $\omega$ there is a substitution $\lambda$ so that $\omega(x) = \lambda(\sigma(x))$.
