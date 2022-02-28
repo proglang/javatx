@@ -1,3 +1,15 @@
+\section{Conclusions}
+\label{sec:conclusions}
+
+This paper presents a global type inference algorithm applicable to
+Featherweight Generic Java (FGJ). To this end, we define a language
+\FGJGT that characterizes FGJ programs amenable to type inference: its
+methods carry no type annotations and it does not permit polymorphic recursion.
+This language corresponds to a strict subset of FGJ.
+The inference algorithm is constraint based and is able to infer
+method types with bounded generic types. 
+
+\if0
 We presented in this paper a global type infrerence algorithm for Featherweight
 Generic Java (FGJ). FGJ is a formal calculus of Java which reduces the method
 declaring block to a single expression. In
@@ -26,15 +38,16 @@ to be resolved as Java allows no lower bounds of type parameters. If we would
 transfer our type inference algorithm to Scala then the solution of these
 constraints could be disclaimed as Scala allows lower bounds of type
 parameters. This would speed up our type inference algorithm.
+\fi
 
-In future work we plan to extend TFGJ to a wild-\emph{T}FJ as an extension of
-wild--FJ. wild--FJ \cite{TEP05} is the formal calculus of
-Java-5. In addition to FGJ wild--FJ includes wildcards. The main
-difference between TFGJ and wild--TFJ would be the type unification. For this we have
-to extend our type unification algorithm \cite{plue09_1} such that constraints of
-the form $a \lessdot ty$ are not longer resolved.
+In future work, we plan to extend \FGJGT to a calculus with wildcards
+inspired by Wild~FJ \cite{TEP05}. 
+We also plan to extend the formal calculus with lambda expressions
+(cf.\ \cite{BBDGV18}), but using true function types in place of
+interface types.
 
-Finally, we will expand the formal calculus of Java with type inference by
-lambda expressions. There is a formal calculus of Java 8 \cite{BBDGV18}. As in
-Java 8 in the calculus types of lambda expressions are functional interfaces. Our approach is
-that the types of lambda expressions real function types as in Scala.
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "TIforGFJ"
+%%% End:
