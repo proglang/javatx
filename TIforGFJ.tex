@@ -107,16 +107,13 @@ The algorithm is split into several parts, which are executed on a single class 
 \item Setting in one of the type solutions with \fjtypeInsert{}
 \end{enumerate}
 
-The complete $\fjtypeinference{}$ algorithm for a single class can be given as follows:
-$\fjtypeinference : \mv{\Pi} \times \texttt{L} \to \mv{\Pi}$\\
-$\begin{array}{l}
+$\begin{array}{l}\fjtypeinference : \mv{\Pi} \times \texttt{L} \to \mv{\Pi}\\
 \fjtypeinference(\mv{\Pi}, \texttt{L}) = \\
 \quad \quad \begin{array}[t]{rl}
   \textbf{let}\ 
   (\mtypeEnvironment, \consSet) &= \fjtype{}(\mv{\Pi}, \texttt{L})\\
   {Uni} &= \unify{}(\consSet)\\
   (\sigma, \unifyGenerics{}) &= \text{choose a solution from}\ {Uni}\\
-  %TODO: Describe whole algorithm (Insert types, try out every unify solution by backtracking (describe it as Non Deterministic algorithm))
 \end{array}\\
 \textbf{in}\ \fjtypeInsert(\mv{\Pi}, (\sigma, \unifyGenerics{}) )
 \end{array}$
@@ -125,10 +122,6 @@ In the third step of the algorithm we set in one solution at a time.
 Here we describe the third step as a nondeterministic function, which picks the right solution.
 It is possible that subsequent classes resolve some of the solutions as incorrect.
 In praxis we can solve this problem by backtracking and trying out every possible solution one by one if needed.
-
-%This set inherits the principal type solution.
-%The last step simplifies the calculated solutions and only inserts the principal typing.
-%The last step chooses the principal type out of those possibilities.
 
 The solver \unify{} returns a set of all possible type solutions for the currently processed class.
 We generate the $\mv{\Pi}$ environment used in the next iteration of the \fjtype{} algorithm as follows:
@@ -158,8 +151,6 @@ methods \mv{m1} and \mv{m2} is taking place inside class \mv{D2}. As
 \mv{D1} before \mv{D2}, which corresponds to the constraints imposed
 by the typing of \TFGJ in Section~\ref{chapter:type-rules}.}
 {Das gehört doch zu den Typregeln oder willst Du es hier nochals wiederholen?}
-
-% Only the first step creating the type assumptions is able to consider other classes as well.
 
 
 \begin{figure}[tp]
