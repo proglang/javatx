@@ -117,9 +117,9 @@ No constraint is altered, deleted or modified during this step.
 
 \begin{theorem}\label{theo:unifyCompleteness}
   \textbf{(Completeness):} The \unify{} algorithm calculates a general unifier for the input set of constraints ($\consSet_{in}$).
-  A unifier $\sigma$ is a general unifier for $\consSet_{in}$ if it unifies $\consSet_{in}$
-  and for every other unifier $\omega$ there is a substitution $\lambda$ so that $\omega(x) = \lambda(\sigma(x))$.
 \end{theorem}
+A unifier $\sigma$ is a general unifier for $\consSet_{in}$ if it unifies $\consSet_{in}$
+and for every other unifier $\omega$ there is a substitution $\lambda$ so that $\omega(x) = \lambda(\sigma(x))$.
 \textit{Proof:}
 %The \unify{} calculates multiple solutions.
 
@@ -403,32 +403,3 @@ but here atleast one constraint with the type variable on the left side is kept.
 If the \unify{} algorithm is successful, then the constraint set is in solved form in step 5.
 Every type variable on the left side of a constraint set in solved form will get a substitution in $\sigma$.
 \hfill $\square$
-
-\begin{theorem}
-  \label{theo:unifyTypeSolution}
-  %TODO
-  %Here we can do some assumptions over the type solution, needed to insert the type solution
-\end{theorem}
-
-\section{Elimination Matrix}
-What is needed to set in types correctly
-
-We can remove all $a \lessdot b$ constraints, because there are no circles.
-
-No $a \lessdot b$ constraints.
-Only one $a \lessdot N$ constraint.
-
-
-\begin{table}[]
-  \begin{tabular}{lllll}
-  Constraints    & Step 2 & Reduce rule & Adapt rule & swap rule \\
-  $a \lessdot N$ &        &             &            &           \\
-  $a \doteq N$   &        &             &            &           \\
-  $a \doteq b$   &        &             &            &           \\
-  $a \lessdot b$ &        &             &            &           \\
-  $N \lessdot T$ &        &             & X          &           \\
-  $N \doteq T$   &        & X           &            &           \\
-  $N \lessdot a$ & X      &             &            &           \\
-  $N \doteq a$   &        &             &            & X        
-  \end{tabular}
-  \end{table}
