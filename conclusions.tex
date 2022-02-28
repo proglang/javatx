@@ -1,22 +1,40 @@
 We presented in this paper a global type infrerence algorithm for Featherweight
-Generic Java (FGJ).  The extended language we called  TFGJ. FGJ is formal calculus of Java which reduces the method
-declarating block to a single expression. In
+Generic Java (FGJ). FGJ is a formal calculus of Java which reduces the method
+declaring block to a single expression. In
 \cite{DBLP:journals/toplas/IgarashiPW01} syntax, including typing rules, and semantics of FGJ is
-declared. We replaced the typing rules which defines type correct TFGJ
-programs with method without any type declarations.
+declared. FGJ type system corresponds with the type system of Generic Java, which is a Java with generics but without wildcards. We extended FGJ to TFGJ by adding typing rules for
+programs with method without any type declaration. The principle idea of the
+new typing rules is: Any type correct FGJ program, erasing the type
+annotations is a correct type TFGJ program. There is one
+restriction. Polymorphic recusive programs are excluded as for these programs
+type inference is only semi-decidable. This means that any correct typeless TFGJ program
+has an equivalent FGJ program. Therefore we leave the semantics of FGJ unchanged.
+
 %type unification
 We reduced the global type inference algorithm to a type unification algorithm
 which resolves the generated constraints. The type unification algorithm is not
 unitary but finitary. This means that the algorithm terminates but in general
 there is more than one solution. The multiplicity of solutions are induced
-either by overloading and on the over hand by constraints of the form $a
+either by overloading, expressed by so-called \textbf{OrConstraint}, and on the over hand by constraints of the form $a
 \lessdot ty$ and $ty \lessdot a$ where $a$ is a type variable und $ty$ is a non
 type variable type. In this paper we improved the type unification algorithm
 such that constraints of the form $a \lessdot ty$ are not longer resolved but
 transferred to bounded type parameters \texttt{a extends ty}. This reduced the
 number of solutions enormously, without restricting the generality of the typing
-of the FGJ programs. Unfortunately constraints of the form $ty \lessdot a$ have
-to resolved as Java allows no lower bounds of type parameters. If we would
+of the TFGJ programs. Unfortunately constraints of the form $ty \lessdot a$ have
+to be resolved as Java allows no lower bounds of type parameters. If we would
 transfer our type inference algorithm to Scala then the solution of these
 constraints could be disclaimed as Scala allows lower bounds of type
-parameters. This would speed-up our type inference algorithm.
+parameters. This would speed up our type inference algorithm.
+
+In future work we plan to extend TFGJ to a wild-\emph{T}FJ as an extension of
+wild--FJ. wild--FJ \cite{TEP05} is the formal calculus of
+Java-5. In addition to FGJ wild--FJ includes wildcards. The main
+difference between TFGJ and wild--TFJ would be the type unification. For this we have
+to extend our type unification algorithm \cite{plue09_1} such that constraints of
+the form $a \lessdot ty$ are not longer resolved.
+
+Finally, we will expand the formal calculus of Java with type inference by
+lambda expressions. There is a formal calculus of Java 8 \cite{BBDGV18}. As in
+Java 8 in the calculus types of lambda expressions are functional interfaces. Our approach is
+that the types of lambda expressions real function types as in Scala.
