@@ -79,7 +79,7 @@ as an open problem. He gives  an incomplete type inference algorithm
 for the logical language \textsf{TEL}. The reason for incompleteness
 is the admission of subtype relationships between polymorphic types of
 different arities as in  $\texttt{List(a)} \sub
-\texttt{myLi(a,b)}$. This liberal stance leads to infinite chains in
+\texttt{myLi(a,b)}$. This liberal stance leads to semi-infinite chains in
 the type ordering.
 Given  $\texttt{List(a)} \sub \texttt{myLi(a,b)}$, we obtain:
 \begin{gather*}
@@ -136,8 +136,8 @@ unifiers $\set{\mathtt{a} \mapsto \texttt{int}}$, $\set{\mathtt{a} \mapsto
 
 Pl\"umicke \cite{plue09_1} realized that the type system of
 \textsf{TEL} is related to subtyping in Java.
-In contrast to \textsf{TEL}, where infinite chains have a lower bound, 
-in Java finite chain have an upper bound. E.g. for $\exptypett{myLi}{b,a} \olsub \exptypett{List}{a}$ holds:
+In contrast to \textsf{TEL}, where semi-infinite chains grow in supertype direction, 
+in Java semi-infinite chains grow in subtype direction. E.g. for $\exptypett{myLi}{b,a} \olsub \exptypett{List}{a}$ holds:
 
 \smallskip
 \noindent
