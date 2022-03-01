@@ -103,12 +103,14 @@ This section presents our type inference algorithm.
 The algorithm is given method assumptions $\mv\Pi$ and applied to a
 single class $\mv L$ at a time:
 \begin{gather*}
-\fjtypeinference(\mv{\Pi}, \texttt{L}) = \\
+\fjtypeinference(\mv{\Pi}, \texttt{class}\ \exptype{C}{\ol{X}
+\triangleleft \ol{N}} \triangleleft \type{N}\ \{ \ldots \}) = \\
 \quad \quad \begin{array}[t]{rll}
   \textbf{let}\ 
-  (\overline{\methodAssumption}, \consSet) &= \fjtype{}(\mv{\Pi}, \texttt{L}) &
+  (\overline{\methodAssumption}, \consSet) &= \fjtype{}(\mv{\Pi}, \texttt{class}\ \exptype{C}{\ol{X}
+  \triangleleft \ol{N}} \triangleleft \type{N}\ \{ \ldots \}) &
                                                                      \text{// constraint generation}\\
-  \overline{(\sigma,  \ol{Y} \triangleleft \ol{P})}\commentarymark &= \unify{}(\consSet) & \text{// constraint solving}\\
+  \overline{(\sigma,  \ol{Y} \triangleleft \ol{P})}\commentarymark &= \unify{}(\consSet,\, \ol{X} <: \ol{N}) & \text{// constraint solving}\\
   %TODO: Describe whole algorithm (Insert types, try out every unify solution by backtracking (describe it as Non Deterministic algorithm))
 \end{array}\\
 \textbf{in}\ \mtypeEnvironment \cup
@@ -117,8 +119,8 @@ single class $\mv L$ at a time:
 \end{gather*}
 \commentary{$^*$Hier muss doch overline stehen, weil Unify mehrere Loesungen hat}
 
-The overall algorithm is nondeterministic. There may be multiple solutions for a constraint set and a local solution for class $\mv L$ may not
-be compatible with the constraints generated for a subsequent class. In this case, we have to backtrack to $\mv L$ and proceed to the next
+The overall algorithm is nondeterministic. There may be multiple solutions for a constraint set and a local solution for class $\mv C$ may not
+be compatible with the constraints generated for a subsequent class. In this case, we have to backtrack to $\mv C$ and proceed to the next
 local solution; if thats fail we have to backtrack further to an earlier class.
 
 %This set inherits the principal type solution.
