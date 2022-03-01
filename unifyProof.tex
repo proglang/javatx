@@ -259,7 +259,7 @@ By replacing all ($a \lessdot b$) constraints with ($a \doteq b$) we do not remo
 In the last step all the constraint sets, which are in solved form, are converted to unifiers.
 
 We see that only a constraint set which has no unifier does not reach solved form.
-We showed that in every step of the \unify{} algorithm we never exclude a possible unifier.
+We showed that in none of the steps of the \unify{} algorithm we exclude a possible unifier.
 Also we showed that after we reach step 5 only constraint sets with a correct unifier are in solved form.
 By removing all constraint sets which are not in solved form the algorithm does not
 remove a possible correct unifier.
@@ -389,7 +389,7 @@ Due to the fact that there is never added a fresh type variable during the \unif
 the algorithm will terminate for any given finite set of constraints. \hfill $\square$
 
 %The function $\textbf{TVs}$ returns a set of every type variable used as a singleton in the left or right side of a constraint in the given constraint set.
-
+\if0
 \begin{lemma}\label{lemma:unify-exhaustive}
   \textbf{Exhaustiveness:}
   %Every type variable used in the input constraints will get an unifier assigned by \unify{}.
@@ -408,3 +408,4 @@ But the \texttt{subst} rule generates a $\tv{a} \doteq \itype{T}$ constraint, wh
 If the \unify{} algorithm is successful, then the constraint set is in solved form in step 5.
 Every type variable on the left side of a constraint set in solved form will get a substitution in $\sigma$.
 \hfill $\square$
+\fi

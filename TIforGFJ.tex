@@ -527,7 +527,7 @@ The constraint $\type{R} \lessdot \exptype{C}{\ol{X}}$ assures that the type of 
   \textbf{FGJ Type rule} &&& \textbf{Constraints} \\
   $\mathtt{\environmentvdash e_0 : T_0 }$ &&&
     $({R}, \consSet_R) = \typeExpr(({\mtypeEnvironment} ;\overline{\localVarAssumption}), \texttt{e})$\\ 
-  $\mathtt{\mathit{bound}_\Delta (T_0)}$ &&& $\type{R} \lessdot \exptype{C}{\ol{X}}$ \\
+  $\mathtt{\mathit{bound}_\Delta (T_0)}$ &&& $\type{R} \lessdot \exptype{C}{\ol{\tv{a}}}$ \\
   $\mathtt{\mathit{mtype}(m, \mathit{bound}_\Delta (T_0), \Pi)}$ &&& Lookup in the assumptions \\
  %$\textit{mtype}(m, \textit{bound}_\triangle(T_0)) = \ol{U} \to U$ & $\type{R} \doteq cl$\\
  $\environmentvdash \ol{e} : \ol{S}$ &&& $\forall \texttt{e}_i \in \ol{e} : (R_i, \consSet_i) = \typeExpr(({\mtypeEnvironment} ;
