@@ -168,8 +168,12 @@ directly from $C_{\lessdot}$ using the same generic variable substitution. We ne
 we applied (subst) exhaustively in Step~3.
 \begin{align*}
   \sigma &=
-           \set{\tv{b} \mapsto [\ol{Y}/\ol{\tv{a}}]\itype{T} \mid (\tv{b} \doteq \itype{T}) \in C_{\doteq}} \ \cup \ 
-           \set{\il{\tv{a}} \mapsto \ol{Y} }, \\
+           \set{\tv{b} \mapsto [\ol{Y}/\ol{\tv{a}}]\itype{T} \mid
+           (\tv{b} \doteq \itype{T}) \in C_{\doteq}}
+           \cup 
+           \set{\il{\tv{a}} \mapsto \ol{Y}}
+           \cup 
+           \set{{\tv{b}} \mapsto \mv{X} \mid (\tv{b} \lessdot \mv{X}) \in C_{\lessdot}}, \\
   \unifyGenerics{} & =
                      \set{\type{Y} \triangleleft [\ol{Y}/\ol{\tv{a}}]\itype{N} \mid (\tv{a} \lessdot \itype{N}) \in C_{\lessdot}}
 \end{align*}
