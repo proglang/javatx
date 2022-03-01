@@ -1,5 +1,14 @@
-\section{Preliminaries}
+\section{Featherweight Generic Java with Global Type Inference}
 \label{sec:preliminaries}
+
+This section defines the syntax and type system of a modified version
+of the language Featherweight Generic Java
+(FGJ)~\cite{DBLP:journals/toplas/IgarashiPW01}, which we call \TFGJ
+(with Global Type Inference). The main omissions with respect to FGJ are method types specifications
+and polymorphic recursion. We finish the section by formally
+connecting FGJ and \TFGJ and by establishing some properties about
+polymorphic recursion in FGJ.
+
 \subsection{Syntax}
 % \commentarymargin{Input assumptions}
 % No overloaded methods
@@ -18,11 +27,7 @@
   \caption{Syntax of \TFGJ}
   \label{fig:syntax-tfgj}
 \end{figure}
-The input of our global type inference algorithm is a modified version
-of the language Featherweight Generic Java
-(FGJ)~\cite{DBLP:journals/toplas/IgarashiPW01}, which we call \TFGJ
-(with Global Type Inference).
-Its syntax is shown in Figure~\ref{fig:syntax-tfgj}.
+Figure~\ref{fig:syntax-tfgj} defines the syntax of \TFGJ.
 Compared to FGJ,
 type annotations for method parameters and method return types are omitted.
 Object creation via \texttt{new} as well as method calls come do not
@@ -216,6 +221,179 @@ completion, that is, a well-typed FGJ program with the same structure.
     The remaining expression typing rules are shared between FGJ and \TFGJ, so they do not
     affect completions.
 \end{proof}
+
+\subsection{Polymorphic Recursion, Formally}
+\label{sec:polym-recurs-form}
+
+Consider an FGJ class $\mv{C}$ with $n$ mutually recursive methods $\mv{m}_i :
+\forall\ol{X}_i. \ol{A}_i \to \ol{A}_i$, for $1\le i\le n$. Define the \emph{instantiation
+  multigraph $IG(\mv{C})$} as a directed multigraph with vertices $\{1,
+\dots, n\}$.
+Edges between $i$ and $j$ in this graph are labeled with a
+substitution from $\ol{X}_j$ to types in $\mv{m}_i$, which may contain
+type variables from $\ol{X}_i$.
+In particular, if $\mv{m}_i$ invokes $\mv{m}_j$ where the generic type variables in
+the type of $\mv{m}_j$ are instantiated with substitution
+$\ol{U}/\ol{X}_j$ (see rule GT-INVK), then 
+$
+i \stackrel{\ol{U}/\ol{X}_j}{\longrightarrow} j
+$
+is an edge of $IG (\mv{C})$.
+
+Define the \emph{closure of the instantiation multigraph $IG^*(\mv{C})$} as the multigraph
+obtained from $IG(\mv{C})$ by applying the following rule, which
+composes the instantiating substitutions, exhaustively:
+\begin{gather}\label{eq:1}
+  i \stackrel{\ol{U}/\ol{X}_j}{\longrightarrow} j
+  \quad\wedge\quad
+  j \stackrel{\ol{V}/\ol{X}_k}{\longrightarrow} k
+  \qquad\Rightarrow\qquad
+  i \stackrel{[\ol{U}/\ol{X}_j]\ol{V}/\ol{X}_k}{\longrightarrow} k
+\end{gather}
+
+\begin{definition}\label{def:method-in-poly-rec}
+  Method $\mv{m}_i$ is \emph{involved in polymorphic recursion}
+  if there is an edge
+  \begin{gather}\label{eq:2}
+    i \stackrel{\ol{W}/\ol{X}_i}{\longrightarrow} i \quad \in IG^*
+    (\mv{C}) \qquad \text{such that} \qquad \ol{W} \ne \ol{X}_i
+  \end{gather}
+\end{definition}
+For the toy example in Figure~\ref{fig:examples-poly-rec}, we obtain
+the multigraph $IG^* (\mv{UsePair})$ which indicates that \mv{prc} is
+involved in polymorphic recursion:
+\begin{gather*}
+  \begin{array}{l@{\quad}|@{\quad}l}
+    IG(\mv{UsePair})& IG^* (\mv{UsePair}) \\\hline
+    \mv{prc} \stackrel{\mv{Y,X}/\mv{X,Y}}{\longrightarrow} \mv{prc} &
+    \mv{prc} \stackrel{\mv{Y,X}/\mv{X,Y}}{\longrightarrow} \mv{prc} \qquad
+    \mv{prc} \stackrel{\mv{X,Y}/\mv{X,Y}}{\longrightarrow} \mv{prc}
+  \end{array}
+\end{gather*}
+The call to \mv{swap} does not appear in the graph because
+\mv{swap} is defined in a different class.
+
+For \mv{UsePair2}, we obtain a multigraph $IG^* (\mv{UsePair2})$ with
+infinitely many edges which is also clear indication for polymorphic recursion:
+\begin{gather*}
+  \begin{array}{l@{\quad}|@{\quad}l}
+    IG(\mv{UsePair2})& IG^* (\mv{UsePair2}) \\\hline
+    \mv{prc} \stackrel{\mv{Y,Pair<X,Y>}/\mv{XY}}{\longrightarrow} \mv{prc}
+    &
+    \mv{prc} \stackrel{\mv{Y,Pair<X,Y>}/\mv{XY}}{\longrightarrow}
+      \mv{prc} \\
+    &
+      \mv{prc}
+      \stackrel{\mv{Pair<X,Y>,Pair<Y,Pair<X,Y>>}/\mv{XY}}{\longrightarrow}
+      \mv{prc}
+      \\
+                     & \dots
+  \end{array}
+\end{gather*}
+
+
+Clearly, $IG (\mv{C})$ is finite and can be constructed effectively by
+collecting the instantiating substitutions from all method call
+sites.
+Repeated application of the propagation rule~\eqref{eq:1} either
+results in saturation where no edge of the resulting multigraph satisfies~\eqref{eq:2} or it
+detects an instantiating edge as in condition~\eqref{eq:2}. 
+
+The following condition is necessary for the absence of
+polymorphic recursion.
+
+\begin{proposition}\label{prop:polymorphi-recursion}
+  Suppose an FGJ class \mv{C} has $n$ methods, which are mutually
+  recursive.
+  If \mv{C} does not exhibit
+  polymorphic recursion, then
+  \begin{itemize}
+  \item all methods quantify over the same number of generic
+    variables;
+  \item if a method has generic variables $\ol{X}$, then each call to
+    a method of \mv{C} instantiates with a permutation of the
+    $\ol{X}$;
+  \item $IG^* (\mv{C})$ is finite.
+  \end{itemize}
+\end{proposition}
+\begin{proof}
+  Suppose for a contradiction that there are two distinct methods $\mv{m}_i$ and
+  $\mv{m}_j$ with generic variables $\ol{X}_i$ and $\ol{X}_j$, respectively,
+  where $|\ol{X}_i| < |\ol{X}_j|$. By mutual recursion, $\mv{m}_i$ invokes
+  $\mv{m}_j$ directly or indirectly and vice versa. Hence, $IG^* (\mv{C})$
+  contains edges from $i$ to $j$ and back:
+  \begin{gather*}
+    i \stackrel{\ol{U}/\ol{X}_j}{\longrightarrow} j
+    \qquad
+    j \stackrel{\ol{V}/\ol{X}_i}{\longrightarrow} i
+  \end{gather*}
+  As $IG^*(\mv{C})$ is closed under composition, it must also contain
+  the edge
+  \begin{gather*}
+    j \stackrel{[\ol{V}/\ol{X}_i]\ol{U}/\ol{X}_j}{\longrightarrow} j
+    \text{.}
+  \end{gather*}
+  By assumption $\mv{C}$ does not use polymorphic recursion, so it
+  must be that $[\ol{V}/\ol{X}_i]\ol{U}/\ol{X}_j =
+  \ol{X}_j/\ol{X}_j$. To fulfill this condition, all components of
+  $\ol{U}$ must be variables $\in \ol{X}_i$. As  $|\ol{X}_i| <
+  |\ol{X}_j| = |\ol{U}|$, there must be some variable $\mv{X} \in \ol{X}_i$ that
+  occurs more than once in $\ol{U}$, say, at positions $j_1$ and $j_2$. 
+  But that means the variables at positions $j_1$ and $j_2$ in
+  $\ol{X}_j$ are mapped to the same component of $\ol{V}$. This is a
+  contradiction because this substitution cannot be the identity
+  substitution $\ol{X}_j/\ol{X}_j$.
+
+  Hence, all methods have the same number of generic variables and all
+  instantiations must use variables.
+
+  Suppose now that there is a direct call from $\mv{m}_i$ to
+  $\mv{m}_j$ where the instantiation $\ol{U}/\ol{X}_j$ is not a permutation. Hence,
+  there is a variable that appears more than once in $\ol{U}$, which
+  leads to a contradiction using similar reasoning as before.
+
+  Hence, all instantiations must be permutations over a finite set of
+  variables, so that $IG^*(\mv{C})$ is finite! 
+\end{proof}
+
+Moreover, if a class has only mutually recursive methods without
+polymorphic recursion, we can assume that each method uses the same
+generic variables, say $\ol{X}$, and each instantiation for
+class-internal method calls is the identity $\ol X/\ol X$.
+
+Using the same generic variables is achieved by $\alpha$ conversion.
+By Proposition~\ref{prop:polymorphi-recursion}, we already know that
+each instantiation is a permutation. Each self-recursive call must use
+an identity instantiation already, otherwise it would constitute an
+instance of polymorphic recursion. Suppose that method \mv{m} calls
+method \mv{n} instantiated with a non-identity permutation, say
+$\pi$ so that parameter $\mv{X_i}$ of \mv{n} gets instantiated with
+$\mv{X_{\pi(i)}}$ of \mv{m}. In this case, we reorder the generic
+parameters of \mv{n}  according to the inverse permutation
+$\pi^{-1}$ and propagate this permutation to all call sites of
+\mv{n}. For the call in \mv{m}, we obtain the identity permutation
+$\pi \cdot \pi^{-1}$, for self-recursive calls inside \mv{n}, the
+instantiation remains the identity (for the same reason), for a
+call site in another method which instantiates \mv{n} with permutation
+$\sigma$, we change that permutation to $\sigma \cdot \pi^{-1}$, which
+is again a permutation.
+This way, we can eliminate all non-identity instantiations from calls
+inside \mv{m}.
+
+We move our attention to \mv{n}. Each self-recursive call and each call to \mv{m} uses the
+identity instantiation, the latter by construction. So we only need to
+consider calls to $\mv{n'}\notin\{\mv{n}, \mv{m}\}$ with an
+instantiation which is not the identity permutation. We can also
+assume that $\mv{n'}$ is not called from $\mv{m}$: otherwise, \mv{n'}
+would have the generic variables in the same order as \mv{m} and hence
+as \mv{n}! But that means we can fix all calls to $\mv{n'}$ by
+applying the inverse permutations as for \mv{n} \emph{without disturbing the already
+  established identity instantiations}!
+
+Each such step eliminates all non-identity instantiations for at least
+one method without disturbing previous identity instantiations. Hence,
+the procedure terminates after finitely many steps with a class with
+all instantiations being identity permutations.
 
 \if0 
 
