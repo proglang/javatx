@@ -110,16 +110,18 @@ single class $\mv L$ at a time:
   (\overline{\methodAssumption}, \consSet) &= \fjtype{}(\mv{\Pi}, \texttt{class}\ \exptype{C}{\ol{X}
   \triangleleft \ol{N}} \triangleleft \type{N}\ \{ \ldots \}) &
                                                                      \text{// constraint generation}\\
-  \overline{(\sigma,  \ol{Y} \triangleleft \ol{P})}\commentarymark &= \unify{}(\consSet,\, \ol{X} <: \ol{N}) & \text{// constraint solving}\\
+              {(\sigma,  \ol{Y} \triangleleft \ol{P})} &= \unify{}(\consSet,\, \ol{X} <: \ol{N}) & \text{// constraint solving}\\
   %TODO: Describe whole algorithm (Insert types, try out every unify solution by backtracking (describe it as Non Deterministic algorithm))
 \end{array}\\
-\textbf{in}\ \mtypeEnvironment \cup
+\textbf{in}\ \mv\Pi \cup
 \set{(\exptype{C}{\ol{X} \triangleleft \ol{N}}.\mv{m} : \exptype{}{\ol{Y} \triangleleft \ol{P}}\ \ol{\sigma(\tv{a})} \to \sigma(\tv{a})) \ |\ (\exptype{C}{\ol{X} \triangleleft \ol{N}}.\mv{m} : \ol{\tv{a}} \to \tv{a}) \in \overline{\methodAssumption}}
 % \fjtypeInsert(\overline{\methodAssumption}, (\sigma, \unifyGenerics{}) )
 \end{gather*}
-\commentary{$^*$Hier muss doch overline stehen, weil Unify mehrere Loesungen hat}
 
-The overall algorithm is nondeterministic. There may be multiple solutions for a constraint set and a local solution for class $\mv C$ may not
+
+The overall algorithm is nondeterministic. The function $\unify{}$ may
+return finitely many times as there may be multiple solutions for a constraint
+set.  A local solution for class $\mv C$ may not
 be compatible with the constraints generated for a subsequent class. In this case, we have to backtrack to $\mv C$ and proceed to the next
 local solution; if thats fail we have to backtrack further to an earlier class.
 
@@ -142,7 +144,8 @@ $(\sigma, \unifyGenerics{})$ is one of the solutions returned by \unify{}.
 \subsection{Type inference for a program }
 \label{sec:proc-mult-class}
 
-\commentarymargintext{Type inference processes a program one class at a time.
+% \commentarymargintext
+{Type inference processes a program one class at a time.
 To do so, it must be possible to order the classes such that early
 classes never call methods in later classes.
 As an example, Figure~\ref{fig:invalidinput} shows a program that is
@@ -156,7 +159,7 @@ methods \mv{m1} and \mv{m2} is taking place inside class \mv{D2}. As
 \mv{D2} invokes method \mv{m} of \mv{D1}, type inference must process
 \mv{D1} before \mv{D2}, which corresponds to the constraints imposed
 by the typing of \TFGJ in Section~\ref{chapter:type-rules}.}
-{Das gehört doch zu den Typregeln oder willst Du es hier nochals wiederholen?}
+%{Das gehört doch zu den Typregeln oder willst Du es hier nochals wiederholen?}
 
 
 \begin{figure}[tp]
@@ -308,7 +311,7 @@ environment.  Otherwise, we backtrack to check the next candidate.
 %%%%%   \typeMethod: \typeAssumptionsSymbol \times \texttt{M} \rightarrow \ol{\constraint}\\
 \begin{array}{@{}l@{}l@{}l}
   \typeMethod & (\ensuremath{\mv{\Pi} }, \exptype{C}{\ol{X}},\ &\  \mathtt{m}(\ol{x})\{ \mathtt{ return }\ \texttt{e}; \}) =\\
-              & \textbf{let} & \exptype{}{\ol{Y} \triangleleft \ol{P}}\ \overline{T} \to T  = \mv{\Pi} (\exptype{C}{\ol{X \triangleleft \ol{N}}}.\mv{m})
+              & \textbf{let} & \exptype{}{\ol{Y} \triangleleft \ol{P}}\ \overline{T} \to T  = \mv{\Pi} (\exptype{C}{\ol{X} \triangleleft \ol{N}}.\mv{m})
   \\
               & %\textbf{let}
                                                                                               & ({R}, \consSet) =
@@ -440,12 +443,12 @@ constraints for the subexpression. We return the target type of the cast.
   \end{array}
 \end{gather*}
 
-\subsubsection{Soundness and Completeness of the type inference algorithm}
-\begin{theorem}\textbf{Soundness:}
-  $\fjtypeinference(\mv{\Pi},\texttt{L}) = \mv{\Pi}'$ implies $\mv{\Pi} \vdash \texttt{L} : \mv{\Pi}'$
+\subsection{Soundness and Completeness of the type inference algorithm}
+\begin{theorem}[Soundness] For all $\mv{\Pi}$, $\mv L$, $\mv{\Pi'}$, 
+  $\fjtypeinference(\mv{\Pi},\texttt{L}) = \mv{\Pi}'$ implies $\mv{\Pi} \vdash \texttt{L} : \mv{\Pi}'$.
 \end{theorem}
-\begin{theorem}\textbf{Completeness:}
-  If there exists a $\mv{\Pi}'$ and $\texttt{L}$ with $\mv{\Pi} \vdash \texttt{L} : \mv{\Pi}'$, then $\fjtypeinference(\mv{\Pi},\texttt{L}) = \mv{\Pi}''$ with $\mv{\Pi} \vdash \texttt{L} : \mv{\Pi}''$.
+\begin{theorem}[Completeness]  For all $\mv{\Pi}$, $\mv L$, $\mv{\Pi'}$,
+  $\mv{\Pi} \vdash \texttt{L} : \mv{\Pi}'$ implies $\fjtypeinference(\mv{\Pi},\texttt{L}) = \mv{\Pi}''$ with $\mv{\Pi} \vdash \texttt{L} : \mv{\Pi}''$.
 \end{theorem}
 \textbf{Proof:}
 Every type variable $\tv{a}$ in $\mv{\Pi}$ is replaced by $\sigma(\tv{a})$.
