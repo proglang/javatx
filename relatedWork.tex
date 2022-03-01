@@ -79,9 +79,9 @@ as an open problem. He gives  an incomplete type inference algorithm
 for the logical language \textsf{TEL}. The reason for incompleteness
 is the admission of subtype relationships between polymorphic types of
 different arities as in  $\texttt{List(a)} \sub
-\texttt{myLi(a,b)}$. This liberal stance leads to semi-infinite chains in
-the type ordering.
-Given  $\texttt{List(a)} \sub \texttt{myLi(a,b)}$, we obtain:
+\texttt{myLi(a,b)}$. The result is that the subtyping relation does
+not fulfill the ascending chain condition.
+For example, given  $\texttt{List(a)} \sub \texttt{myLi(a,b)}$, we obtain:
 \begin{gather*}
   \texttt{List(a)} \sub \texttt{myLi(a,List(a))} \sub \texttt{myLi(a,myLi(a,List(a)))}  \sub \dots
 \end{gather*}
@@ -136,8 +136,10 @@ unifiers $\set{\mathtt{a} \mapsto \texttt{int}}$, $\set{\mathtt{a} \mapsto
 
 Pl\"umicke \cite{plue09_1} realized that the type system of
 \textsf{TEL} is related to subtyping in Java.
-In contrast to \textsf{TEL}, where semi-infinite chains grow in supertype direction, 
-in Java semi-infinite chains grow in subtype direction. E.g. for $\exptypett{myLi}{b,a} \olsub \exptypett{List}{a}$ holds:
+In contrast to \textsf{TEL}, where the ascending chain condition does
+not hold,  Java with wildcards violates the descending chain
+condition. For example, given $\exptypett{myLi}{b,a} \olsub
+\exptypett{List}{a}$ we find:
 
 \smallskip
 \noindent
