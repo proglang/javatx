@@ -216,9 +216,8 @@ whole program and backtracks if that fails.
 \begin{figure}[tp]
   \begin{align*}
     % Type
-    \itype{T}, \itype{U} &::= \tv{a} \mid \mv{T} \mid \red{\itype{N}} && \text{type variable \red{or bounded type partameter} or type}\\
-    \itype{N} &::= \exptype{C}{\il{T}} && \text{class type with type \red{parameters
-                                          \sout{variables}}} \\
+    \itype{T}, \itype{U} &::= \tv{a} \mid \mv{X} \mid {\itype{N}} && \text{type variable, bounded type parameter, or type}\\
+    \itype{N} &::= \exptype{C}{\il{T}} && \text{class type (with type variables)} \\
     % Constraints
     \simpleCons &::= \itype{T} \lessdot \itype{U} \mid \itype{T} \doteq \itype{U} && \text{simple constraint: subtype or equality}\\
     \orCons{} &::= \set{\set{\overline{\simpleCons_1}}, \ldots, \set{\overline{\simpleCons_n}}} && \text{or-constraint}\\
