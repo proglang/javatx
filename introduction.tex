@@ -206,15 +206,19 @@ general than the types in the original FGJ program.
 We specify syntax and type system of the language \FGJGT, which drops all method type
 annotations from FGJ and the typing of which rules out polymorphic
 recursion. This language is amenable to polymorphic type inference and
-each \FGJGT program can be completed to an FGJ program. 
+each \FGJGT program can be completed to an FGJ program (see Section~\ref{sec:preliminaries}). 
+
+We characterize uses of polymorphic recursion in FGJ and their impact
+on signatures of generic methods (Section~\ref{sec:polym-recurs-form}). 
 
 We define a constraint-based algorithm that performs global type
 inference for \FGJGT. This algorithm is sound and relatively complete
-for FGJ programs without polymorphic recursion. Our algorithm improves
+for FGJ programs without polymorphic recursion
+(Sections~\ref{sec:type-infer-algor} and~\ref{sec:unify}). Our algorithm improves
 on previous attempts at type inference for Java in the literature as detailed in
 Section~\ref{sec:related-work}. 
 
-We investigate the complexity of global type inference and show its NP-completeness.
+We investigate the complexity of global type inference and show its NP-completeness (Section~\ref{sec:complexity}).
 
 We implemented a prototype of the type inference algorithm, which we
 plan to submit for artifact evaluation.

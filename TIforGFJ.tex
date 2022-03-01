@@ -69,7 +69,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \usepackage{cite}
-\usepackage{todonotes} % [disable]
+\usepackage [disable]{todonotes} % [disable]
 \usepackage[utf8]{inputenc}
 \usepackage{hyperref}
 \usepackage{amsmath}
@@ -86,7 +86,16 @@
 \maketitle
 
 \begin{abstract}
-  Type Inference for Featherweight Generic Java
+  Java's type system mostly relies on type checking augmented with
+  local type inference to improve programmer convenience.
+
+  We study global type inference for Featherweight Generic Java (FGJ), a
+  functional Java core language. Given generic class headers and field
+  specifications, our inference algorithm infers all method types if
+  classes do not make use of polymorphic recursion.
+  The algorithm is constraint-based and improves on prior work in
+  several respects. Despite the restricted setting, global type
+  inference for FGJ is NP-complete.
 \end{abstract}
 
 
