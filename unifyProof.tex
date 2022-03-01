@@ -42,54 +42,59 @@ general unifiers for each constraint set $C$ and type environment $\Delta$.
      \ol{P}})$. 
 \end{theorem}
 
-\textit{Proof:}
+\begin{proof}
 We show theorem \ref{theo:unifySoundness} by going backwards over every step of the algorithm.
-We assume there exists a unifier $\sigma = \set {a_1 \mapsto \theta_1, \ldots , a_n \mapsto \theta_n}$ for the input constraints,
-which is the result of the \unify{} algorithm.
-This means for every constraint in the input set $(a \lessdot b) \in \consSet_{in}$ and $(c \doteq d) \in \consSet_{in}$
-this unifier will substitute all variables in a way that all constraints are satisfied:
-$\sigma(a) \leq \sigma(b)$, $\sigma(c) = \sigma(d)$\\
+\replaced{We assume there exists a unifier}{Let} $\sigma = \set {a_1 \mapsto T_1, \ldots , a_n \mapsto T_n}$ \replaced{for the input constraints,
+which is}{be} the result of the \unify{} algorithm.
+\replaced{This means}{We show} for every constraint in the input set $(a \lessdot b) \in \consSet_{in}$ and $(c \doteq d) \in \consSet_{in}$
+\erased{this unifier will substitute all variables in a way that all constraints are satisfied}:
+$\sigma(a) \olsub \sigma(b)$\replaced{,}{ and} $\sigma(c) = \sigma(d)$\\
 
-We now look at each step of the \unify{} algorithm
-which transforms the input set of constraints $Eq$ to a set $Eq'$.
-If we assume the unifier $\sigma$ is correct for the set $Eq'$,
-then we can show that it will also be correct for the constraints $Eq$. 
+We now \replaced{look}{consider} at each step of the \unify{} algorithm
+which transforms the input set of constraints $C$ to a set $C'$"
+If \erased{we assume the unifier} $\sigma$ is \replaced{correct for the set}{an
+  unifier of } $C'$,
+then \replaced{we can show that it will also be correct for the constraints}
+{$\sigma$ is an unifier of  $C$, too}.
 
 \begin{description}
-\item[Step 5 c)]
+\erased{Step 5 c)
 The last step of the algorithm transforms a set of constraints $Eq$ in solved form
-No changes to the constraint set are applied here.
+No changes to the constraint set are applied here.}
 
-\item[Step 5 b)]
+\item[Step 5 \sout{b})]
 A unifier which is correct for $a \doteq b$ is also correct for $a \lessdot b$.
-The transformation $Eq' = [a/b]Eq$ does not change this.
-The type variable $b$ appears only in constraints of the form $a \lessdot b$,
+The transformation $C' = [a/b]C$ does not change this.
+\erased{The type variable $b$ appears only in constraints of the form $a \lessdot b$,
 with both sides being type variables.
 There cannot be two constraints $a \lessdot b, b \lessdot a$ in $Eq$.
 This would have been removed by the \texttt{equals} rule.
 %In the $Eq$ set there can only be one constraint with the type variables $a \lessdot b$.
-So the only two other possible combinations for constraints containing $b$ would be $b \lessdot c$ and $c \lessdot b$.
-\begin{itemize}
-\item If $\set{a \lessdot b, b \lessdot c} \in Eq$ then $\set{a \doteq b, a \lessdot c} \in Eq'$.
-%After using the unifier $a \to b$ on $Eq'$: $\set{a \doteq b, b \lessdot c} \in Eq'$.
-\item If $\set{a \lessdot b, c \lessdot b} \in Eq$ then $\set{a \doteq b, c \lessdot b} \in Eq'$.
-%After using the unifier $a \to b$ on $Eq'$: $\set{a \doteq b, b \lessdot c} \in Eq'$.
-\end{itemize}
-In both cases a correct unifier for $Eq'$ would also be correct for $Eq$.
+So the only two other possible combinations for constraints containing $b$
+would be $b \lessdot c$ and $c \lessdot b$.
+% \begin{itemize}
+% \item 
+If $\set{a \lessdot b, b \lessdot c} \in Eq$ then $\set{a \doteq b, a \lessdot c} \in Eq'$.
+% %After using the unifier $a \to b$ on $Eq'$: $\set{a \doteq b, b \lessdot c} \in Eq'$.
+% \item 
+If $\set{a \lessdot b, c \lessdot b} \in Eq$ then $\set{a \doteq b, c \lessdot b} \in Eq'$.
+% %After using the unifier $a \to b$ on $Eq'$: $\set{a \doteq b, b \lessdot c} \in Eq'$.
+% \end{itemize}}
+In both cases a correct unifier for $Eq'$ would also be correct for $Eq$.}
 
-\item[Step 5 a)]
-We do not alter the constraint set which lateron lead to the unifier.
+\erased{Step 5 a)
+We do not alter the constraint set which lateron lead to the unifier.}
 
 \item[Step 4]
 The constraint sets are not altered here.
 
 \item[Step 3]
 An unifier $\sigma$ that is correct for a constraint set
-$Eq[a \to \theta] \cup (a \doteq \theta)$ is also correct for
-the set $Eq \cup (a \doteq \theta)$.
-From the constraint $(a \doteq \theta)$ it follows that $\sigma(a) = \theta$.
-This means that $\sigma(Eq) = \sigma(Eq[a \to \theta])$,
-because every occurence of $a$ in $Eq$ will be replaced by $\theta$ anyways when using the unifier $\sigma$.
+$[\itype{T}/a]C \cup \set{a \doteq \itype{T}}$ is also correct for
+the set $C \cup \set{a \doteq \itype{T}}$.
+From the constraint $(a \doteq \itype{T})$ it follows that $\sigma(a) = \itype{T}$.
+This means that $\sigma(C) = \sigma([\itype{T}/a]C)$,
+because every occurence of $a$ in $C$ will be replaced by $\itype{T}$ anyways when using the unifier $\sigma$.
 
 \item[Step 2]
 This step transforms constraints of the form $(\exptype{C}{\ol{X}} \lessdot a)$ and $(a \lessdot \exptype{C}{\ol{X}})$
@@ -99,16 +104,16 @@ then $\sigma$ also has to be a correct unifier for the constraints before this t
 
 We look at each transformation done in step 2:
 \begin{description}
-\item[$\set{\exptype{C}{\ol{T}} \lessdot a} \in Eq \to \set{a \doteq [\ol{T}/\ol{X}]N} \in Eq'$:]
+\item[$\set{\exptype{C}{\ol{T}} \lessdot a} \in C \to \set{a \doteq [\ol{T}/\ol{X}]N} \in C'$:]
 If $\exptype{C}{\ol{X}} <: N$ and $\sigma$ is correct for $(a \doteq [\ol{T}/\ol{X}]N)$
 then $\sigma$ is also correct for $(\exptype{C}{\ol{T}} \lessdot a))$.
 When substituting $a$ for $[\ol{T}/\ol{X}]N$ we get 
 $(\exptype{C}{\ol{T}} \lessdot [\ol{T}/\ol{X}]N)$
 , which is correct because $\exptype{C}{\ol{X}} <: \exptype{C}{\ol{Y}}$
 (see \texttt{S-CLASS} rule).
-\item[$\set{a \lessdot \exptype{C}{\overline{T}},\ a \lessdot^* b} \in Eq \to \set{T \lessdot b, a \lessdot \exptype{C}{\overline{T}},\ a \lessdot^* b} \in Eq'$]
-Trivial
-\item[$\set{a \lessdot \exptype{C}{\overline{T}},\ a \lessdot^* b} \in Eq \to \set{a \doteq [\ol{T}/\ol{X}]N, a \lessdot \exptype{C}{\overline{T}},\ a \lessdot^* b} \in Eq'$]
+\item[$\set{a \lessdot \exptype{C}{\overline{T}},\ a \lessdot^* b} \in C \to \set{T \lessdot b, a \lessdot \exptype{C}{\overline{T}},\ a \lessdot^* b} \in C'$]
+\replaced{Trivial}{obviously.}
+\item[$\set{a \lessdot \exptype{C}{\overline{T}},\ a \lessdot^* b} \in C \to \set{a \doteq [\ol{T}/\ol{X}]N, a \lessdot \exptype{C}{\overline{T}},\ a \lessdot^* b} \in C'$]
 This is the same as in the first transformation.
 Here we can also show correctness via the \texttt{S-CLASS} rule.
 
@@ -117,35 +122,37 @@ Here we can also show correctness via the \texttt{S-CLASS} rule.
 \item[Step 1]
 \begin{description}
 \item[erase-rules] remove correct constraints from the constraint set.
-A unifier $\sigma$ that is correct for the constraint set $Eq$
-is also correct for $Eq \cup \set{\theta \doteq \theta}$
-and $Eq \cup \set{\theta \lessdot \theta'}$, when $\theta \leq \theta'$.
+A unifier $\sigma$ that is correct for the constraint set $C$
+is also correct for $C \cup \set{\theta \doteq \theta}$
+and $C \cup \set{\theta \lessdot \theta'}$, when $\theta \leq \theta'$.
 \item[swap-rule] does not change the unifier for the constraint set.
 $\doteq$ is a symmetric operator and parameters can be swapped freely.
 \item[match] The subtype relation is transitive, so if there is a correct solution for
 $a \lessdot \exptype{C}{\ol{X}}, \exptype{C}{\ol{X}} \lessdot \exptype{D}{\ol{Y}}$
 then this solution would also apply for $a \lessdot \exptype{C}{\ol{X}} \lessdot \exptype{D}{\ol{Y}}$
 or $a \lessdot \exptype{D}{\ol{Y}}$.
-\item[adopt] An unifier which is correct for $Eq \cup \set{a \lessdot \exptype{C}{\ol{X}}, b \lessdot^* a, b \lessdot \exptype{D}{\ol{Y}}, b \lessdot \exptype{C}{\ol{X}}}$
-is also correct for $Eq \cup \set{a \lessdot \exptype{C}{\ol{X}}, b \lessdot^* a, b \lessdot \exptype{D}{\ol{Y}}}$.
+\item[adopt] An unifier which is correct for $C \cup \set{a \lessdot \exptype{C}{\ol{X}}, b \lessdot^* a, b \lessdot \exptype{D}{\ol{Y}}, b \lessdot \exptype{C}{\ol{X}}}$
+is also correct for $C \cup \set{a \lessdot \exptype{C}{\ol{X}}, b \lessdot^* a, b \lessdot \exptype{D}{\ol{Y}}}$.
 \item[adapt] If there is a $\sigma$ which is a correct unifier for a set
-$Eq \cup \set{ \exptype{C}{[\ol{A}/\ol{X}]\ol{Y}} \doteq \exptype{C}{\ol{B}}}$ then it is also
-a correct unifier for the set $Eq \cup \set{ \exptype{D}{\ol{A}} \lessdot \exptype{C}{\ol{B}}}$,
+$C \cup \set{ \exptype{C}{[\ol{A}/\ol{X}]\ol{Y}} \doteq \exptype{C}{\ol{B}}}$ then it is also
+a correct unifier for the set $C \cup \set{ \exptype{D}{\ol{A}} \lessdot \exptype{C}{\ol{B}}}$,
 if there is a subtype relation $\exptype{D}{\ol{X}} \leq^* \exptype{C}{\ol{Y}}$.
-To make the set $Eq \cup \set{ [\ol{A}/\ol{X}]\exptype{C}{\ol{Y}} \doteq \exptype{C}{\ol{B}}}$ the unifier 
+To make the set $C \cup \set{ [\ol{A}/\ol{X}]\exptype{C}{\ol{Y}} \doteq \exptype{C}{\ol{B}}}$ the unifier 
 $\sigma$ must satisfy the condition $\sigma([\ol{A}/\ol{X}]\ol{Y}) = \sigma(\ol{B})$.
-By substitution we get $Eq \cup \set{ \exptype{D}{\ol{A}} \lessdot \exptype{C}{[\ol{A}/\ol{X}]\ol{Y}}}$
+By substitution we get $C \cup \set{ \exptype{D}{\ol{A}} \lessdot \exptype{C}{[\ol{A}/\ol{X}]\ol{Y}}}$
 which is correct under the \texttt{S-CLASS} rule.
-\item[reduce] The \texttt{reduce1} and \texttt{reduce2} rules are obviously correct under the FJ typing rules.
+\item[reduce] The \replaced{\texttt{reduce1} and \texttt{reduce2}}{\textbf{reduce}} rule is obviously correct under the FJ typing rules.
 \end{description}
 
 \item[OrConstraints]
-If $\sigma$ is a correct unifier for one of the constraint sets in $Eq_{set}$
+If $\sigma$ is a correct unifier for one of the constraint sets in $C_{set}$
 then it is also a correct unifier for the input set $\consSet_{in}$.
 When building the cartesian product of the \textbf{OrConstraints} every possible
 combination for $\consSet_{in}$ is build.
 No constraint is altered, deleted or modified during this step.
 \end{description}
+\end{proof}
+
 \hfill $\square$
 
 
