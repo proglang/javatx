@@ -21,9 +21,9 @@ the Java language supports F-bounded polymorphism in the form of generics.
 Java is generally explicitly typed with some amendments introduced in
 recent versions. That is, 
 variables, fields, method parameters, and method returns must be
-adorned with their type. An adaptation of a generic example from Featherweight Java
-\cite{DBLP:journals/toplas/IgarashiPW01} 
-is shown in Figure~\ref{fig:intro-example-generic-fj}.
+adorned with their type. Figure~\ref{fig:intro-example-generic-fj}
+contains a simple example with generics.
+% from Featherweight Java \cite{DBLP:journals/toplas/IgarashiPW01} 
 \begin{figure}[tp]
 %   \begin{subfigure}[t]{0.55\textwidth}
 % \begin{lstlisting}
@@ -176,9 +176,9 @@ eqPair (p) {
 % \item Sometimes, it can be hard to find a correct typing at all.
 % \todo[inline]{example?}
 
-In this paper, we study global type inference for Featherweight
-Generic Java \cite{DBLP:journals/toplas/IgarashiPW01} (FGJ), which is backed
-by an implementation for full Java. Our type inference algorithm
+To make our investigation palatable, we focus on global type inference for Featherweight
+Generic Java \cite{DBLP:journals/toplas/IgarashiPW01} (FGJ), a
+functional Java core language with full support for generics. Our type inference algorithm
 applies to FGJ programs that specify the full class header and all field types,
 but omit all method signatures. 
 Given this input, our algorithm
@@ -206,13 +206,19 @@ general than the types in the original FGJ program.
 We specify syntax and type system of the language \FGJGT, which drops all method type
 annotations from FGJ and the typing of which rules out polymorphic
 recursion. This language is amenable to polymorphic type inference and
-each \FGJGT program can be completed to an FGJ program. 
+each \FGJGT program can be completed to an FGJ program (see Section~\ref{sec:preliminaries}). 
+
+We characterize uses of polymorphic recursion in FGJ and their impact
+on signatures of generic methods (Section~\ref{sec:polym-recurs-form}). 
 
 We define a constraint-based algorithm that performs global type
 inference for \FGJGT. This algorithm is sound and relatively complete
-for FGJ programs without polymorphic recursion.
+for FGJ programs without polymorphic recursion
+(Sections~\ref{sec:type-infer-algor} and~\ref{sec:unify}). Our algorithm improves
+on previous attempts at type inference for Java in the literature as detailed in
+Section~\ref{sec:related-work}. 
 
-We investigate the complexity of global type inference and show its NP-completeness.
+We investigate the complexity of global type inference and show its NP-completeness (Section~\ref{sec:complexity}).
 
 We implemented a prototype of the type inference algorithm, which we
 plan to submit for artifact evaluation.

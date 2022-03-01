@@ -50,11 +50,6 @@ of general unifiers is called \emph{finitary}.
 It first attempts to transforms a constraint set into solved form and
 reads off a solution in the form of a substitution.
 
-%% PJT: unused?
-% \begin{definition}[Isolated type variable] \label{def:isolated-type-variable}
-%     \textrm
-%   An isolated type variable does only occur in constraints together with another isolated type variable.
-% \end{definition}
 \begin{definition}[Solved form]\label{def:solved-form}
   A set $C$ of constraints is in solved form if it only contains
   constraints of  the following form:
@@ -71,14 +66,26 @@ reads off a solution in the form of a substitution.
 For brevity, we write $\tv{a}_0 \lessdot^* \tv{a}_n$ for a non-empty chain of subtyping constraints between type variables $\tv{a}_0 \lessdot
 \tv{a}_1, \tv{a}_1 \lessdot \tv{a}_2, \dots, \tv{a}_{n-1} \lessdot \tv{a}_n$ where $n>0$.
 
-\subsection{{Algorithm \unify{}}}
+\subsection{{Algorithm $\unify{} (C, \Delta)$}}
 
 %\begin{description}
 %  \item[Input] A set of constraints $\consSet_{in}$ and a type environment $\Delta$.
 %  \item[Output] %TODO
 %\end{description}
 
-The input of the algorithm is a set of constraints $\consSet$ and a type environment $\Delta$.
+The input of the algorithm is a set of constraints $\consSet$ and a
+type environment $\Delta$. The type environment binds the generic type
+variables $\ol{X}$ to their upper bounds. It is used in invocations of
+the subtyping judgment.
+
+The treatment of the generic class variables $\ol{X} \extends \ol{N}$
+deserves some explanation. The algorithm must not substitute
+for these variables. Instead it treats them like parameterless
+abstract classes $\exptype{X_i}{}$ which are subtypes of their
+respective $\mv{N}_i$ (where the variable name $\mv{X}_i$ is now
+treated like a class name). Example~\ref{item:3} illustrates this
+approach.  
+
 The first step of the algorithm eliminates or-constraints from constraint set $\consSet$. To do so,
 we consider all combinations of selecting simple constraints from
 or-constraints in $\consSet$. In general, we have that $\consSet =
@@ -168,8 +175,12 @@ directly from $C_{\lessdot}$ using the same generic variable substitution. We ne
 we applied (subst) exhaustively in Step~3.
 \begin{align*}
   \sigma &=
-           \set{\tv{b} \mapsto [\ol{Y}/\ol{\tv{a}}]\itype{T} \mid (\tv{b} \doteq \itype{T}) \in C_{\doteq}} \ \cup \ 
-           \set{\il{\tv{a}} \mapsto \ol{Y} } \ \cup \ \set{\tv{b} \mapsto \type{X} \ |\ \tv{b} \lessdot \type{X}}, \\
+           \set{\tv{b} \mapsto [\ol{Y}/\ol{\tv{a}}]\itype{T} \mid
+           (\tv{b} \doteq \itype{T}) \in C_{\doteq}}
+           \cup 
+           \set{\il{\tv{a}} \mapsto \ol{Y}}
+           \cup 
+           \set{{\tv{b}} \mapsto \mv{X} \mid (\tv{b} \lessdot \mv{X}) \in C_{\lessdot}}, \\
   \unifyGenerics{} & =
                      \set{\type{Y} \triangleleft [\ol{Y}/\ol{\tv{a}}]\itype{N} \mid (\tv{a} \lessdot \itype{N}) \in C_{\lessdot}}
 \end{align*}
@@ -371,6 +382,34 @@ Each solution consists out of a pair of unifiers $\sigma$ and generic bounds \un
 \caption{Erase and swap rules}\label{fig:fgjerase-rules}
 \end{figure}
 
+\begin{example}\label{item:3}
+  To illustrate our treatment of generic variables, we consider a
+  typical case involving the (adapt) rule from
+  Figure~\ref{fig:fgjreduce-rules}.
+
+  Consider $C = \set{ \mv{X} \lessdot \exptype{D}{\il{U}} }$ and let $
+  \mv{X} \sub \exptype{C}{\ol{T}} \in \Delta$ be the bound for
+  $\mv{X}$.
+
+  The side condition of the rule (adapt) asks for some $\ol{N}$ such
+  that
+  $\Delta \vdash \mv{X} \sub \exptype{D}{\ol{N}}$, i.e., ``is there a
+  way that $\mv{X}$ can be a subtype of $\mv{D}$?''
+
+  By inversion of subtyping and transitivity, this judgment holds if
+  $\Delta \vdash \exptype{C}{\ol{T}} \sub \exptype{D}{\ol{N}}$ holds.
+
+  Hence, applying (adapt) to $C$ yields $\set{ \exptype{D}{\ol{N}} \doteq
+    \exptype{D}{\il{U}} }$. The substitution in the rule is empty
+  because $\mv{X}$ is considered a parameterless type.
+
+  The remaining rules work similarly. In particular, different
+  variables $\mv{X} \ne \mv{Y}$ give rise to different (abstract)
+  classes. For example, the (reduce) rule removes the constraint $\mv{X} \doteq
+  \mv{X}$, but it does \emph{not} apply to
+  $\mv{X} \doteq \mv{Y}$. Rather, an equation like this renders the
+  constraint set unsolvable.
+\end{example}
 
 %%% Local Variables:
 %%% mode: latex
