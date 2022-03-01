@@ -153,22 +153,38 @@ No constraint is altered, deleted or modified during this step.
   $\unify{} (\consSet, \Delta)$ calculates {the set} of general
   unifiers for $(\consSet, \Delta)$. 
 \end{theorem}
-A unifier $\sigma$ is a general unifier for $\consSet_{in}$ if it unifies $\consSet_{in}$
-and for every other unifier $\omega$ there is a substitution $\lambda$ so that $\omega(x) = \lambda(\sigma(x))$.
-\textit{Proof:}
-%The \unify{} calculates multiple solutions.
+% A unifier $\sigma$ is a general unifier for $\consSet_{in}$ if it unifies $\consSet_{in}$
+% and for every other unifier $\omega$ there is a substitution $\lambda$ so
+% that $\omega(x) = \lambda(\sigma(x))$.
 
+\begin{proof}
+
+\replaced{
+%The \unify{} calculates multiple solutions.
 %Our proof goes as follows:
 We look at every step of the algorithm, which alters the set of constraints $Eq$,
 while assuming that there is at least one possible principal type solution $\sigma$ for the input.
-We will show that the principal type is among them by proofing for every step of the algorithm that the principal type is never excluded.
+We will show that the principal type is among them by proofing for every step
+of the algorithm that the principal type is never excluded.}
+{Let $\sigma = \set {a_1 \mapsto T_1, \ldots , a_n \mapsto T_n}$ be a general unifier.
+  
+%The \unify{} calculates multiple solutions.
+
+%Our proof goes as follows:
+We look at every step of the algorithm, which alters the set of constraints $C$.
+We show that if $\sigma$ is general unifer for the input then $\sigma$ is a
+general unifer for the altered set of constraints. This means that no solution
+is excluded.}
+
 
 %Assume there is a unifier and the Unify algorithm finds it.
 %Then no rule makes this unifier impossible / removes this unifier.
 
 \begin{description}
 \item[Step 1:]
-The first step applies the three rules from figure \ref{fig:fgjerase-rules}.
+The first step applies the seven rules from figure
+\red{\ref{fig:fgjreduce-rules}} and \ref{fig:fgjerase-rules}.
+
 \textbf{erase-rule:} The constraint $\tv{a} \doteq \tv{a}$ is true for every unifier and can be removed.
 
 \textbf{swap-rule:} $\doteq$ is a symmetric operator and parameters can be swapped freely.
@@ -186,32 +202,35 @@ which allows us to apply the adopt rule without excluding any possible unifier.
 \textbf{adapt-rule:} Every solution which is correct for the constraints
 $Eq \cup \set{ \exptype{C}{[\ol{\itype{A}}/\ol{X}]\ol{\itype{T}}} \doteq \exptype{C}{\ol{\itype{U}}}}$ is also
 a correct solution for the set $Eq \cup \set{ \exptype{D}{\ol{\itype{A}}} \lessdot \exptype{C}{\ol{\itype{U}}}}$.
-According to the \texttt{S-CLASS} rule there can only be a possible solution for 
+According to the FGJ \texttt{S-CLASS} rule there can only be a possible solution for 
 $\exptype{C}{[\ol{\itype{A}}/\ol{X}]\ol{\itype{T}}} \doteq \exptype{C}{\ol{\itype{U}}}$
 if $\ol{\itype{U}} = [\ol{\itype{A}}/\ol{X}]\ol{\itype{T}}$.
 Therefore this transformation does not remove any possible solution from the constraint set.
 
 \textbf{reduce-rule:}
 %The constraint is not altered
-For a constraint $\exptype{D}{\ol{A}} \lessdot \exptype{D}{\ol{A}}$ the FJ subtyping rule \texttt{S-REFL} ($\triangle \vdash T <: T$) is the only one which applies.
+\replaced{For a constraint $\exptype{D}{\ol{A}} \lessdot \exptype{D}{\ol{A}}$ the FJ subtyping rule \texttt{S-REFL} ($\triangle \vdash T <: T$) is the only one which applies.
 According to this rule the transformation to $\ol{A} \doteq \ol{B}$ is correct.
-Only $D$ gets removed, which is not a type variable.
+Only $D$ gets removed, which is not a type variable.}{
+If $\sigma$ is a unifier of $\exptype{D}{\ol{\itype{T}}} \lessdot
+\exptype{D}{\ol{\itype{U}}}$
+then $\sigma$ is a unifier of $\ol{\itype{T}} = \ol{\itype{U}}$.}
 Therefore this step does not remove a possible solution.
 
 \textbf{equals-rule:}
 This rule removes a circle in the constraints.
-This does not remove a general unifier.
+This does not remove a solution.
 
 \item[Step 2:]
 %The second step builds multiple constraint sets of all possible type combinations for the $\lessdot$-constraints.
 The second step of the algorithm eliminates $\lessdot$-constraints
 by replacing them with $\doteq$-constraints.
-For each $(\exptype{C}{\ol{X}} \lessdot a)$ constraint the algorithm builds a set with every
-possible supertype of $\exptype{C}{\ol{X}}$.
+For each \red{$(\exptype{C}{\ol{\itype{T}}} \lessdot b), (b \lessdot \exptype{C}{\ol{\itype{U}}})$} constraint the algorithm builds a set with every
+possible supertype of $\exptype{C}{\ol{\itype{T}}}$.
 So if there is a correct unifier $\sigma$ for the constraints before this conversion there will be at least one set of
 constraints for which $\sigma$ is a correct unifier.
 
-Additionally this step resolves constraints of the form $\tv{a} \lessdot \exptype{C}{\ol{\itype{T}}}, \tv{a} \lessdot \tv{b}$.
+Additionally this step resolves constraints of the form $\tv{a} \lessdot \exptype{C}{\ol{\itype{T}}}, \tv{a} \lessdot^* \tv{b}$.
 We generate an Or-Constraint with every possible combination for $\tv{b}$.
 This includes every possible solution for $\tv{b}$ and therefore does not remove a possible solution.
 This is due to the fact that \TFGJ does not allow lower bounds for generic variables.
@@ -226,16 +245,15 @@ This does not remove a possible solution.
 \item[Step 4:]
 None of the constraints get modified.
 
-\item[Step 5 a):]
+\erased{
+Step 5 a):\\
 The removed sets do not have a possible unifier, therefore no possible solution is
 omitted in this step.
-
 %\textbf{Proof}:
 In step 5.a all constraint sets that have a unifier are in solved form.
 All other possibilities are eliminated in steps 1-4.
 There are 8 different variations of constraints:\\
 $(\tv{a} \doteq \tv{a}), (\tv{a} \doteq C), (C \doteq \tv{a}), (C \doteq C), (\tv{a} \lessdot \tv{a}), (\tv{a} \lessdot C), (C \lessdot \tv{a}), (C \lessdot C)$
-
 After step 1 there are no $(C \doteq C)$, $(C \lessdot C)$ and $(C \doteq \tv{a})$ constraints anymore,
 as long as the constraint set has a correct unifier.
 Because a constraint set that has a correct unifier cannot contain constraints of the form $N_1 \doteq N_2$ with $N_1 \neq N_2$ and
@@ -243,26 +261,20 @@ $(N_1 \lessdot N_2)$ with $(N_1 \nless: N_2)$.
 By removing $(N \doteq N)$ and $(C \lessdot D)$ with $(C <: D)$ constraints
 no constraints of the form $(C \doteq C)$ and $(C \lessdot D)$
 remain in a constraint set that has a correct unifier after step 1.
-
 After step 2 there are no more $(C \lessdot a)$ constraints.
-
 %After step 3 there are no $(a \doteq C)$ anymore.
-
 We only reach step 5 if the constraint set is not changed by the substitution (step 3).
-
 %If at this point a set $Eq_i$ is not in solved form it has no correct unifier.
-
 If the constraint set has a correct unifier only $(a \lessdot a)$, $(a \doteq a)$, $a \lessdot C$ and $(a \doteq C)$ constraints are left at this point.
 The type variables in the $(a \lessdot a)$ and $(a \doteq a)$ constraints have to be independent type variables.
 If a type variable $c$ is inside a $(c \doteq C)$ constraint it is not an independent type variable.
 But this variable $c$ cannot be inside a $(a \doteq a)$ or $(a \lessdot a)$ constraint, because otherwise step 3 would have replaced it in there.
-
 So this step only excludes constraint sets which do not have a correct unifier.
-
-\item[Step 5 b):]
+}
+\item[Step 5 \sout{b}):]
 If the algorithm advances to this step we further only work on constraint sets in solved form.
-This means there are only two kinds of constraints left.
-($a \doteq \texttt{T}$), ($a \lessdot \texttt{T}$), ($a \doteq b$) and ($a \lessdot b$) with $a$ and $b$ as type variables.
+This means there are only \replaced{two}{four\ } kinds of constraints left:
+($a \doteq \itype{T}$), ($a \lessdot \itype{T}$), ($a \doteq b$) and ($a \lessdot b$) with $a$ and $b$ as type variables.
 
 %We can set all TVs equal, because we allow only same TVs when having circles in a method call.
 %This still will lead to the principal type.
@@ -284,7 +296,9 @@ class Example {
 }
 \end{lstlisting}
 
-By replacing all ($a \lessdot b$) constraints with ($a \doteq b$) we do not remove a principal type solution.
+By replacing all ($a \lessdot b$) constraints with ($a \doteq b$) we
+  do not remove the general unifier $\sigma$ as $a$ and $b$ are not substituted
+  in $\sigma$. 
 
 \item[Step 6:]
 In the last step all the constraint sets, which are in solved form, are converted to unifiers.
@@ -295,11 +309,13 @@ Also we showed that after we reach step 5 only constraint sets with a correct un
 By removing all constraint sets which are not in solved form the algorithm does not
 remove a possible correct unifier.
 
-If we assume that there is a possible principal type solution $\sigma$ for the input set $\consSet_{in}$
+If we assume that there is a possible \replaced{principal type
+  solution}{general unifier} $\sigma$ for the input set $\consSet_{in}$
 and the \unify{} algorithm does not exclude any of the possible unifiers,
-then the result \unify{} contains the principal type solution.
+then the result \unify{} contains the \replaced{principal type solution}{general unifier}.
 \hfill $\square$
 \end{description}
+\end{proof}
 
 \begin{theorem}[Termination]\label{theo:unifyTermination}
   The \unify{} algorithm terminates on every finite input set.
