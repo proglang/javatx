@@ -1,15 +1,45 @@
+\subsection{Properties of \unify{}}
+\label{sec:properties-unify}
 
-\subsection{Unify proof}
+First we give some definitions and results.
 
-\begin{theorem}
+\begin{definition}[Unifier]
+  Let $C$ be a set of constraints and $\Delta$ a type environment.
+  A substitution $\sigma$  is a \emph{unifier} of $(C,\Delta)$ if
+  \begin{itemize}
+  \item for each $(\itype{T} \lessdot \itype{U}) \in C$ it holds that
+    $\Delta \vdash \exp{\sigma}{T} \olsub \exp{\sigma}{U}$;
+  \item  for each $(T \doteq U) \in C$ it holds that
+    $\exp{\sigma}{T} = \exp{\sigma}{U}$; and
+  \item for each or-constraint $\set{\set{\overline{\simpleCons_1}},
+      \ldots, \set{\overline{\simpleCons_n}}} \in C$, there exists $1
+    \le i \le n$ such that $\sigma$ is a unifier of
+    $(\set{\overline{\simpleCons_i}}, \Delta)$. 
+  \end{itemize}
+\end{definition}
+
+A set of general unifiers can provide any unifier as a substitution
+instance of one of its members.
+\begin{definition}[Set of general unifiers]
+  Let $C$ be a set of constraints and $\Delta$ a type environment. 
+
+  A set of unifiers $M$ for $(C, \Delta)$
+  is called \emph{set of general unifiers} if for any unifier $\omega$
+  for $(C, \Delta)$ there is some unifier $\sigma \in M$ and a substitution
+  $\lambda$ such that $\omega = \lambda   \circ \sigma$.
+\end{definition}
+
+A unification problem is \emph{finitary} if there is a finite set of
+general unifiers for each constraint set $C$ and type environment $\Delta$.
+
+\begin{theorem}[Soundness]
   \label{theo:unifySoundness}
-  \textbf{(Soundness):}
-  \replaced{If the \unify{} algorithm finds a solution it does not contradict any of the input constraints:
-  $\nexists (a \lessdot b) \in \consSet_{in}$ where $\sigma(a) \nless :
-  \sigma(b)$}{
-   For $\overline{(\sigma,  \ol{Y} \triangleleft \ol{P})} =
-   \unify{}(\consSet, \Delta)}$ any $(\sigma, \Delta') \in \overline{(\sigma,
-   \ol{Y} \triangleleft \ol{P})}$ is unifier of $\consSet$ with $\Delta \cup \Delta'$.
+  % \replaced{If the \unify{} algorithm finds a solution it does not contradict any of the input constraints:
+  % $\nexists (a \lessdot b) \in \consSet_{in}$ where $\sigma(a) \nless :
+  % \sigma(b)$}{}
+   If $\unify{}(\consSet, \Delta) = {(\sigma,  \ol{Y} \triangleleft
+     \ol{P})}$, then $\sigma$ is a unifier of $(\consSet,\Delta \cup \set{\ol{Y} \triangleleft
+     \ol{P}})$. 
 \end{theorem}
 
 \textit{Proof:}
@@ -119,8 +149,9 @@ No constraint is altered, deleted or modified during this step.
 \hfill $\square$
 
 
-\begin{theorem}\label{theo:unifyCompleteness}
-  \textbf{(Completeness):} The \unify{} algorithm calculates \red{the set} of general unifier\red{s} for the input set of constraints ($\consSet_{in}$).
+\begin{theorem}[Completeness]\label{theo:unifyCompleteness}
+  $\unify{} (\consSet, \Delta)$ calculates {the set} of general
+  unifiers for $(\consSet, \Delta)$. 
 \end{theorem}
 A unifier $\sigma$ is a general unifier for $\consSet_{in}$ if it unifies $\consSet_{in}$
 and for every other unifier $\omega$ there is a substitution $\lambda$ so that $\omega(x) = \lambda(\sigma(x))$.
@@ -270,8 +301,8 @@ then the result \unify{} contains the principal type solution.
 \hfill $\square$
 \end{description}
 
-\begin{theorem}\label{theo:unifyTermination}
-  \textbf{(Termination):} The \unify{} algorithm terminates on every finite input set.
+\begin{theorem}[Termination]\label{theo:unifyTermination}
+  The \unify{} algorithm terminates on every finite input set.
 \end{theorem}
 The \unify{} algorithm gets called with a set of input constraints.
 After resolving the \textbf{OrConstraints} we end up with multiple $Eq$ sets.
@@ -390,8 +421,7 @@ the algorithm will terminate for any given finite set of constraints. \hfill $\s
 
 %The function $\textbf{TVs}$ returns a set of every type variable used as a singleton in the left or right side of a constraint in the given constraint set.
 
-\begin{lemma}\label{lemma:unify-exhaustive}
-  \textbf{Exhaustiveness:}
+\begin{lemma}[Exhaustiveness]\label{lemma:unify-exhaustive}
   %Every type variable used in the input constraints will get an unifier assigned by \unify{}.
   %Given a $\mv{\Pi}$ and $\texttt{L}$ with $\fjtype{}(\mv{\Pi}, \texttt{L}) = (\mtypeEnvironment, \consSet)$
   Given $\unify{}(\consSet) = (\sigma, \unifyGenerics{})$ with $\sigma \neq \emptyset$,
@@ -408,3 +438,8 @@ But the \texttt{subst} rule generates a $\tv{a} \doteq \itype{T}$ constraint, wh
 If the \unify{} algorithm is successful, then the constraint set is in solved form in step 5.
 Every type variable on the left side of a constraint set in solved form will get a substitution in $\sigma$.
 \hfill $\square$
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "TIforGFJ"
+%%% End:
