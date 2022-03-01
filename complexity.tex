@@ -1,7 +1,8 @@
+\section{Complexity}
+\label{sec:complexity}
 
-\begin{theorem}
+\begin{theorem}[NP-Hardness]
   \label{theo:np-hardness}
-  \textbf{(NP-Hard):}
   The type inference algorithm for typeless Featherweight Java is NP-hard.
 \end{theorem}
 
@@ -51,12 +52,12 @@ This represents a valid assignment for the expression $B_\text{in}$.
 If the \texttt{FJTYPE} fails to compute a solution the $B_\text{in}$ also has no possible solution.
 
 Any SAT problem can be transferred in polynomial time to a typeless FJ program.
-This reduction of SAT to our type inference algorithm proofs that its complexity is atleast NP-Hard.
+This reduction of SAT to our type inference algorithm proofs that its
+complexity is at least NP-Hard.
 \hfill $\square$
 
-\begin{theorem}
+\begin{theorem}[NP-Completeness]
   \label{theo:np-completeness}
-  \textbf{(NP-Complete):}
   The type inference algorithm for typeless Featherweight Java is NP-Complete.
 \end{theorem}
 
@@ -73,5 +74,12 @@ With $n$ classes the \texttt{S-TRANS} rule can be applied a maximum of $n$ times
 Each time the \texttt{S-CLASS} rules is applied which sets in the variables $\ol{X}$ into the supertype.
 This operations also runs in polynomial time, so the subtyping relation is decidable in polynomial time.
 
-This shows that the time complexity of the GFJ type check is atleast polynomial or better.
+This shows that the time complexity of the GFJ type check is at least
+polynomial or better. 
 \hfill $\square$
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "TIforGFJ"
+%%% End:
