@@ -41,8 +41,9 @@
   \color{black}\marginpar[\tiny \red{\({}^*\)#2}]{\tiny \red{\({}^*\)#2}}}
 \newcommand{\commentaryintext}[2]{\color{red} #1\textrm{$^*${\tiny #2}}\color{black}}
 \newcommand{\commentarymath}[2]{\color{red} #1^*\color{black}\)\marginpar[\tiny \red{\({}^*\)#2}]{\tiny \red{\({}^*\)#2}}\(}
-\newcommand{\replaced}[2]{\erased{#1}\color{red}#2\color{black}\xspace}
+\newcommand{\replaced}[2]{\erased{#1}\inserted{#2}}
 \newcommand{\erased}[1]{\commentary{\sout{#1}}}
+\newcommand{\inserted}[1]{\color{red}#1\color{black}\xspace}
 
 \newcommand\Erase[1]{|#1|}
 \newcommand\Angle[1]{\langle#1\rangle}
