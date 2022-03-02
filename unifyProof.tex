@@ -38,52 +38,28 @@ general unifiers for each constraint set $C$ and type environment $\Delta$.
   % $\nexists (a \lessdot b) \in \consSet_{in}$ where $\sigma(a) \nless :
   % \sigma(b)$}{}
    If $\unify{}(\consSet, \Delta) = {(\sigma,  \ol{Y} \triangleleft
-     \ol{P})}$, then $\sigma$ is a unifier of $(\consSet,\Delta \cup \set{\ol{Y} \triangleleft
-     \ol{P}})$. 
+     \ol{P})}$, then $\sigma$ is a unifier of $(\consSet,\Delta \cup \set{\ol{Y} <: \ol{P}})$. 
 \end{theorem}
 
 \begin{proof}
 We show theorem \ref{theo:unifySoundness} by going backwards over every step of the algorithm.
-\replaced{We assume there exists a unifier}{Let} $\sigma = \set {a_1 \mapsto T_1, \ldots , a_n \mapsto T_n}$ \replaced{for the input constraints,
-which is}{be} the result of the \unify{} algorithm.
-\replaced{This means}{We show} for every constraint in the input set $(a \lessdot b) \in \consSet_{in}$ and $(c \doteq d) \in \consSet_{in}$
-\erased{this unifier will substitute all variables in a way that all constraints are satisfied}:
-$\sigma(a) \olsub \sigma(b)$\replaced{,}{ and} $\sigma(c) = \sigma(d)$\\
+Let $\sigma = \set {a_1 \mapsto T_1, \ldots , a_n \mapsto T_n}$ and $\set{\ol{Y} <: \ol{P}}$ be the result of a $\unify{}(\consSet, \Delta)$ call.
+We show for every constraint in the input set $(a \lessdot b) \in \consSet_{in}$ and $(c \doteq d) \in \consSet_{in}$:
+$\Delta, \ol{Y} <: \ol{P} \vdash \sigma(a) \olsub \sigma(b)$ and $\sigma(c) = \sigma(d)$\\
 
-We now \replaced{look}{consider} at each step of the \unify{} algorithm
-which transforms the input set of constraints $C$ to a set $C'$"
-If \erased{we assume the unifier} $\sigma$ is \replaced{correct for the set}{an
-  unifier of } $C'$,
-then \replaced{we can show that it will also be correct for the constraints}
-{$\sigma$ is an unifier of  $C$, too}.
+We now consider each step of the \unify{} algorithm
+which transforms the input set of constraints $C$ to a set $C'$
+If $\sigma$ is an unifier of $C'$, then $\sigma$ is an unifier of $C$, too.
 
 \begin{description}
 \erased{Step 5 c)
 The last step of the algorithm transforms a set of constraints $Eq$ in solved form
 No changes to the constraint set are applied here.}
 
-\item[Step 5 \sout{b})]
+\item[Step 6] The last step does not change the constraint set.
+\item[Step 5]
 A unifier which is correct for $a \doteq b$ is also correct for $a \lessdot b$.
 The transformation $C' = [a/b]C$ does not change this.
-\erased{The type variable $b$ appears only in constraints of the form $a \lessdot b$,
-with both sides being type variables.
-There cannot be two constraints $a \lessdot b, b \lessdot a$ in $Eq$.
-This would have been removed by the \texttt{equals} rule.
-%In the $Eq$ set there can only be one constraint with the type variables $a \lessdot b$.
-So the only two other possible combinations for constraints containing $b$
-would be $b \lessdot c$ and $c \lessdot b$.
-% \begin{itemize}
-% \item 
-If $\set{a \lessdot b, b \lessdot c} \in Eq$ then $\set{a \doteq b, a \lessdot c} \in Eq'$.
-% %After using the unifier $a \to b$ on $Eq'$: $\set{a \doteq b, b \lessdot c} \in Eq'$.
-% \item 
-If $\set{a \lessdot b, c \lessdot b} \in Eq$ then $\set{a \doteq b, c \lessdot b} \in Eq'$.
-% %After using the unifier $a \to b$ on $Eq'$: $\set{a \doteq b, b \lessdot c} \in Eq'$.
-% \end{itemize}}
-In both cases a correct unifier for $Eq'$ would also be correct for $Eq$.}
-
-\erased{Step 5 a)
-We do not alter the constraint set which lateron lead to the unifier.}
 
 \item[Step 4]
 The constraint sets are not altered here.
@@ -97,8 +73,8 @@ This means that $\sigma(C) = \sigma([\itype{T}/a]C)$,
 because every occurence of $a$ in $C$ will be replaced by $\itype{T}$ anyways when using the unifier $\sigma$.
 
 \item[Step 2]
-This step transforms constraints of the form $(\exptype{C}{\ol{X}} \lessdot a)$ and $(a \lessdot \exptype{C}{\ol{X}})$
-into sets of constraints and builds the cartesian product with the remaining constraints.
+This step transforms constraints of the form $\exptype{C}{\ol{X}} \lessdot a$ and
+$\set{a \lessdot \exptype{C}{\ol{X}}, a \lessdot^* b}$ jinto sets of or-constraints.
 We can show that if there is a resulting set of constraints which has $\sigma$ as its correct unifier
 then $\sigma$ also has to be a correct unifier for the constraints before this transformation.
 
@@ -141,7 +117,7 @@ To make the set $C \cup \set{ [\ol{A}/\ol{X}]\exptype{C}{\ol{Y}} \doteq \exptype
 $\sigma$ must satisfy the condition $\sigma([\ol{A}/\ol{X}]\ol{Y}) = \sigma(\ol{B})$.
 By substitution we get $C \cup \set{ \exptype{D}{\ol{A}} \lessdot \exptype{C}{[\ol{A}/\ol{X}]\ol{Y}}}$
 which is correct under the \texttt{S-CLASS} rule.
-\item[reduce] The \replaced{\texttt{reduce1} and \texttt{reduce2}}{\textbf{reduce}} rule is obviously correct under the FJ typing rules.
+\item[reduce] The \texttt{reduce} rule is obviously correct under the FJ typing rules.
 \end{description}
 
 \item[OrConstraints]
@@ -238,7 +214,7 @@ So if there is a correct unifier $\sigma$ for the constraints before this conver
 constraints for which $\sigma$ is a correct unifier.
 
 Additionally this step resolves constraints of the form $\tv{a} \lessdot \exptype{C}{\ol{\itype{T}}}, \tv{a} \lessdot^* \tv{b}$.
-We generate an Or-Constraint with every possible combination for $\tv{b}$.
+We generate an or-constraint with every possible combination for $\tv{b}$.
 This includes every possible solution for $\tv{b}$ and therefore does not remove a possible solution.
 This is due to the fact that \TFGJ does not allow lower bounds for generic variables.
 %Every type variable left of a $\lessdot$-constraint will get a type assigned by \
@@ -252,6 +228,7 @@ This does not remove a possible solution.
 \item[Step 4:]
 None of the constraints get modified.
 
+\if0
 \erased{
 Step 5 a):\\
 The removed sets do not have a possible unifier, therefore no possible solution is
@@ -278,9 +255,10 @@ If a type variable $c$ is inside a $(c \doteq C)$ constraint it is not an indepe
 But this variable $c$ cannot be inside a $(a \doteq a)$ or $(a \lessdot a)$ constraint, because otherwise step 3 would have replaced it in there.
 So this step only excludes constraint sets which do not have a correct unifier.
 }
-\item[Step 5 \sout{b}):]
+\fi
+\item[Step 5:]
 If the algorithm advances to this step we further only work on constraint sets in solved form.
-This means there are only \replaced{two}{four\ } kinds of constraints left:
+This means there are only four kinds of constraints left:
 ($a \doteq \itype{T}$), ($a \lessdot \itype{T}$), ($a \doteq b$) and ($a \lessdot b$) with $a$ and $b$ as type variables.
 
 %We can set all TVs equal, because we allow only same TVs when having circles in a method call.
