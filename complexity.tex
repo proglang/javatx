@@ -6,28 +6,37 @@
   The type inference algorithm for typeless Featherweight Java is NP-hard.
 \end{theorem}
 
-\textit{Proof:} This section will show this by reducing the boolean satisfiability problem (SAT) to the \texttt{FJTYPE} algorithm.
+\textbf{Proof:} This section will show this by reducing the boolean satisfiability problem (SAT) to the \fjtypeinference{} algorithm.
 
 \begin{figure}
 \begin{lstlisting}
-  class True{}
-  class False{}
-  class Operations{
-    False nand(True a, True b){ return new True();
-    }
-    True nand(False a, True b){
-      return new False();
-    }
-    True nand(True a, False b){
-      return new False();
-    }
-    True nand(False a, False b){
-      return new False();
-    }
+  class True extends Object{
   }
+  class False extends Object{
+  }
+
+  class Nand1 extends Object{
+    False nand(True a, True b){ return new False(); }
+  }
+  class Nand2 extends Object{
+    True nand(False a, True b){ return new True(); }
+  }
+  class Nand3 extends Object{
+    True nand(True a, False b){ return new True(); }
+  }
+  class Nand4 extends Object{
+    True nand(False a, False b){ return new True(); }
+  }
+
   class SATExample{
-    True sat(a, b, c){
-      return |{\color{red}nand(c, nand(a, b))}|;
+    True f;
+
+    sat(v1, v2, v3, o1, o2){
+      return o1.nand(v1, o2.nand(v2, v3));
+    }
+
+    forceSATtoTrue(v1, v2, v3, o1, o2){
+      return new SATExample(this.sat(v1, v2, v3, o1, o2));
     }
   }
 \end{lstlisting}
@@ -41,17 +50,20 @@ A type inference algorithm finding a possible typisation of this FJ program also
 Figure \ref{fig:fjSATcode} shows an example of this.
 The classes \texttt{True}, \texttt{False} and \texttt{Operations} always stay the same.
 Here we assume that the boolean expression only consists out of $\neg \land$ (NAND) operators.
-Now any boolean expression $B_\text{in} = v_1 \land \neg (v_2 \land v_3) \land \ldots$ can be expressed as a Java method
-(see  Example in figure \ref{fig:fjSATcode}).
-We force the return type of the \texttt{sat} method to have the type \texttt{True}.
-When using the \texttt{FJTYPE} algorithm on the generated FJ code it will
-assign each parameter of the \texttt{sat} method with either the type \texttt{True}, \texttt{False}
-or \texttt{Object}.
+Now any boolean expression $B_\text{in} = v_1 \land \neg (v_2 \land v_3) \land \ldots$ can be expressed as a Java method.
+The example in figure \ref{fig:fjSATcode} represents the problem $B_\text{in} = \neg(v_1 \land \neg (v_2 \land v_3))$.
+Additionally we force the return type of the \texttt{sat} method to have the type \texttt{True}
+by instancing the \texttt{SATExample} class, which requires the type \texttt{True}.
+When using the \fjtypeinference{} algorithm on the generated FJ code it will
+assign each parameter of the \texttt{sat} method with either the type \texttt{True} or \texttt{False}.
 This represents a valid assignment for the expression $B_\text{in}$.
-\texttt{Object} means that either true of false can be used for this variable.
-If the \texttt{FJTYPE} fails to compute a solution the $B_\text{in}$ also has no possible solution.
+If \fjtypeinference{} fails to compute a solution the $B_\text{in}$ has no possible solution.
+A correct solution for the \texttt{sat} method in figure \ref{fig:fjSATcode} would be:\\
+\texttt{True sat(False v1, True v2, True v3, Nand4 o1, Nand1 o2)}
 
 Any SAT problem can be transferred in polynomial time to a typeless FJ program.
+Every literal $v$ in the SAT problem becomes a method parameter of the \texttt{sat} method, as well as every instance of a NAND operator used.
+
 This reduction of SAT to our type inference algorithm proofs that its
 complexity is at least NP-Hard.
 \hfill $\square$
@@ -61,13 +73,13 @@ complexity is at least NP-Hard.
   The type inference algorithm for typeless Featherweight Java is NP-Complete.
 \end{theorem}
 
-\textit{Proof:} We know the algorithm is NP-hard (see \ref{theo:np-completeness}).
+\textbf{Proof:} We know the algorithm is NP-hard (see \ref{theo:np-completeness}).
 To proof NP-Completeness we have to show that it is possible to verify a solution in polynomial time.
 The verification of a type solution is the FJ typecheck.
 
 It is easy to see that the expression typing rules can be checked in polynomial time as long as subtyping between two types is verifiable in polynomial time.
 
-Subtyping is also solvable in polynomial time in Generic Featherweight Java.
+Subtyping is also solvable in polynomial time in \TFGJ{}.
 Assume $\exptype{C}{\ol{X}} \leq \exptype{D}{\ol{Y}}$ with the number of generics $\ol{X}$ and $\ol{Y}$ less or equal $n$.
 Also the number of classes in the subtyperelation is less or equal to $n$.
 With $n$ classes the \texttt{S-TRANS} rule can be applied a maximum of $n$ times.
