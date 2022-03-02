@@ -89,9 +89,14 @@ each lower bound constraint and its corresponding upper bound constraint (using 
 This constraint replaces the lower and upper bound constraint from which it was generated.
 
 A lower bound may also be implied by a constraint set with constraints of the form
-$C_{ab} = \tv{a} \lessdot \exptype{C}{\il{T}}, \tv{a} \lessdot^* \tv{b}$. In this case, $\exptype{C}{\il{T}} $ can serve as a lower bound for
-$\tv{b}$. We implement it by $\expandLB$, which replaces the upper bound constraint for $\tv{b}$, while $C_{ab}$ remains in the constraint
-set.
+$C_{ab} = \tv{a} \lessdot \exptype{C}{\il{T}}, \tv{a} \lessdot^* \tv{b}$.
+%In this case, $\exptype{C}{\il{T}} $ can serve as a lower bound for $\tv{b}$.
+In this case $\exptype{C}{\il{T}}$ must either be a upper or lower bound for $\tv{b}$.
+We implement it by $\expandLB$, which adds a lower bound constraint for $\tv{b}$
+and also adding a upper bound to $\tv{b}$. While $C_{ab}$ remains in the constraint
+set:
+$\expandLB (\exptype{C}{\il{T}} \lessdot \tv{b}, \tv{b} \lessdot \exptype{D}{\il{U}})\ \cup \ 
+\set{b \lessdot \exptype{C}{\il{T}}}$
 
 Now we are in a similar situation as before. Our current constraint set $C'$ is a mix of simple constraints and or-constraints and, again, we
 consider all (simple) constraint sets $C''$ that arise as combinations of selecting simple constraints from $C'$.
