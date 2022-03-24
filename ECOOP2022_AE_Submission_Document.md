@@ -5,6 +5,8 @@
 * Artifact download: https://github.com/AnonymousArtifact/FGJ-GT/releases/download/ecoop/fgj-gt.zip
     * The code is also made accessible on [github](https://github.com/AnonymousArtifact/FGJ-GT) -> It is possible to pull the code via git as well. The git account used for this repository was freshly created under a pseudonym to comply with the double-blind review process.
 
+* We want to claim an Available Badge
+
 ## Implementation of the type inference algorithm
 
 We implemented a prototype of the type inference algorithm described in the paper "Global Type Inference for Featherweight Generic Java".
@@ -13,36 +15,11 @@ We implemented a prototype of the type inference algorithm described in the pape
 * The project compiles to a web-application
 
 
-## For authors claiming a functional or reusable badge: What are claims about the artifact’s functionality to be evaluated by the committee?
-
-The idea of this prototype is to showcase our type inference algorithm for featherweight generic java.
-It can help to understand how our algorithm is functioning.
-* Take the chapter 7 (complexity) for example.
-    * The example in Figure 17 can be copy-pasted into the input field of our web application (or copied here from the examples below).
-    By changing the `return` expression of the `sat` method it is possible to see the NP complexity of our algorithm take effect
-        * Change it to `o1.nand(v1, v2)` and the solution should appear nearly in an instand
-        * Change it to `o1.nand(o1.nand(v1, v2), o2.nand(v2, v3))` and it should take longer to compute a solution or even fail to javascript limitations (depending on your machine and web-browser/javascript-engine)
-
-
-It also showcases a possible use case scenario for a user who wants to write code in FGJ-GT.
-The code would then be equipped with type annotations by our type inference algorithm and converted to regular FGJ code.
-This enables a user to write code without type annotations and get the correct types automatically assigned by our type inference algorithm.
-The type inference algorithm could be extended to other programming languages similiar to Featherweight Java, like Scala or Java.
-A possible tool for programmers could then be similiar to our prototype.
-
-## For authors claiming a reusable badge: What are the authors' claims about the artifact's reusability to be evaluated by the committee?
-
-We plan to modify and extend the unify algorithm used in the prototype implementation to be used for other use case scenarios.
-Unify can be used to bring type inference to object oriented languages, which include polymorphic types and subtyping.
-
-We plan to extend the algorithm to also support wildcard types.
-After adding wildcard support the Unify algorithm could also be used for regular Java.
-
-
 ## For authors claiming an available badge
 
-The web application will be published on our project website.
-The source code will also be available on github under a open source license.
+The web application will be published on [github](https://github.com).
+Github allows to publish static web sites, which our web application is.
+The source code will also be published on github under a [MIT](https://opensource.org/licenses/MIT) license.
 
 ## Artifact Requirements
 
@@ -78,6 +55,23 @@ Hints:
     * the first class can only access its own methods
     * the subsequent classes can also access the methods of their predecessors
 * see Example inputs below
+
+## Connection to our paper
+
+The idea of this prototype is to showcase our type inference algorithm for featherweight generic java.
+It can help to understand how our algorithm is functioning.
+* Take the chapter 7 (complexity) for example.
+    * The example in Figure 17 can be copy-pasted into the input field of our web application (or copied here from the examples below).
+    By changing the `return` expression of the `sat` method it is possible to see the NP complexity of our algorithm take effect
+        * Change it to `o1.nand(v1, v2)` and the solution should appear nearly in an instand
+        * Change it to `o1.nand(o1.nand(v1, v2), o2.nand(v2, v3))` and it should take longer to compute a solution or even fail to javascript limitations (depending on your machine and web-browser/javascript-engine)
+
+
+It also showcases a possible use case scenario for a user who wants to write code in FGJ-GT.
+The code would then be equipped with type annotations by our type inference algorithm and converted to regular FGJ code.
+This enables a user to write code without type annotations and get the correct types automatically assigned by our type inference algorithm.
+The type inference algorithm could be extended to other programming languages similiar to Featherweight Java, like Scala or Java.
+A possible tool for programmers could then be similiar to our prototype.
 
 ### Differences to the algorithm described in our paper
 
