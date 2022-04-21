@@ -15,11 +15,6 @@
 
 - "My feeling is that a better approach would be to typecheck a class in isolation, generating constraints on the omitted types for parameters and results, and then solving constraints in all possible ways only when putting together classes to form a program"
 
-This approach only works when the whole program is given during the type inference step.
-
-We basically do this by overloading all methods.
-No type solution is left out.
-
 By applying type inference to each class individually we generate generalised methods.
 If we solved the constraints of all classes in one final step we would have to change the 'GT-CLASS' rule in figure 8.
 Our approach allows the typisation of the following program, which would not be possible with the algorithm given in the papers "Polymorphic bytecode: compositional compilation for Java-like languages" and "Type Inference by Coinductive Logic Programming":
