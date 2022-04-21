@@ -10,6 +10,8 @@
 
 - Clarifying the transformation of cyclic class dependencies in chapter 3.1.
 
+- 
+
 # Response
 ## Review A
 
@@ -22,9 +24,10 @@ Our approach allows the typisation of the following program, which would not be 
     class Identity extends Object{
         id(a){return a;}
     }
-    class Example extends Object{
-        m1(){return id(new Object());}
-        m2(){return id(this);}
+    class Problem extends Object{
+        Problem field;
+        problem(){ new Problem(new Identity().id(this)); }
+        problem(){ new Identity().id(new Identity()); }
     }
 
 
