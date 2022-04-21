@@ -152,7 +152,9 @@ This is a more general typing than ```BoundedGenerics m(Box<BoundedGenerics> a)`
 ### "The contributions mention a prototype which is then never discussed again in the paper. Did you base it on an existing codebase for FGJ? What was your experience implementing it? Is the addition of global type inference largely orthogonal?"
 
 We submitted a prototype implementation of the algorithm as an artifact.
-It can be tested as a web application here: https://anonymousartifact.github.io/FGJ-GT/index.html
+It can be tested as a web application here:
+
+https://anonymousartifact.github.io/FGJ-GT/index.html
 
 ### Specifically, what is the impact of back-tracking and the resulting NP-completeness?
 
