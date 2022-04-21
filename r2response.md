@@ -92,10 +92,10 @@ It's still non-deterministic because of the $\in\Pi$ in rule (Fig 9: MT-CLASS).
 
 The reviewer summarizes his criticism as follows:
 
-    Contrast this with the very real disadvantages of the approach, which are at least three-fold:
-    * Lack of polymorphic recursion. This one could be accepted in my mind.
-    * Lack of cyclic class dependencies. For typical Java like code this is a serious blocker.
-    * Multiple typings. This means that principal types are not smallest types, and that in fact inferred types could get very complex. This is in my mind the biggest downside.
+* Contrast this with the very real disadvantages of the approach, which are at least three-fold:
+  * Lack of polymorphic recursion. This one could be accepted in my mind.
+  * Lack of cyclic class dependencies. For typical Java like code this is a serious blocker.
+  * Multiple typings. This means that principal types are not smallest types, and that in fact inferred types could get very complex. This is in my mind the biggest downside.
 
 ### polymorphic recursion
 
