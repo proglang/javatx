@@ -2,6 +2,7 @@
 # Overview
 
 # Change list
+
 - Adding an example showcasing the advantages of generalized methods and the necessary to generate type annotations for each class individually. (see Response to Review A)
 
 - Fixing typos and mistakes pointed out by the reviewers
@@ -13,7 +14,16 @@
 # Response
 ## Review A
 
-- "My feeling is that a better approach would be to typecheck a class in isolation, generating constraints on the omitted types for parameters and results, and then solving constraints in all possible ways only when putting together classes to form a program"
+### "not clear whether the restriction that classes cannot be mutually recursive is really unimportant"
+
+It is indeed a restriction of the presented algorithm (and the
+prototype implementation) that classes
+cannot be mutually recursive. We made this choice to simplify the
+presentation. For mutually recursive classes, we would have to
+generate the constraints at the same time and generalize analogously
+to the way it is done for mutually recursive methods.
+
+###  "better ... typecheck a class in isolation, generating constraints on the omitted types for parameters and results, and then solving constraints in all possible ways only when putting together classes to form a program"
 
 This approach only works when the whole program is given during the type inference step.
 
