@@ -1,8 +1,12 @@
 
 # Overview
 
-Thank you for your response and valuable comments to our paper.
-We considered each of your proposals and will make small adjustments to our paper accordingly. (See 'Change list' below)
+Thank you for your thoughtful reviews and the valuable comments on our paper.
+
+The main issues raised are clarifications of some technical issues and
+a question on the motivation of this work. We believe they are
+addressed with the proposed changes. See the responses below
+for more detailed discussion.
 
 # Change list
 
