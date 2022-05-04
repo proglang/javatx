@@ -84,6 +84,32 @@ class Pair<X,Y> {
   \caption{Example code}
   \label{fig:intro-example-code}
 \end{figure}
+
+Figure \ref{fig:globalTI-example} shows a simplified example program.
+It shows a simple implementation of a linked list.
+It is a toy example, which has no real world application due to the fact that there is no neutral element for the linked list.
+Also we leave out constructor for the sake of clarity.
+
+\begin{figure}
+\begin{lstlisting}[style=tfgj]
+class List<A extends Object> extends Object{
+    A element;
+    List<A> succ; 
+    add(a){
+       return new List(a, this);
+    }
+}
+
+class Example extends Object{
+   addToList(list){
+       return list.add(this);
+   }
+}
+\end{lstlisting}    
+\caption{Global type inference example}
+\label{fig:globalTI-example}
+\end{figure}
+
 While the overhead of explicit types look reasonable in the example,
 realistic programs often contain variable initializations like
 the following:\footnote{Taken from
