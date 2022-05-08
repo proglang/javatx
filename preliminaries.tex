@@ -78,9 +78,41 @@ defined as follows:
 \end{itemize}
 It follows from this discussion that the resulting classes have to be
 processed backwards starting with $\mv{C}_n, \mv{C}_{n-1}, \dots, \mv{C}_1$.
+Figure \ref{fig:example-decluster} showcases this process with a short example.
 
-\todo[inline]{PJT: may not treat mutual recursion across
-  class boundaries satisfactorily.}
+\begin{figure}[tp]
+    \begin{subfigure}[t]{0.49\linewidth}
+\begin{lstlisting}[style=tfgj]
+class C extends Object {
+  m1(a){
+    return a;
+  }
+  m2(b){
+    return this.id(a);
+  }
+}
+\end{lstlisting}
+      \caption{The methods \texttt{m1} and \texttt{m2} can be separated}
+    \end{subfigure}
+    ~
+    \begin{subfigure}[t]{0.49\linewidth}
+\begin{lstlisting}[style=tfgj]
+class C1 extends C2 {
+  m2(b){
+    return this.id(a);
+  }
+}
+class C2 extends Object {
+  m1(a){
+    return a;
+  }
+}
+\end{lstlisting}
+      \caption{After the transformation}
+    \end{subfigure}
+    \caption{Example for method clusters}
+    \label{fig:example-decluster}
+  \end{figure}
 
 \subsection{Typing}
 \label{chapter:type-rules}
