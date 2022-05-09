@@ -51,9 +51,14 @@ Pl\"umicke \cite{Plue07_3} presents a first attempt to adopt Milner's
 approach to Java. However, the presence of subtyping means that type
 unification is no longer unitary, but still finitary. Thus, there is
 no longer a single most general type, but any type is an instance of a
-finite set of maximal types. Further work by the same author \cite{plue15_2,plue17_2},
+finite set of maximal types (form more details see Section
+\ref{sec:unification}). Further work by the same author
+\cite{plue15_2,plue17_2}, 
 refines this approach by moving to a constraint-based algorithm and by
 considering lambda expressions and Scale-like function types.
+In Pluemicke's work there is no formal definition of its type system as a basis
+of the type inference algorithm. Our contribution in this paper is a formal defined
+type system. 
 
 We rule out polymorphic recursion because its presence makes type
 inference (but not type checking: see FGJ) undecidable. Henglein
@@ -65,7 +70,17 @@ is reducible to semi-unification, which is undecidable
 this problem apparently does not matter much in practice
 \cite{DBLP:journals/tcs/EmmsL99}. 
 
+Ancona, Damiani, Drossopoulou, Zucca \cite{ADDZ05} considered polymophic byte
+code. For a type inference system this means that structural types have to be
+inferred. As \textsf{Java} allows no structural types in \textsf{Java} this could be simulated by
+generated interfaces. Pluemicke follows this approach in
+\cite{plue16_1}. Furthermore Ancona et.al. considers only classes without
+generics. 
+
+
+
 \subsection{Unification}
+\label{sec:unification}
 
 We reduce the type inference problem to constraint solving with
 equality and subtype constraints.
