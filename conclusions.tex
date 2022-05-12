@@ -6,8 +6,27 @@ Featherweight Generic Java (FGJ). To this end, we define a language
 \FGJGT that characterizes FGJ programs amenable to type inference: its
 methods carry no type annotations and it does not permit polymorphic recursion.
 This language corresponds to a strict subset of FGJ.
+
 The inference algorithm is constraint based and is able to infer
-method types with bounded generic types. 
+generalized method types with bounded generic types. 
+We show this in the example in figure \ref{fig:intro-example-generic-fj}.
+Here the \texttt{setfst} method is assigned a new generic type variable \texttt{Z}.
+This is achieved by first structuring the input classes into strongly connected parts as shown in chapter \ref{chapter:syntax}
+and afterwards processing each part respectively each class separately.
+%By structuring the input classes into strongly connected parts
+%our type inference algorithm is able to infer generalized method types
+%as shown in figure \ref{fig:intro-example-generic-fj}.
+%%Our algorithm deducts those types out of the input in \ref{fig:intro-example-generic-jtx}.
+%This can only be achieved when processing each class by itself.
+
+We clarify this via a counterexample.
+Lets assume in the example in figure \ref{fig:intro-example-generic-jtx} there would be an additional methodcall to the method \texttt{setfst} inside the class \texttt{Pair} like so:
+\texttt{setfst(new Integer())}.
+This would cause the method \texttt{setfst} to get the type \texttt{Pair<Integer, Y> setfst(Integer fst)}.
+This is due to the type rule \texttt{GT-CLASS} in figure \ref{fig:expression-typing}.
+Inside the same class methods cannot be used in a polymorphic way.
+We have to make this restriction to combat polymorphic recursion, which would render type inference undecidable.
+
 
 \if0
 We presented in this paper a global type infrerence algorithm for Featherweight

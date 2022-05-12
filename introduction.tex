@@ -85,18 +85,6 @@ class Pair<X,Y> {
   \label{fig:intro-example-code}
 \end{figure}
 
-Our type inference algorithm is able to infer generalized method types
-as shown in figure \ref{fig:intro-example-generic-fj}.
-Our algorithm deducts those types out of the input in \ref{fig:intro-example-generic-jtx}.
-
-But this is only possible by processing each class by itself as explained in chapter \ref{chapter:syntax}.
-Lets assume for example, inside the class \texttt{Pair} there would be a call to the method \texttt{setfst} like so:
-\texttt{setfst(new Integer())}.
-This would cause the method \texttt{setfst} to get the type \texttt{Pair<Integer, Y> setfst(Integer fst)}.
-This is due to the type rule \texttt{GT-CLASS} in figure \ref{fig:expression-typing}.
-Inside the same class methods cannot be used in a polymorphic way.
-We have to make this restriction to combat polymorphic recursion, which would render type inference undecidable.
-
 While the overhead of explicit types look reasonable in the example,
 realistic programs often contain variable initializations like
 the following:\footnote{Taken from
@@ -231,7 +219,7 @@ for FGJ programs without polymorphic recursion
 on previous attempts at type inference for Java in the literature as detailed in
 Section~\ref{sec:related-work}. 
 
-We investigate the complexity of global type inference and show its NP-completeness (Section~\ref{sec:complexity}).
+We investigate the complexity of global type inference and show its NP-completeness (Section~\ref{sec:soundn-compl-type}).
 
 We implemented a prototype of the type inference algorithm, which we
 plan to submit for artifact evaluation.
