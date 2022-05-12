@@ -373,7 +373,26 @@ Each solution consists out of a pair of unifiers $\sigma$ and generic bounds \un
   $\mv{X} \doteq \mv{Y}$. Rather, an equation like this renders the
   constraint set unsolvable.
 \end{example}
-
+\begin{example}
+  To see that the algorithm is able to infer bounded generic types, we
+  consider the example from the introduction
+  (Figure~\ref{fig:intro-example-generic-fj}).
+  The \texttt{setfst} method obtains a new generic type variable \texttt{Z}.
+%By structuring the input classes into strongly connected parts
+%our type inference algorithm is able to infer generalized method types
+%as shown in figure \ref{fig:intro-example-generic-fj}.
+%%Our algorithm deducts those types out of the input in \ref{fig:intro-example-generic-jtx}.
+%This can only be achieved when processing each class by itself.
+  We clarify this via a counterexample.
+  Let's assume in the example in
+  Figure~\ref{fig:intro-example-generic-jtx} that there is an
+  additional method call \texttt{setfst(new Integer())} inside the class \texttt{Pair}.
+  This call would cause the method \texttt{setfst} to obtain type
+  \texttt{Pair<Integer, Y> setfst(Integer fst)}, which corresponds to
+  the typing rules (c.f.\ \texttt{GT-CLASS} in Figure~\ref{fig:expression-typing}):
+  Inside the same class methods cannot be used in a polymorphic way.
+  We have to make this restriction to avoid polymorphic recursion.
+\end{example}
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "TIforGFJ"

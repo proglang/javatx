@@ -154,20 +154,20 @@ boolean eqPair (Pair<Integer,Integer> p) {
 }
 \end{lstlisting}
   With global type inference it is sufficient to write the code on the
-  left of Figure~\ref{fig:equal-pair} and obtain the FGJ code with the most general type on the right.
+  right of Figure~\ref{fig:equal-pair} and obtain the FGJ code with the most general type on the left.
 \end{itemize}
   \begin{figure}[t]
-    \begin{minipage}[t]{0.49\linewidth}
-\begin{lstlisting}[style=tfgj]
-eqPair (p) {
-  return p.fst.equals(p.snd);
-}
-\end{lstlisting}
-    \end{minipage}
     \begin{minipage}[t]{0.49\linewidth}
 \begin{lstlisting}[style=fgj]
 <T> boolean eqPair (Pair<T,T> p){
   return p.fst.equals<T>(p.snd);
+}
+\end{lstlisting}
+    \end{minipage}
+    \begin{minipage}[t]{0.49\linewidth}
+\begin{lstlisting}[style=tfgj]
+eqPair (p) {
+  return p.fst.equals(p.snd);
 }
 \end{lstlisting}
     \end{minipage}
@@ -215,14 +215,15 @@ on signatures of generic methods (Section~\ref{sec:polym-recurs-form}).
 We define a constraint-based algorithm that performs global type
 inference for \FGJGT. This algorithm is sound and relatively complete
 for FGJ programs without polymorphic recursion
-(Sections~\ref{sec:type-infer-algor} and~\ref{sec:unify}). Our algorithm improves
+(Sections~\ref{sec:type-infer-algor} and~\ref{sec:unify}). 
+
+In Section~\ref{sec:soundn-compl-type} we show that global type inference is NP-completene.
+
+Our algorithm improves
 on previous attempts at type inference for Java in the literature as detailed in
 Section~\ref{sec:related-work}. 
 
-We investigate the complexity of global type inference and show its NP-completeness (Section~\ref{sec:soundn-compl-type}).
-
-We implemented a prototype of the type inference algorithm, which we
-plan to submit for artifact evaluation.
+A prototype of global type inference is available as an evaluated artifact.
 
 \if0
 \commentary{PT what else do you want to say? Do you want to point to
