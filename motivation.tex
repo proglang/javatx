@@ -103,9 +103,7 @@ class MultPair {
 }
 \end{lstlisting}
 where
-\begin{align*}
-  (T_0, T_1, T_2) & \in \{ (\mv{Int}, \mv{Int}, \mv{Int}), (\mv{Double}, \mv{Double}, \mv{Double}) \}
-\end{align*}
+$ (T_0, T_1, T_2) & \in \{ (\mv{Int}, \mv{Int}, \mv{Int}), (\mv{Double}, \mv{Double}, \mv{Double}) \}$.
 
 \subsection{Inheritance}
 \label{sec:inheritance}
@@ -370,8 +368,8 @@ GTI models these instances by inferring an \emph{intersection type}
 \texttt{List<Global> -> Global \& List<Object> -> Object}
 for method \texttt{m} and the different FGJ-completions of class \texttt{Global} are
 instances of the intersection type:\footnote{The cognoscenti will be
-  reminded of overloading. However, FGJ does not support overloading,
-  so we rely on resolution by subsequent uses of the method. Moreover,
+  reminded of overloading. As FGJ does not support overloading,
+  we rely on resolution by subsequent uses of the method. Moreover,
   this intersection type cannot be realized by overloading in a Java
   source program because it is resolved according to the raw classes
   of the arguments, in this case \lstinline{List}. It can be realized

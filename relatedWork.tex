@@ -56,9 +56,9 @@ finite set of maximal types (for more details see Section
 \cite{plue15_2,plue17_2}, 
 refines this approach by moving to a constraint-based algorithm and by
 considering lambda expressions and Scale-like function types.
-In Pluemicke's work there is no formal definition of its type system as a basis
-of the type inference algorithm. Our contribution in this paper is a formal defined
-type system. 
+In Pl\"umicke's work there is no formal definition of the type system as a basis
+of the type inference algorithm. One contribution of this paper is a
+formal definition of the underlying type system. 
 
 We rule out polymorphic recursion because its presence makes type
 inference (but not type checking: see FGJ) undecidable. Henglein
@@ -70,12 +70,12 @@ is reducible to semi-unification, which is undecidable
 this problem apparently does not matter much in practice
 \cite{DBLP:journals/tcs/EmmsL99}. 
 
-Ancona, Damiani, Drossopoulou, Zucca \cite{ADDZ05} considered polymophic byte
-code. For a type inference system this means that structural types have to be
-inferred. As \textsf{Java} allows no structural types in \textsf{Java} this could be simulated by
-generated interfaces. Pluemicke follows this approach in
-\cite{plue16_1}. Furthermore Ancona et.al. considers only classes without
-generics. 
+Ancona, Damiani, Drossopoulou, and Zucca \cite{ADDZ05} consider polymorphic byte
+code. Their approach is modular in the sense that it infers
+polymorphic structural types. As {Java} does not support structural
+types, their approach would have to be simulated with generated
+interfaces. Pl\"umicke \cite{plue16_1} follows this
+approach. Furthermore Ancona and coworkers do not consider generic classes. 
 
 
 
@@ -89,19 +89,20 @@ polymorphic order-sorted unification which is used in logic
 programming languages with polymorphic order-sorted types
 \cite{GS89,MH91,HiTo92,CB95}.
 
-Smolka's thesis \cite{GS89} mentions the type unification problem
+Smolka's thesis \cite{GS89} mentions type unification
 as an open problem. He gives  an incomplete type inference algorithm
 for the logical language \textsf{TEL}. The reason for incompleteness
 is the admission of subtype relationships between polymorphic types of
 different arities as in  $\texttt{List(a)} \sub
-\texttt{myLi(a,b)}$. The result is that the subtyping relation does
+\texttt{myLi(a,b)}$. In consequence, the subtyping relation does
 not fulfill the ascending chain condition.
 For example, given  $\texttt{List(a)} \sub \texttt{myLi(a,b)}$, we obtain:
 \begin{gather*}
   \texttt{List(a)} \sub \texttt{myLi(a,List(a))} \sub \texttt{myLi(a,myLi(a,List(a)))}  \sub \dots
 \end{gather*}
 However, this subtyping chain exploits covariant subtyping, which does
-not apply to FGJ (but it would apply in the presence of wildcards).
+not apply to FGJ.
+%(but it would apply in the presence of wildcards).
 
 Smolka's algorithm also fails sometimes in the absence of infinite
 chains, although there is a unifier. 
@@ -124,14 +125,14 @@ In this approach a \emph{most general type unifier (mgtu)} is
 defined as an upper bound of different principal type unifiers. In
 general, two type terms need not have an upper bound in the subtype ordering,
 which means that there is no mgtu in the sense of Hill and Topor.
-For example for  $\texttt{nat} \sub \texttt{int}$, $\texttt{neg} 
+For example, given  $\texttt{nat} \sub \texttt{int}$, $\texttt{neg} 
 \sub \texttt{int}$, and the set of inequations $\set{\mathtt{nat} \lessdot
-  \mathtt{a}$, $\mathtt{neg} \lessdot \mathtt{a}}$ the mgtu $\set{\mathtt{a} \mapsto \texttt{int}}$ is
+  \mathtt{a}$, $\mathtt{neg} \lessdot \mathtt{a}}$, the mgtu $\set{\mathtt{a} \mapsto \texttt{int}}$ is
 determined. If the subtype ordering is extended by $\mathtt{int} \sub
 \mathtt{index}$ and $\mathtt{int} \sub \mathtt{expr}$, then there are three
 unifiers $\set{\mathtt{a} \mapsto \texttt{int}}$, $\set{\mathtt{a} \mapsto
   \mathtt{index}}$, and $\set{\mathtt{a} \mapsto 
-\mathtt{expr}}$, but none of them is a mgtu \cite{HiTo92}.
+\mathtt{expr}}$, but none of them is an mgtu \cite{HiTo92}.
 
 The type system of \textsf{PROTOS-L} \cite{CB95} was
 derived from \textsf{TEL} by disallowing any explicit subtype relationships

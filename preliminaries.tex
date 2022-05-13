@@ -385,7 +385,7 @@ polymorphic recursion.
   leads to a contradiction using similar reasoning as before.
 
   Hence, all instantiations must be permutations over a finite set of
-  variables, so that $IG^*(\mv{C})$ is finite! 
+  variables, so that $IG^*(\mv{C})$ is finite. 
 \end{proof}
 
 Moreover, if a class has only mutually recursive methods without
@@ -418,9 +418,9 @@ consider calls to $\mv{n'}\notin\{\mv{n}, \mv{m}\}$ with an
 instantiation which is not the identity permutation. We can also
 assume that $\mv{n'}$ is not called from $\mv{m}$: otherwise, \mv{n'}
 would have the generic variables in the same order as \mv{m} and hence
-as \mv{n}! But that means we can fix all calls to $\mv{n'}$ by
+as \mv{n}. But that means we can fix all calls to $\mv{n'}$ by
 applying the inverse permutations as for \mv{n} \emph{without disturbing the already
-  established identity instantiations}!
+  established identity instantiations}.
 
 Each such step eliminates all non-identity instantiations for at least
 one method without disturbing previous identity instantiations. Hence,
