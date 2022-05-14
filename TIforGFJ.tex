@@ -68,6 +68,7 @@
 \ArticleNo{28}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\usepackage{xurl}
 \usepackage{cite}
 \usepackage [disable]{todonotes} % [disable]
 \usepackage[utf8]{inputenc}
@@ -261,8 +262,8 @@ variables for the argument and result types.
   \begin{gather*}
     % \fjtype : \typeAssumptionsSymbol \times \texttt{L} \rightarrow \ol{\constraint}\\
     \begin{array}{@{}l@{}l}
-      \fjtype & ({\mv{\Pi}}, \mathtt{class } \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \ \mathtt{ extends } \ \mathtt{N \{ \overline{T} \ \overline{f}; \, K \, \overline{M} \}}) =\\
-              & \begin{array}{ll@{}l}
+      & \fjtype  ({\mv{\Pi}}, \mathtt{class } \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \ \mathtt{ extends } \ \mathtt{N \{ \overline{T} \ \overline{f}; \, K \, \overline{M} \}}) =\\
+              & \quad \quad \begin{array}{ll@{}l}
                   \textbf{let} & \overline{\tv{a}}_{\mv m} \text{ be fresh type variables
                                  for each }\mv{m}\in\ol{M} \\
                                & \ol{\methodAssumption}_o = \set{\exptype{C}{\ol{X} \triangleleft \ol{N}}.\mv{m} :
