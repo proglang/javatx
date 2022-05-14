@@ -36,23 +36,14 @@ We keep the class constraints ${\ol{X} \triangleleft \ol{N}}$ as well as the typ
 for fields $\ol{T} \ \ol{f}$ as we consider them as part of the
 specification of a class.
 
-% \textbf{Prechecks:}
 We make the following assumptions for the input program:
 \begin{itemize}
 \item All types $\mv N$ and $\mv T$ are well formed according to the
   rules of FGJ, which carry over to \TFGJ (see Fig.~\ref{fig:well-formedness-and-subtyping}).
-  % This can be checked easily, because no types annotations are omitted in the class header.
-  % The generic variables of each class as well as their bounds are given in the input.
-  % We assume that the each written type in the input in bounds of
-  % classes, super class types, field types and casts is already
-  % checked for well-formedness.
 \item The methods of a class call each other mutually recursively.
 \item The classes in the input are topologically sorted so that later
   classes only call methods in classes that come earlier in the
   sorting order.
-  % to comply with the  rules
-  % \rulename{GT-METHOD} and \rulename{GT-CLASS} (see
-  % Section~\ref{chapter:type-rules}) of \TFGJ. 
 \end{itemize}
 Our requirements on the method calls do not impose serious
 restrictions as any class, say \mv{C}, can be transformed to meet them as
@@ -426,88 +417,6 @@ Each such step eliminates all non-identity instantiations for at least
 one method without disturbing previous identity instantiations. Hence,
 the procedure terminates after finitely many steps with a class with
 all instantiations being identity permutations.
-
-\if0 
-
-\subsection{Principal Type}
-\todo[inline]{PJT: is this subsumed by
-  Section~\ref{sec:multiple-results}? Do we have principal types when
-  we admit intersection types?}
-
-\todo[inline]{MP: I think so. But we have to define an partial ording
-  $\triangleright$ of princpality:
-
-% \newpage
-%   \begin{definition}[Partial Ordering of Princpality]
-%      For a method $$\mathtt{m}(\ol{x})\ \{ \mathtt{ return}\ \mv e; \}$$ 
-%      and a type $\mathtt{T}$ with $\environmentvdash x :  \mathtt{T}$.
-
-%      $\mathtt{\vdash \ol L : \Pi_n}$
-
-%      $\exptype{C}{\ol{X}}.{\tt m} \mapsto
-%       \exptype{}{\ol{Y} \triangleleft  \ol{P}} \ol{T_m} \to {\tt T_m}$
-%   \end{definition}
-
-  $ty_1 \& \ldots \& ty_n \triangleright ty'_i$, if $ty'_i$ is a supertype of any
-  $ty_i$ and\\ $ty'_i \triangleright ty'_i[\ol{U}/\ol{X}]$
-
-  For this we have to define a rule for the derivation of an intersection type.
-  Then there is minimal number of funtions types for any method.
-}
-\todo[inline]{PT: so should we add overloading to FGJ? Which style of
-  overloading? (i.e., should it be compatible with Java's restrictions
-  that overloading must be resolvable on raw types?)}
-
-
-Featherweight Generic Java has no unique principal typing.
-We can show this easily with an example.
-We try to find the principal type for the method \texttt{method1}.
-\begin{lstlisting}
-class Global{
-  method1(a){
-    a.add(this);
-    return a.get();
-  }
-}
-class List<A> {
-  add(A item){...}
-  A get() ...
-}
-\end{lstlisting}
-In \texttt{method1} neither the return type nor the type for the parameter \texttt{a} are specified.
-The return type of the method depends on the type of \texttt{a}.
-If we set in the type \texttt{List<Object>} here, then \texttt{method1} would return \texttt{Object}.
-The type \texttt{List<Global>} would also be correct.
-Then the return type of the method can also be the type \texttt{Global}.
-
-The principal type would either be an intersection type or the method \texttt{method1} has to be overloaded.
-FGJ neither supports intersection types nor overloading.
-Therefore we cannot set in the principal type and have to stick with one of the possible solutions,
-for example\\
-\texttt{List<Global> method1(List<Global> a)}.
-
-It is possible for a class to have multiple principal type solutions.
-This can lead to a type error when compiling multiple classes.
-\begin{lstlisting}
-  class Global{
-    method1(a){
-      a.add(this);
-      return a.get();
-    }
-  }
-  class Class2{
-    Object test(){
-      return new Global().method1(new List<Object>());
-    }
-  }
-\end{lstlisting}
-Our type inference algorithm is able to infer all of the principal type solutions, but only one of them can be set in.
-If we set in \texttt{List<Global>} as the parameter type for the \texttt{method1},
-then the class \texttt{Class2} would lead to a type error.
-In this case the type inference algorithm has to try another type solution for \texttt{method1}
-to render the program type correct.
-
-\fi
 
 %%% Local Variables:
 %%% mode: latex

@@ -2,9 +2,6 @@
 
 \begin{theorem}[Soundness]
   \label{theo:unifySoundness}
-  % \replaced{If the \unify{} algorithm finds a solution it does not contradict any of the input constraints:
-  % $\nexists (a \lessdot b) \in \consSet_{in}$ where $\sigma(a) \nless :
-  % \sigma(b)$}{}
    If $\unify{}(\consSet, \Delta) = {(\sigma,  \ol{Y} \triangleleft
      \ol{P})}$, then $\sigma$ is unifier of $(\consSet,\Delta \cup \set{\ol{Y} <: \ol{P}})$. 
 \end{theorem}

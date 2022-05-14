@@ -22,7 +22,6 @@
 
 \newcommand{\sarray}[2]{\begin{array}[t]{#1} #2 \end{array}}
 
-%\newcommand{\olsub}{\textrm{$\, \leq^\ast \,$}\ }
 \newcommand{\olsub}{\textrm{$<:$}\ }
 
 \newcommand{\sub}\olsub%{\mbox{$<$}}
@@ -72,19 +71,18 @@
 
 %%% Commands for FGJTYPE algorithm
 \newcommand{\tv}[1]{\mathit{ #1 }}
-%\newcommand{\fjtypeInsert}{\textbf{FJTypeInsert}}
-\newcommand{\unifyGenerics}{\ensuremath{\gamma}}% {\ensuremath{\overline{\type{G}\triangleleft \type{H}}}}
+\newcommand{\unifyGenerics}{\ensuremath{\gamma}}
 \newcommand{\fjtype}{\textbf{FJType}}
 \newcommand{\unify}{\textbf{Unify}}
 \newcommand{\typeMethod}{\textbf{TYPEMethod}}
 \newcommand{\typeExpr}{\textbf{TYPEExpr}}
-\newcommand{\constraint}{\ensuremath{\mathit{c}}}%{\ensuremath{\mathtt{C}}}
-\newcommand{\consSet}{C}%{\ensuremath{\overline{\mathtt{C}}}}
-\newcommand{\orCons}{\textit{oc}}%{\ensuremath{\textbf{C}_{||}}}
+\newcommand{\constraint}{\ensuremath{\mathit{c}}}
+\newcommand{\consSet}{C}
+\newcommand{\orCons}{\textit{oc}}
 \newcommand{\simpleCons}{\textit{sc}}
 \newcommand{\overridesFunc}{\textit{overrides}}
 \newcommand{\typeAssumptionsSymbol}{\ensuremath{\Theta}}
-\newcommand{\typeAssumptions}{\ensuremath{(\mv{\Pi} ; \overline{\localVarAssumption})}}%{\ensuremath{(\overline{\methodAssumption} ; \overline{\fieldAssumption}; \overline{\localVarAssumption})}}
+\newcommand{\typeAssumptions}{\ensuremath{(\mv{\Pi} ; \overline{\localVarAssumption})}}
 \newcommand{\constraints}{\ensuremath{\mathit{\overline{c}}}}
 \newcommand{\itype}[1]{\ensuremath{\mathit{#1}}}
 \newcommand{\il}[1]{\ensuremath{\overline{\itype{#1}}}}

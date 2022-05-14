@@ -11,38 +11,6 @@ The inference algorithm is constraint based and is able to infer
 generalized method types with bounded generic types, as demonstrated
 with the example in Figure~\ref{fig:intro-example-generic-fj}.
 
-
-\if0
-We presented in this paper a global type infrerence algorithm for Featherweight
-Generic Java (FGJ). FGJ is a formal calculus of Java which reduces the method
-declaring block to a single expression. In
-\cite{DBLP:journals/toplas/IgarashiPW01} syntax, including typing rules, and semantics of FGJ is
-declared. FGJ type system corresponds with the type system of Generic Java, which is a Java with generics but without wildcards. We extended FGJ to TFGJ by adding typing rules for
-programs with method without any type declaration. The principle idea of the
-new typing rules is: Any type correct FGJ program, erasing the type
-annotations is a correct type TFGJ program. There is one
-restriction. Polymorphic recusive programs are excluded as for these programs
-type inference is only semi-decidable. This means that any correct typeless TFGJ program
-has an equivalent FGJ program. Therefore we leave the semantics of FGJ unchanged.
-
-%type unification
-We reduced the global type inference algorithm to a type unification algorithm
-which resolves the generated constraints. The type unification algorithm is not
-unitary but finitary. This means that the algorithm terminates but in general
-there is more than one solution. The multiplicity of solutions are induced
-either by overloading, expressed by so-called \textbf{OrConstraint}, and on the over hand by constraints of the form $a
-\lessdot ty$ and $ty \lessdot a$ where $a$ is a type variable und $ty$ is a non
-type variable type. In this paper we improved the type unification algorithm
-such that constraints of the form $a \lessdot ty$ are not longer resolved but
-transferred to bounded type parameters \texttt{a extends ty}. This reduced the
-number of solutions enormously, without restricting the generality of the typing
-of the TFGJ programs. Unfortunately constraints of the form $ty \lessdot a$ have
-to be resolved as Java allows no lower bounds of type parameters. If we would
-transfer our type inference algorithm to Scala then the solution of these
-constraints could be disclaimed as Scala allows lower bounds of type
-parameters. This would speed up our type inference algorithm.
-\fi
-
 In future work, we plan to extend \FGJGT to a calculus with wildcards
 inspired by Wild~FJ \cite{TEP05}. 
 We also plan to extend the formal calculus with lambda expressions

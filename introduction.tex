@@ -23,23 +23,8 @@ recent versions. That is,
 variables, fields, method parameters, and method returns must be
 adorned with their type. Figure~\ref{fig:intro-example-generic-fj}
 contains a simple example with generics.
-% from Featherweight Java \cite{DBLP:journals/toplas/IgarashiPW01} 
+
 \begin{figure}[tp]
-%   \begin{subfigure}[t]{0.55\textwidth}
-% \begin{lstlisting}
-% class Pair {
-%   Object fst;
-%   Object snd;
-%   Pair(Object fst, Object snd) {
-%    this.fst=fst; 
-%    this.snd=snd;
-%   }
-%   Pair setfst(Object fst) {
-%     return new Pair(fst, this.snd);
-%   }
-% }
-% \end{lstlisting}
-%   \end{subfigure}
   \begin{subfigure}[t]{0.49\linewidth}
 \begin{lstlisting}[style=fgj]
 class Pair<X,Y> {
@@ -227,32 +212,6 @@ A prototype of global type inference is available as an evaluated
 artifact.
 
 A full version of the paper with all proofs is available \cite{ARXIV}.
-
-\if0
-\commentary{PT what else do you want to say? Do you want to point to
-  your implementation for full Java? Can we point to Andi's prototype
-  (check conditions in CFP)?
-  Submit as an artifact?}
-
-Our contributions in this paper are an algorithm for global type inference for
-FGJ. Therefore we redraft the typing rules of FGJ such that the programs without
-type annotations could be correct and in this case polymorphic recursion is
-excluded. We prove soundness and completeness of the algorithm about the rules.
-
-The type inference algorithm is reduced to a constraint solving type unification
-algorithm. We improved our type unification algorithm such that constraints
-of the form $a \lessdot ty$, where $a$ is type variable and $ty$ is is a
-non-type variable type,
-are not resolved rather converted to bounded type parameters \texttt{a extends
-  ty}. This implicates an enormes reduction of solutions of the type
-unification algorithm without restricting the generality of typings of
-FGJ-programs.
-
-We show that Global type inference for FGJ is NP complete.
-
-Finally we have done an implementation of  global type inference for  a reduced
-set of full Java.
-\fi
 
 %%% Local Variables:
 %%% mode: latex

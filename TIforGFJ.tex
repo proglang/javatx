@@ -119,11 +119,9 @@ single class $\mv L$ at a time:
   \triangleleft \ol{N}} \triangleleft \type{N}\ \{ \ldots \}) &
                                                                      \text{// constraint generation}\\
               {(\sigma,  \ol{Y} \triangleleft \ol{P})} &= \unify{}(\consSet,\, \ol{X} <: \ol{N}) & \text{// constraint solving}\\
-  %TODO: Describe whole algorithm (Insert types, try out every unify solution by backtracking (describe it as Non Deterministic algorithm))
 \end{array}\\
 \textbf{in}\ \mv\Pi \cup
 \set{(\exptype{C}{\ol{X} \triangleleft \ol{N}}.\mv{m} : \exptype{}{\ol{Y} \triangleleft \ol{P}}\ \ol{\sigma(\tv{a})} \to \sigma(\tv{a})) \ |\ (\exptype{C}{\ol{X} \triangleleft \ol{N}}.\mv{m} : \ol{\tv{a}} \to \tv{a}) \in \overline{\methodAssumption}}
-% \fjtypeInsert(\overline{\methodAssumption}, (\sigma, \unifyGenerics{}) )
 \end{gather*}
 
 
@@ -133,27 +131,11 @@ set.  A local solution for class $\mv C$ may not
 be compatible with the constraints generated for a subsequent class. In this case, we have to backtrack to $\mv C$ and proceed to the next
 local solution; if thats fail we have to backtrack further to an earlier class.
 
-%This set inherits the principal type solution.
-%The last step simplifies the calculated solutions and only inserts the principal typing.
-%The last step chooses the principal type out of those possibilities.
-
-\if0
-The solver \unify{} returns a set of all possible type solutions for the currently processed class.
-We generate the $\mv{\Pi}$ environment used in the next iteration of the \fjtype{} algorithm as follows:
-\begin{align*}
-  \fjtypeInsert{}(\overline{\methodAssumption}, (\sigma, \unifyGenerics{})) & = \begin{array}{l}
-    \set{(\exptype{C}{\ol{X} \triangleleft \ol{N}}.\mv{m} : \exptype{}{\unifyGenerics{}}\ \ol{\sigma(\tv{a})} \to \sigma(\tv{a})) \ |\ (\exptype{C}{\ol{X} \triangleleft \ol{N}}.\mv{m} : \ol{\tv{a}} \to \tv{a}) \in \overline{\methodAssumption}}
-  \end{array} 
-\end{align*}
-Here $\overline{\methodAssumption}$ are the newly generated method assumptions of the \fjtype{} function.
-$(\sigma, \unifyGenerics{})$ is one of the solutions returned by \unify{}.
-\fi
 
 \subsection{Type inference for a program }
 \label{sec:proc-mult-class}
 
-% \commentarymargintext
-{Type inference processes a program one class at a time.
+Type inference processes a program one class at a time.
 To do so, it must be possible to order the classes such that early
 classes never call methods in later classes.
 As an example, Figure~\ref{fig:invalidinput} shows a program that is
@@ -166,7 +148,7 @@ acceptable to both \TFGJ and FGJ because the mutual recursion of
 methods \mv{m1} and \mv{m2} is taking place inside class \mv{D2}. As
 \mv{D2} invokes method \mv{m} of \mv{D1}, type inference must process
 \mv{D1} before \mv{D2}, which corresponds to the constraints imposed
-by the typing of \TFGJ in Section~\ref{chapter:type-rules}.}
+by the typing of \TFGJ in Section~\ref{chapter:type-rules}.
 
 
 \begin{figure}[tp]
@@ -260,7 +242,6 @@ variables for the argument and result types.
 
 \begin{figure}[tp]
   \begin{gather*}
-    % \fjtype : \typeAssumptionsSymbol \times \texttt{L} \rightarrow \ol{\constraint}\\
     \begin{array}{@{}l@{}l}
       & \fjtype  ({\mv{\Pi}}, \mathtt{class } \ \exptype{C}{\ol{X} \triangleleft \ol{N}} \ \mathtt{ extends } \ \mathtt{N \{ \overline{T} \ \overline{f}; \, K \, \overline{M} \}}) =\\
               & \quad \quad \begin{array}{ll@{}l}
@@ -281,8 +262,6 @@ variables for the argument and result types.
                                & \Pi = \mv{\Pi} \cup
                                  \ol{\methodAssumption}' \cup
                                  \ol{\methodAssumption}_o \\
-                               % \cup \\
-                               % \typeAssumptions \cup m_{override}
                   \textbf{in} 
                                & { ( \Pi, 
                                  \consSet_o \cup \consSet_m \cup
@@ -296,17 +275,6 @@ variables for the argument and result types.
   \label{fig:constraints-for-classes}
 \end{figure}
 
-
-\if0
-The \fjtype function gets called for every class in the input.
-This function accumulates all the constraints generated from calling the
-typeMethod function for each method declared in the given class.
-It also generares constraints for overriden methods.
-If a method \texttt{m} in \texttt{C} overrides a method in its superclass,
-then we make sure that the return type of \texttt{m} in \texttt{C} is
-a subtype of the overriden method.
-\fi
-
 Constraint generation alternates with constraint solving: After
 generating constraints with {\fjtype}, we solve them to obtain one or
 more candidate extensions for the method type environment
@@ -315,12 +283,11 @@ until all classes are checked and we have an overall method type
 environment.  Otherwise, we backtrack to check the next candidate. 
 
 \begin{gather*}
-%%%%%   \typeMethod: \typeAssumptionsSymbol \times \texttt{M} \rightarrow \ol{\constraint}\\
 \begin{array}{@{}l@{}l@{}l}
   \typeMethod & (\ensuremath{\mv{\Pi} }, \exptype{C}{\ol{X}},\ &\  \mathtt{m}(\ol{x})\{ \mathtt{ return }\ \texttt{e}; \}) =\\
               & \textbf{let} & \exptype{}{\ol{Y} \triangleleft \ol{P}}\ \overline{T} \to T  = \mv{\Pi} (\exptype{C}{\ol{X} \triangleleft \ol{N}}.\mv{m})
   \\
-              & %\textbf{let}
+              & 
                                                                                               & ({R}, \consSet) =
                                                                                                 \typeExpr(\mv\Pi ; \set{\mv{this} :
                                                                                                 \exptype{C}{\ol{X}} } \cup \set{ \ol{x} : \overline{{T}} }), \texttt{e})\\
@@ -331,7 +298,6 @@ environment.  Otherwise, we backtrack to check the next candidate.
 
 The \typeMethod{} function for methods calls the \typeExpr{} function with the
 return expression. It adds the assumptions for \texttt{this} and for the method parameters to the global assumptions before passing them to \typeExpr.
-%and the global assumptions plus the assumptions for the method parameters.
 
 \smallskip
 
@@ -481,21 +447,12 @@ $\begin{array}{l}
 
 \input{unify}
 
-% \input{unifyProof}
-
 \input{soundnessCompletenessTI}
-
-%\input{complexity}
-
-% \section{Examples}
-% \label{sec:examples}
-%\input{examples}
 
 \input{relatedWork}
 
 \input{conclusions}
 
-%\bibliographystyle{splncs04}
 \bibliography{bibliography}
 
 \end{document}
