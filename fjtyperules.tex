@@ -65,16 +65,6 @@ a type erasure semantics. We elide this distinction for simplicity,
 though it could be handled by introducing constraints analogous to the
 \textit{dcast} function from FGJ. 
 
-% The input for our type inference algorithm is based on Featherweight Generic Java (FGJ).
-% FGJ is defined by syntax and typing rules.
-% We already changed the syntax to allow typeless FGJ programs as input for our algorithm.
-% Additionally we alter the typing rules slightly, which is presented in this chapter.
-
-%Our type inference algorithm takes typeless FGJ classes as input.
-%The generated output is correct FGJ, although we have to alter some rules.
-%This chapter defines the typing rules for our version of FGJ,
-%which our type inference algorithm is able to process.
-
 The typing rule for a method $\mv m$, \rulename{GT-METHOD}, changes
 significantly. By our assumption on the order, in which classes are
 processed, the typing of $\mv m$ is already provided by the 
@@ -98,33 +88,6 @@ same constraints $\ol P$. It is safe to make this assumption in the absence of
 polymorphic recursion as we will show in
 Proposition~\ref{prop:polymorphi-recursion}.
 
-
-\if0
-\begin{itemize}
-\item We omit the rules for valid downcasts.
-\todo[inline]{Andi: Is this correct? We need another constraint to be correct:
-$N \lessdot_{downcast} a$ for a cast of the form: \texttt{(N)a}.
-This is a different constraint then the normal subtype relationship (see FJ paper)
-}
-\todo[inline]{PJT 20220202: we should have a single
-  rule for all casts without any distinction between the three cases. It has to be
-  split in three cases in building the completion, but this
-  distinction is not necessary for type inference.}
-
-%The downcast problem:
-
-%This is wrong:
-%m(List<SortedList> p, Object o){
-%  p.add((SortedList) o);
-%}
-
-%This is correct:
-%m(List<SortedList> p, List<Object> o){
-%  p.add((SortedList) o);
-%}
-%Currently we do not generate constraints for casts
-\end{itemize}
-\fi
 
 \begin{figure}[tp]
   \fbox{
@@ -188,7 +151,6 @@ This is a different constraint then the normal subtype relationship (see FJ pape
 \begin{small}
 \textbf{Expression typing:}\\
 \begin{tabularx}{\textwidth}{c X r}
-%\begin{tabular}{l@{\quad}l}
   $\mathtt{
 \environmentvdash x : \Gamma(x)
 }$ & & \rulename{GT-VAR} \\
@@ -228,36 +190,8 @@ $\mathtt{ \ddfrac{\Delta \vdash {\mv N} \ \texttt{ok} \quad
 $\ddfrac{\mathtt{\environmentvdash e_0 : T_0}}
 {\mathtt{\environmentvdash (N) e_0 : N}}
 $ & & \rulename{GT-CAST} \\
-%
-% & \\
-%
-% $\ddfrac{\mathtt{\environmentvdash e_0 : T_0 \quad \quad \Delta \vdash \textit{bound}_\Delta(T_0) \subeq  N}}
-% {\mathtt{\environmentvdash (N) e_0 : N}}
-% $ & & \rulename{GT-UCAST} \\
-%
-% & \\
-%
-% $ \ddfrac{\begin{array}{c}
-%   \mathtt{\environmentvdash e_0 : T_0 \quad \quad \Delta \vdash N\ \texttt{ok} \quad \quad \Delta \vdash N \subeq  \textit{bound}_\Delta(T_0) } \\
-%   \mathtt{N = \exptype{C}{\ol{T}} \quad \quad \textit{bound}_\Delta(T_0) = \exptype{D}{\ol{U}}  \quad \quad \textit{dcast}(C,D)}
-% \end{array}
-% }{\mathtt{\environmentvdash (N) e_0 : N}}$ & & \rulename{GT-DCAST} \\
-%
-% & \\
-%
-% $\ddfrac{\begin{array}{c}
-%   \mathtt{\environmentvdash e_0 : T_0 \quad \quad \Delta \vdash N\ \texttt{ok} \quad \quad N = \exptype{C}{\ol{T}}  } \\
-%   \mathtt{\textit{bound}_\Delta(T_0) = \exptype{D}{\ol{U}} \quad \quad C \ntrianglelefteq D \quad \quad D \ntrianglelefteq C \quad \quad \textit{stupid warning}}
-% \end{array}}
-% {\mathtt{\environmentvdash (N) e_0 : N}}
-% $ & & \rulename{GT-SCAST}
 \end{tabularx}\\[1em]
-% \end{small}
-% \end{minipage}
-% % }
-% % \fbox{
-% \begin{minipage}{\textwidth}
-% \begin{small}
+
 \textbf{Method typing:}\\[1em]
 \begin{tabularx}{\textwidth}{c X r}
   $\ddfrac{
@@ -349,9 +283,6 @@ $ & & \rulename{GT-CAST} \\
       \mathtt{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft
       \ol{N}}\ \triangleleft \mv{N}\ \{ \overline{C} \ \overline{f}; \ K \ \overline{M} \} 
       \qquad m \in \ol{M}} \\
-  % \mathtt{
-  %     \texttt{m}(\ol{\mathtt{x}}) \{\texttt{return}\ \mathtt{e}_0;\} \in \ol{M}
-  %     } \\
       \mathtt{
       \exptype{}{\ol{Y} \triangleleft  \ol{P}} \ol{U} \to U \in \Pi (\exptype{C}{\ol{X} \triangleleft \ol{N}}.m) }
 \end{array}
@@ -381,112 +312,6 @@ $ & & \rulename{GT-CAST} \\
 \caption{Auxiliary functions}
   \label{fig:auxiliary-functions}
 \end{figure}
-
-
-
-
-
-% \fbox{
-% \begin{minipage}{\textwidth}
-% \begin{small}
-% \textbf{Method Typing (broken):}\\[1em]
-% \begin{tabularx}{\textwidth}{X c X r}
-%   & $\mathtt{\ddfrac{\begin{array}{c}
-%     \mathtt{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N \{ \ldots\ \ol{M}\ \ldots\}
-%     \quad \quad \Delta = \ol{X} \subeq  \ol{N}, \ol{Y} \subeq  \ol{P} }\\
-%   \mathtt{\Delta \vdash \ol{T}, T, \ol{P} \ \texttt{ok} \quad \quad
-%   \textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft \ol{P}}\ol{T} \to T) } \\
-%   \mathtt{\Pi(\exptype{C}{\ol{X}}.m) = \exptype{}{\ol{Y} \triangleleft \ol{P}}\ \ol{T} \to T }\\
-%   \mathtt{\Pi; \Delta ; \ol{x}:\ol{T},\ this : \exptype{C}{\ol{X}} \vdash e_0 : S \quad \quad
-%   \Delta \vdash S \subeq  T } \\
-%   \end{array}} {
-%   %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{
-%   %\texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft
-%   %\ol{N}}}
-%    \mathtt{\Pi \vdash \exptype{}{\ol{Y} \triangleleft \ol{P}}\ T\ \texttt{meth}(\ol{T}\ \ol{\mathtt{x}}) \{\texttt{return}\ \mathtt{e}_0;\}
-%   \texttt{ OK in }\exptype{C}{\ol{X} \triangleleft \ol{N}} }
-%   }}$ & & GT-METHOD\\
-% \end{tabularx}\\[1em]
-% \textbf{Class Typing (broken):}\\[1em]
-%   \begin{tabularx}{\textwidth}{X c X r}
-%   %GT-CLASS: - This rule is modified by us
-%   & $\ddfrac{
-%     \begin{array}{c}
-%       \mathtt{\Pi = \set{\exptype{C}{\ol{X}}.m : \ol{T_m} \to T_m \, |\, m \in \ol{M}} } \\
-%       \mathtt{\ol{X} \subeq  \ol{N} \vdash \ol{N}, N, \ol{T}\ \texttt{ok}
-%       \quad\quad fields(\mathtt{N}) = \ol{\mathtt{U}} \ \ol{\mathtt{g}}} \quad \quad
-%       \mathtt{\Pi \vdash \ol{M} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}\\
-%       \mathtt{K = C(\overline{U} \ \overline{g}, \overline{T} \ \overline{f}) \{ \texttt{super}(\overline{g}); \ \texttt{this}.\overline{f}=\overline{f}; \} }\\
-%     %\quad \quad \overline{M} \ \texttt{OK IN C} \\
-%   \end{array}
-%     }
-%   {\mathtt{ \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}} \triangleleft N\ \{ \overline{T} \ \overline{f}; \ K \ \overline{M} \} \ \texttt{OK}}}
-%   $ & & GT-CLASS
-% \end{tabularx}
-% \end{small}
-% \end{minipage}
-% }
-
-% \fbox{
-% \begin{minipage}{\textwidth}
-%   \begin{small}
-%   \textbf{Method type lookup (broken):} \\[1em]
-% \begin{tabularx}{\textwidth}{cXr}
-%   $\ddfrac{
-% \begin{array}{c}
-%   \mathtt{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\ \texttt{extends N}\{ \overline{C} \ \overline{f}; \ K \ \overline{M} \} \ \texttt{OK}} \quad \quad \mathtt{m \in \ol{M}} \\
-%   \mathtt{
-%   \exptype{}{\ol{Y} \triangleleft \ol{P}}\ T\ \texttt{m}(\ol{T}\ \ol{\mathtt{x}}) \{\texttt{return}\ \mathtt{e}_0;\}
-%   }
-% \end{array}
-%    } {\mathtt{
-%      \textit{mtype}(m, \exptype{C}{\ol{T}}) = [\ol{T}/\ol{X}]\exptype{}{\ol{Y} \triangleleft \ol{P}}\ol{U} \to U
-%     }}$ & & MT-CLASS\\
-%  & & \\
-%   $\ddfrac{\mathtt{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\triangleleft
-%   N\{ \overline{C} \ \overline{f}; \ K \ \overline{M} \} \ \mathtt{OK}
-%   \quad \quad m \notin \ol{M}} }{
-%     %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
-%     \textit{mtype}(m, \exptype{C}{\ol{T}}) = \textit{mtype}(m, [\ol{T}/\ol{X}]N)
-%     }$ & & MT-SUPER \\
-% \end{tabularx}\\[1em]
-% \textbf{Valid method overriding (broken):}\\[1em]
-% \begin{tabularx}{\textwidth}{c}
-%   $\ddfrac{
-%     \textit{mtype}(m, N) = \exptype{}{\ol{Y} \triangleleft \ol{Q}} \ol{U} \to U \ 
-%     \text{implies}\ \ol{P}, \ol{T} = [\ol{Y}/\ol{Z}](\ol{Q},\ol{U}) \ 
-%    \text{and}\ \ol{Y} \subeq  \ol{P} \vdash T_0 \subeq  [\ol{Y}/\ol{Z}]U_0 
-%   } {
-%   %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
-%   \textit{override}(m, N, \exptype{}{\ol{Y} \triangleleft \ol{P}} \ol{T} \to T_0)
-%   }$ 
-% \end{tabularx}
-% % PT: this is not used anywhere!
-% % \\[1em]
-% %   \textbf{Method body lookup:} \\[1em]
-% % \begin{tabularx}{\textwidth}{cXr}
-% %   $\ddfrac{\begin{array}{c}
-% %   \texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\triangleleft
-% %              N\{ \overline{S} \ \overline{f}; \ K \ \overline{M} \} \\
-% %   \mathtt{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T\ \texttt{m}(\ol{T}\ \ol{\mathtt{x}}) \{\texttt{return}\ \mathtt{e}_0;\}}
-% %   \in \ol{M}
-% %   \end{array}} {
-% %   %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
-% %   \textit{mbody}(m, \exptype{C}{\ol{Z}}) = [\ol{Z} / \ol{X}](\exptype{}{\ol{Y}} \ol{T} \to T)
-% %   }$ & & MB-CLASS \\
-% %   & & \\
-% %   $\ddfrac{
-% %   \mathtt{\texttt{class}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}\triangleleft
-% %              \ol{N}\ \{ \overline{S} \ \overline{f}; \ K \ \overline{M} \} \quad \quad m \notin \ol{M}}
-% %   } {
-% %   %{\exptype{}{\ol{Y} \triangleleft \ol{P}}\ T \ m(\ol{T}\ \ol{x}) \{ \texttt{return} \ e_0; \} \ \texttt{OK IN}\ \exptype{C}{\ol{X} \triangleleft \ol{N}}}
-% %   \mathtt{\textit{mbody}(m, \exptype{C}{\ol{T}}) = \textit{mbody}(m, [\ol{T}/\ol{X}]N)}
-% %   }$ & & MB-SUPER \\
-% % \end{tabularx}
-% \end{small}
-% \end{minipage}
-% }
-
 
 
 %%% Local Variables:

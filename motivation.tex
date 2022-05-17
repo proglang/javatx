@@ -1,9 +1,6 @@
 \section{Motivation}
 \label{sec:motivation}
 
-% Examples, examples, examples from simple to more advanced showing off
-% the (difficult) features of inference.
-
 This section presents a sequence of more and more challenging
 examples for global type inference (GTI). To spice up our examples
 somewhat, we assume some predefined utility classes with the following
@@ -59,11 +56,6 @@ set $\mv R = \mathtt{Int}$.
 The argument type $\mv P$ only occurs negatively in the constraints,
 so $\mv P = \mathtt{Pair} \Angle{\TVX,\TVY}$.
 This reasoning gives rise to the following completion.
-% \begin{lstlisting}[style=fgj]
-% class MultPair {
-%   Int mult (Pair<Int,Int> p) { return p.fst.mult(p.snd); }
-% }
-% \end{lstlisting}
 \begin{lstlisting}[style=fgj]
 class MultPair {
   <X extends Int, Y extends Int>
@@ -89,11 +81,6 @@ Transitivity of subtyping applied to $\TVY \subconstr \mathtt{P}$ and $\mv P \su
 yields the constraint $\TVY \subconstr \mathtt{Pair}\Angle{\TVX,\TVY}$, which triggers the
 occurs-check in unification and is hence rejected. 
 
-% The corresponding example in full Java would be the dot product. In
-% full Java, we also have to deal with overloading of the multiplication
-% operator, which amounts to considering \texttt{Int.mult} and
-% \texttt{Double.mult}. Overloading is not allowed in FGJ, but method
-% names in different classes may overlap.
 
 The two solutions can be combined to
 \begin{lstlisting}[style=fgj]
@@ -156,24 +143,6 @@ GTI is now forced to instantiate the type in the superclass to
   for all methods \texttt{m{}} in a class hierarchy. Generalization can only happen after
   all constraints on \texttt{m}'s type have been considered.}
 
-% Otherwise, we would get strange results. Consider extending the
-% program with classes \texttt{A} and \texttt{B} by the following class.
-% \begin{lstlisting}[style=tfgj]
-% class C {
-%   mbool(x) { return x.m(new Bool()); }
-% }
-% \end{lstlisting}
-% Inferring the type of \texttt{C.mbool()} using \texttt{A.m()} would
-% fail because \texttt{Int} and \texttt{Bool} are not
-% unifiable. However, inferring the type of \texttt{C.mbool()} using
-% \texttt{B.m()} (with the generic type) would succeed and yield the
-% typing
-% \begin{lstlisting}[style=fgj]
-% class C {
-%   Bool mbool(B x) { return x.m(new Bool()); }
-% }
-% \end{lstlisting}
-
 
 In full Java, type inference would have to offer two alternative
 results: either two different
@@ -216,15 +185,6 @@ apply (arg) { ... }
 The typing of \texttt{apply} in Listing~\ref{lst:function-class} is an
 instance of this result, so that completeness of GTI is preserved!
 
-% While it is possible to  force GTI to infer the intended typing, it requires some awkward coding.
-% \begin{lstlisting}[style=tfgj]
-% class Function<S,T> {
-%   S in;
-%   T out;
-%   dummy (arg) { return this.dummy(in); }
-%   apply (arg) { return new Pair<>(this.out, this.dummy (arg)).fst; }
-% }
-% \end{lstlisting}
 
 Now that we have the abstract class \texttt{Function<S,T>} at our
 disposal, let us apply GTI to a class of boxed values with a
@@ -366,7 +326,7 @@ programs that are completions of the \texttt{Global} class.
 
 GTI models these instances by inferring an \emph{intersection type}
 \texttt{List<Global> -> Global \& List<Object> -> Object}
-for method \texttt{m} and the different FGJ-completions of class \texttt{Global} are
+for method \texttt{m} and the different FGJ-completions of class \texttt{Glo\-bal} are
 instances of the intersection type:\footnote{The cognoscenti will be
   reminded of overloading. As FGJ does not support overloading,
   we rely on resolution by subsequent uses of the method. Moreover,
@@ -395,12 +355,6 @@ class Global {
 \end{center}
 In this sense, the inferred intersection type represents a principal
 typing for the class.
-% \begin{lstlisting}[style=fgj]
-% class Global {
-%   <Global <: T> T m( List<T> a ) {
-%     return a.add(this).get();
-% }
-% \end{lstlisting}
 Additional classes in the program may further restrict the number of
 viable types. Suppose we define a class \texttt{UseGlobal} as
 follows:
@@ -415,10 +369,6 @@ Due to the dependency on \texttt{Global.m()}, type inference considers this clas
 \texttt{List<Object> -> Object}, global type inference narrows the
 type of \texttt{m} to just this alternative.
 
-% \todo[inline]{If there are conflicting uses of a method with an
-%   intersection type \texttt{T1\&T2}, one might consider splitting the
-%   class into one providing the method with type \texttt{T1} and
-%   another providing it with \texttt{T2}.}
 
 \subsection{Polymorphic recursion}
 \label{sec:polym-recurs}
@@ -484,20 +434,6 @@ GTI does not infer method types with polymorphic recursion. Inference either fai
 returns a more restrictive type. Classes making use of polymorphic recursion need to supply
 explicit typings for methods in question. 
 
-
-
-% Features:
-% \begin{itemize}
-% \item overloaded methods
-% \item class header is complete in the form
-%   $\mathtt{class}\ C\langle\overline X <: \overline N\rangle <: N \{
-%   \overline T\ \overline f;\ K\ \overline M \}$
-% \item constructor fully typed (as it is determined by the types of the
-%   fields and the supertype)
-% \item method signatures may be omitted, i.e., 
-%   $M\ ::=\ m(\overline x) \{ \ \mathtt{return}\ e;\ \}$
-% \item polymorphic recursive methods must be annotated.
-% \end{itemize}
 
 %%% Local Variables:
 %%% mode: latex
