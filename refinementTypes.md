@@ -15,20 +15,12 @@ add(x){
 }
 }
 
-class List<Y>{
-	<X extends Y> List<X> filter(p){
-		List<X> ret;
-		for(i in this)if(p(i)){ret.add(i);}else{}
-		return ret;
-	}
-	
-	Optional<F> filter
-}
-
-
 class Test{
 	refinement(ls){
-		ls.isInstanceOfString().apply((x -> x.toString())).apply((x -> "")).apply(ls);
+		ls.isInstanceOfString() // t -> f -> t
+			.apply((x -> x.toString()))
+			.apply((x -> ""))
+			.apply(ls);
 	}
 }
 
