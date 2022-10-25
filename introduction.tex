@@ -49,7 +49,7 @@ class Pair<X,Y> {
     this.fst=fst;
     this.snd=snd;
   }
-  Pair<X,Y> setfst(X fst) {
+  <Z> Pair<Z,Y> setfst(Z fst) {
     return new Pair(fst, this.snd);
   }
   Pair<Y,X> swap() {
@@ -65,7 +65,7 @@ class Pair<X,Y> {
 \begin{lstlisting}[style=tfgj]
 class Pair<X,Y> {
   X fst;
- Y snd;
+  Y snd;
   Pair(fst, snd) {
     this.fst=fst; 
     this.snd=snd;
@@ -84,6 +84,19 @@ class Pair<X,Y> {
   \caption{Example code}
   \label{fig:intro-example-code}
 \end{figure}
+
+Our type inference algorithm is able to infer generalized method types
+as shown in figure \ref{fig:intro-example-generic-fj}.
+Our algorithm deducts those types out of the input in \ref{fig:intro-example-generic-jtx}.
+
+But this is only possible by processing each class by itself as explained in chapter \ref{chapter:syntax}.
+Lets assume for example, inside the class \texttt{Pair} there would be a call to the method \texttt{setfst} like so:
+\texttt{setfst(new Integer())}.
+This would cause the method \texttt{setfst} to get the type \texttt{Pair<Integer, Y> setfst(Integer fst)}.
+This is due to the type rule \texttt{GT-CLASS} in figure \ref{fig:expression-typing}.
+Inside the same class methods cannot be used in a polymorphic way.
+We have to make this restriction to combat polymorphic recursion, which would render type inference undecidable.
+
 While the overhead of explicit types look reasonable in the example,
 realistic programs often contain variable initializations like
 the following:\footnote{Taken from
@@ -103,7 +116,7 @@ example, we can write
 var outerMap = new HashMap<String, HashMap<String, Object>>();
 \end{lstlisting}
 because the constructor of the map spells out the type in
-full. More specifically,``obvious'' means that the right side of the initialization is
+full. More specifically, ``obvious'' means that the right side of the initialization is
 \begin{itemize}
 \item a constant of known type (e.g., a string),
 \item a constructor call, or
@@ -191,7 +204,7 @@ The inferred signatures have the following round-trip property
 start with an FGJ program that does not make use of polymorphic
 recursion (see Section~\ref{sec:polym-recurs}), strip all types from
 method signatures, and run the algorithm on the 
-resulting stripped program, then at least one of the inferred typings is more
+resulting stripped program, then at least one of the inferred typings is equivalent or more
 general than the types in the original FGJ program.
 
 
